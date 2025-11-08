@@ -1,8 +1,3 @@
-###########################################################
-# Connect BACKEND MAKEFILE
-# Backend Language: Go (Gin)
-# Database: PostgreSQL
-###########################################################
 include .env
 
 
@@ -11,16 +6,10 @@ APP_NAME=connect
 MAIN_PATH=cmd/api/server.go
 BINARY_PATH=bin/$(APP_NAME).exe
 
-# SECURITY: Database credentials must be set via environment variables
-# Set DATABASE_URL environment variable before running migration commands
-# Example: export DATABASE_URL="postgresql://user:pass@host:port/dbname?sslmode=require"
 ifndef DATABASE_URL
 $(warning WARNING: DATABASE_URL not set. Migration commands will fail. Set it in your environment or .env file)
 endif
 
-# ---------------------------------------------------------
-# DATABASE COMMANDS
-# ---------------------------------------------------------
 postgres:
 	@echo "Starting PostgreSQL Docker container..."
 	@if [ -z "$(POSTGRES_PASSWORD)" ]; then \
@@ -49,9 +38,6 @@ db-down:
 	-docker stop $(APP_NAME)-postgres
 	-docker rm $(APP_NAME)-postgres
 
-# ---------------------------------------------------------
-# DATABASE MIGRATIONS
-# ---------------------------------------------------------
 migrate-up:
 	@echo "Running all migrations..."
 	migrate -path migration -database "$(DATABASE_URL)" -verbose up
@@ -76,9 +62,6 @@ migrate-to:
 	@echo "Migrating to version $(VERSION)..."
 	migrate -path migration -database "$(DATABASE_URL)" goto $(VERSION)
 
-# ---------------------------------------------------------
-# CODE GENERATION
-# ---------------------------------------------------------
 sqlc:
 	@echo "Generating SQLC code..."
 	sqlc generate
@@ -94,9 +77,6 @@ proto:
 	       --go-grpc_out=pb --go-grpc_opt=paths=source_relative \
 	       proto/*.proto
 
-# ---------------------------------------------------------
-# BUILD & RUN
-# ---------------------------------------------------------
 build:
 	@echo "Building $(APP_NAME)..."
 	go build -o $(BINARY_PATH) $(MAIN_PATH)
@@ -114,11 +94,6 @@ run-dev:
 	@echo "Starting $(APP_NAME) in dev mode with hot reload..."
 	@air -c .air.toml || (echo "Air not installed. Run 'go install github.com/cosmtrek/air@latest'" && exit 1)
 
-# ---------------------------------------------------------
-# TESTING & QUALITY
-# Note: Tests use the database URL from test/db/test_helpers.go (defaults to localhost)
-# To override, set TEST_DATABASE_URL environment variable before running make test
-# ---------------------------------------------------------
 test:
 	@echo "Running all integration tests against PostgreSQL database..."
 	@echo "Database: $(TEST_DATABASE_URL)"
@@ -161,36 +136,24 @@ deps:
 	go mod download
 	go mod tidy
 
-# ---------------------------------------------------------
-# CLEANUP
-# ---------------------------------------------------------
 clean:
 	@echo "Cleaning up build artifacts..."
 	go clean
 	rm -rf bin/
 	@echo "Clean complete."
 
-# ---------------------------------------------------------
-# DATABASE DOCS (OPTIONAL)
-# ---------------------------------------------------------
 db_docs:
 	dbdocs build doc/db.dbml
 
 db_schema:
 	dbml2sql --postgres -o doc/schema.sql doc/db.dbml
 
-# ---------------------------------------------------------
-# TOOL INSTALLATION
-# ---------------------------------------------------------
 install-tools:
 	@echo "Installing dev tools..."
 	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
-# ---------------------------------------------------------
-# HELP
-# ---------------------------------------------------------
 help:
 	@echo "Available Makefile Commands:"
 	@echo "  make postgres         - Run PostgreSQL container"
