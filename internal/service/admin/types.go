@@ -117,7 +117,7 @@ type GetAllTutorApplicationsResponse struct {
 	UserID      uuid.UUID `json:"user_id"`
 }
 
-// Communities Management Types
+
 
 type CreateCommunityRequest struct {
 	SpaceID     uuid.UUID `json:"space_id"`
@@ -138,7 +138,7 @@ type UpdateCommunityRequest struct {
 	Settings    []byte
 }
 
-// Announcements Management Types
+
 
 type CreateAnnouncementRequest struct {
 	SpaceID        uuid.UUID  `json:"space_id"`
@@ -165,7 +165,7 @@ type UpdateAnnouncementRequest struct {
 	IsPinned       bool
 }
 
-// Events Management Types
+
 
 type CreateEventRequest struct {
 	SpaceID              uuid.UUID  `json:"space_id"`
@@ -202,7 +202,7 @@ type UpdateEventRequest struct {
 	IsPublic             bool
 }
 
-// User Management Types
+
 
 type CreateUserRequest struct {
 	SpaceID    uuid.UUID

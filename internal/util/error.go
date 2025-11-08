@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Custom error types
+
 var (
 	ErrNotFound           = errors.New("resource not found")
 	ErrConflict           = errors.New("resource already exists")
@@ -23,18 +23,18 @@ var (
 	ErrInvalidToken       = errors.New("invalid token")
 )
 
-// ErrorResponse represents API error response
+
 type ErrorResponse struct {
 	Error ErrorDetail `json:"error"`
 }
 
-// ErrorDetail contains error code and message
+
 type ErrorDetail struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
 
-// NewErrorResponse creates a new error response
+
 func NewErrorResponse(code, message string) ErrorResponse {
 	return ErrorResponse{
 		Error: ErrorDetail{
@@ -44,7 +44,7 @@ func NewErrorResponse(code, message string) ErrorResponse {
 	}
 }
 
-// HandleError maps application errors to HTTP responses
+
 func HandleError(c *gin.Context, err error) {
 	fmt.Println(err)
 
@@ -76,7 +76,7 @@ func HandleError(c *gin.Context, err error) {
 	case strings.Contains(errMsg, "invalid token"):
 		c.JSON(http.StatusUnauthorized, NewErrorResponse("invalid_token", "Invalid token"))
 	default:
-		// Check for database constraint violations
+		
 		if IsDuplicateKeyError(err) {
 			c.JSON(http.StatusConflict, NewErrorResponse("duplicate_key", "Resource already exists"))
 			return
@@ -85,17 +85,17 @@ func HandleError(c *gin.Context, err error) {
 	}
 }
 
-// IsDuplicateKeyError checks if error is a duplicate key constraint violation
+
 func IsDuplicateKeyError(err error) bool {
 	if err == nil {
 		return false
 	}
-	// PostgreSQL duplicate key error contains "duplicate key value violates unique constraint"
+	
 	errMsg := err.Error()
 	return contains(errMsg, "duplicate key value") || contains(errMsg, "UNIQUE constraint")
 }
 
-// contains checks if string contains substring (case-insensitive helper)
+
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(s) > len(substr) &&
 		(s[:len(substr)] == substr || s[len(s)-len(substr):] == substr ||
@@ -111,13 +111,13 @@ func findSubstring(s, substr string) bool {
 	return false
 }
 
-// SuccessResponse represents a successful API response
+
 type SuccessResponse struct {
 	Status string      `json:"status"`
 	Data   interface{} `json:"data"`
 }
 
-// NewSuccessResponse creates a success response
+
 func NewSuccessResponse(data interface{}) SuccessResponse {
 	return SuccessResponse{
 		Status: "success",
@@ -137,21 +137,21 @@ func NewSuccessErrorResponse(message string) SuccessErrorResponse {
 	}
 }
 
-// PaginatedResponse represents a paginated API response
+
 type PaginatedResponse struct {
 	Status string         `json:"status"`
 	Data   interface{}    `json:"data"`
 	Meta   PaginationMeta `json:"meta"`
 }
 
-// PaginationMeta contains pagination metadata
+
 type PaginationMeta struct {
 	Total int `json:"total"`
 	Page  int `json:"page"`
 	Limit int `json:"limit"`
 }
 
-// NewPaginatedResponse creates a paginated response
+
 func NewPaginatedResponse(data interface{}, total, page, limit int) PaginatedResponse {
 	return PaginatedResponse{
 		Status: "success",

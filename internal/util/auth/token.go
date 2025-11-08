@@ -9,17 +9,17 @@ import (
 	"time"
 )
 
-// HMACMaker is a simple token maker using HMAC-SHA256 over a JSON payload.
+
 type HMACMaker struct {
 	secretKey string
 }
 
-// NewHMACMaker returns a new HMACMaker.
+
 func NewHMACMaker(secret string) Maker {
 	return &HMACMaker{secretKey: secret}
 }
 
-// CreateToken creates a token with HMAC signature.
+
 func (m *HMACMaker) CreateToken(userID, username, spaceID string, duration time.Duration) (string, *Payload, error) {
 	payload, err := NewPayload(userID, username, spaceID, duration)
 	if err != nil {
@@ -35,7 +35,7 @@ func (m *HMACMaker) CreateToken(userID, username, spaceID string, duration time.
 	return token, payload, nil
 }
 
-// VerifyToken verifies token and returns payload.
+
 func (m *HMACMaker) VerifyToken(token string) (*Payload, error) {
 	parts := splitToken(token)
 	if len(parts) != 2 {
@@ -72,7 +72,7 @@ func (m *HMACMaker) sign(data []byte) []byte {
 func splitToken(tok string) []string {
 	var parts []string
 	for i := 0; i < len(tok); i++ {
-		// naive split on first '.' (should be fine for our format)
+		
 		if tok[i] == '.' {
 			parts = append(parts, tok[:i], tok[i+1:])
 			return parts

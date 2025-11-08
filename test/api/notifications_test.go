@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 )
 
 func TestCreateNotification(t *testing.T) {
@@ -81,8 +81,8 @@ func TestMarkNotificationAsRead(t *testing.T) {
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	token := ts.CreateAuthToken(t, user.ID)
 
-	// For this test, we'll use a mock notification ID
-	// In a real scenario, you'd create a notification first
+	
+	
 	notificationID := "550e8400-e29b-41d4-a716-446655440000"
 
 	testCases := []struct {
@@ -95,7 +95,7 @@ func TestMarkNotificationAsRead(t *testing.T) {
 			name:           "WithAuth",
 			notificationID: notificationID,
 			token:          token,
-			expectedCode:   http.StatusOK, // Or NotFound if notification doesn't exist
+			expectedCode:   http.StatusOK, 
 		},
 		{
 			name:           "NoAuth",
@@ -109,7 +109,7 @@ func TestMarkNotificationAsRead(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			url := fmt.Sprintf("/api/notifications/%s/read", tc.notificationID)
 			recorder := ts.MakeRequest(t, http.MethodPut, url, nil, tc.token)
-			// Accept either OK or NotFound as valid responses
+			
 			if recorder.Code != http.StatusOK && recorder.Code != http.StatusNotFound {
 				CheckResponseCode(t, recorder, tc.expectedCode)
 			}
@@ -161,7 +161,7 @@ func TestDeleteNotification(t *testing.T) {
 			name:           "WithAuth",
 			notificationID: notificationID,
 			token:          token,
-			expectedCode:   http.StatusOK, // Or NotFound
+			expectedCode:   http.StatusOK, 
 		},
 		{
 			name:           "NoAuth",
@@ -175,7 +175,7 @@ func TestDeleteNotification(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			url := fmt.Sprintf("/api/notifications/%s", tc.notificationID)
 			recorder := ts.MakeRequest(t, http.MethodDelete, url, nil, tc.token)
-			// Accept either OK or NotFound as valid responses
+			
 			if recorder.Code != http.StatusOK && recorder.Code != http.StatusNotFound {
 				CheckResponseCode(t, recorder, tc.expectedCode)
 			}

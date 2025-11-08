@@ -11,7 +11,7 @@ var (
 	usernameRegex = regexp.MustCompile(`^[a-zA-Z0-9_]{3,30}$`)
 )
 
-// ValidateEmail checks if email format is valid
+
 func ValidateEmail(email string) error {
 	if email == "" {
 		return errors.New("email is required")
@@ -22,7 +22,7 @@ func ValidateEmail(email string) error {
 	return nil
 }
 
-// ValidateUsername checks if username is valid
+
 func ValidateUsername(username string) error {
 	if username == "" {
 		return errors.New("username is required")
@@ -39,7 +39,7 @@ func ValidateUsername(username string) error {
 	return nil
 }
 
-// ValidatePassword checks if password meets strength requirements
+
 func ValidatePassword(password string) error {
 	if password == "" {
 		return errors.New("password is required")
@@ -87,7 +87,7 @@ func ValidatePassword(password string) error {
 	return nil
 }
 
-// ValidateFullName checks if full name is valid
+
 func ValidateFullName(name string) error {
 	if name == "" {
 		return errors.New("full name is required")

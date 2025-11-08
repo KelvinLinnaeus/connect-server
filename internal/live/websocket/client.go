@@ -10,7 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// NewClient creates a new WebSocket client
+
 func NewClient(conn *websocket.Conn, userID uuid.UUID, ipAddress string, manager *Manager) *Client {
 	ctx, cancel := context.WithCancel(context.Background())
 	now := time.Now()
@@ -31,7 +31,7 @@ func NewClient(conn *websocket.Conn, userID uuid.UUID, ipAddress string, manager
 	}
 }
 
-// ReadPump pumps messages from the WebSocket connection to the manager
+
 func (c *Client) ReadPump() {
 	defer func() {
 		c.Manager.Unregister(c)
@@ -62,7 +62,7 @@ func (c *Client) ReadPump() {
 			c.LastActivity = time.Now()
 			c.handleMessage(message)
 
-			// Update metrics
+			
 			c.Manager.metrics.mu.Lock()
 			c.Manager.metrics.MessagesReceived++
 			c.Manager.metrics.mu.Unlock()
@@ -70,7 +70,7 @@ func (c *Client) ReadPump() {
 	}
 }
 
-// WritePump pumps messages from the manager to the WebSocket connection
+
 func (c *Client) WritePump() {
 	ticker := time.NewTicker(PingPeriod)
 	defer func() {
@@ -86,7 +86,7 @@ func (c *Client) WritePump() {
 		case message, ok := <-c.Send:
 			c.Conn.SetWriteDeadline(time.Now().Add(WriteWait))
 			if !ok {
-				// Channel closed
+				
 				c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
@@ -97,7 +97,7 @@ func (c *Client) WritePump() {
 			}
 			w.Write(message)
 
-			// Add queued messages to the current WebSocket message
+			
 			n := len(c.Send)
 			for i := 0; i < n; i++ {
 				w.Write([]byte{'\n'})
@@ -108,7 +108,7 @@ func (c *Client) WritePump() {
 				return
 			}
 
-			// Update metrics
+			
 			c.Manager.metrics.mu.Lock()
 			c.Manager.metrics.MessagesSent++
 			c.Manager.metrics.mu.Unlock()
@@ -122,7 +122,7 @@ func (c *Client) WritePump() {
 	}
 }
 
-// handleMessage handles incoming client messages
+
 func (c *Client) handleMessage(data []byte) {
 	var msg ClientMessage
 	if err := json.Unmarshal(data, &msg); err != nil {
@@ -147,14 +147,14 @@ func (c *Client) handleMessage(data []byte) {
 	}
 }
 
-// handleSubscribe handles subscription requests
+
 func (c *Client) handleSubscribe(msg ClientMessage) {
 	if msg.Channel == "" {
 		c.sendError(msg.ID, "Channel is required for subscription")
 		return
 	}
 
-	// Validate channel access (basic validation, enhance as needed)
+	
 	if !c.canAccessChannel(msg.Channel) {
 		c.sendError(msg.ID, "Access denied to channel: "+msg.Channel)
 		log.Warn().
@@ -177,7 +177,7 @@ func (c *Client) handleSubscribe(msg ClientMessage) {
 		Msg("Client subscribed to channel")
 }
 
-// handleUnsubscribe handles unsubscription requests
+
 func (c *Client) handleUnsubscribe(msg ClientMessage) {
 	if msg.Channel == "" {
 		c.sendError(msg.ID, "Channel is required for unsubscription")
@@ -196,7 +196,7 @@ func (c *Client) handleUnsubscribe(msg ClientMessage) {
 		Msg("Client unsubscribed from channel")
 }
 
-// handlePing handles ping messages
+
 func (c *Client) handlePing(msg ClientMessage) {
 	c.sendMessage(ServerMessage{
 		Type:      MessageTypePong,
@@ -205,49 +205,49 @@ func (c *Client) handlePing(msg ClientMessage) {
 	})
 }
 
-// handleTyping handles typing indicator messages
+
 func (c *Client) handleTyping(msg ClientMessage) {
-	// Typing indicators are ephemeral and don't need persistence
-	// Broadcast to other participants in the channel
+	
+	
 	if msg.Channel == "" {
 		return
 	}
 
-	// TODO: Implement typing indicator broadcasting
-	// This would typically broadcast to other users in a conversation
+	
+	
 	log.Debug().
 		Str("client_id", c.ID).
 		Str("channel", msg.Channel).
 		Msg("Typing indicator received")
 }
 
-// handleReadReceipt handles read receipt messages
+
 func (c *Client) handleReadReceipt(msg ClientMessage) {
-	// TODO: Implement read receipt handling
-	// This would typically update message read status in the database
+	
+	
 	log.Debug().
 		Str("client_id", c.ID).
 		Str("channel", msg.Channel).
 		Msg("Read receipt received")
 }
 
-// canAccessChannel checks if the client has access to a channel
+
 func (c *Client) canAccessChannel(channel string) bool {
-	// Basic validation: users can subscribe to their own user channel
+	
 	if channel == Channel.User(c.UserID) {
 		return true
 	}
 
-	// TODO: Implement more sophisticated authorization:
-	// - Check if user is member of the space (for space: channels)
-	// - Check if user is participant in conversation (for conv: channels)
-	// - Check if user has access to post (for post: channels)
-	// For now, allow all subscriptions (to be enhanced)
+	
+	
+	
+	
+	
 
 	return true
 }
 
-// sendMessage sends a server message to the client
+
 func (c *Client) sendMessage(msg ServerMessage) {
 	data, err := json.Marshal(msg)
 	if err != nil {
@@ -264,7 +264,7 @@ func (c *Client) sendMessage(msg ServerMessage) {
 	}
 }
 
-// sendAck sends an acknowledgment message
+
 func (c *Client) sendAck(msgID, message string) {
 	c.sendMessage(ServerMessage{
 		Type:      MessageTypeAck,
@@ -274,7 +274,7 @@ func (c *Client) sendAck(msgID, message string) {
 	})
 }
 
-// sendError sends an error message
+
 func (c *Client) sendError(msgID, errorMsg string) {
 	c.sendMessage(ServerMessage{
 		Type:      MessageTypeError,
@@ -283,7 +283,7 @@ func (c *Client) sendError(msgID, errorMsg string) {
 		Timestamp: time.Now(),
 	})
 
-	// Update metrics
+	
 	c.Manager.metrics.mu.Lock()
 	c.Manager.metrics.Errors++
 	c.Manager.metrics.LastError = errorMsg

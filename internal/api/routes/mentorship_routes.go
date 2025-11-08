@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"github.com/connect-univyn/connect_server/internal/api/handlers"
-	"github.com/connect-univyn/connect_server/internal/api/middleware"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/api/handlers"
+	"github.com/connect-univyn/connect-server/internal/api/middleware"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,17 +16,17 @@ func SetupMentorshipRoutes(
 	mentorship := r.Group("/mentorship")
 	mentorship.Use(middleware.RateLimitMiddleware(rateLimitDefault))
 	{
-		// ========================================================================
-		// Mentor Profile Routes
-		// ========================================================================
+		
+		
+		
 		mentors := mentorship.Group("/mentors")
 		{
-			// Public routes
+			
 			mentors.GET("/search", mentorshipHandler.SearchMentors)
 			mentors.GET("/profile/:id", mentorshipHandler.GetMentorProfile)
 			mentors.GET("/:id/reviews", mentorshipHandler.GetMentorReviews)
 
-			// Protected routes
+			
 			mentorsAuth := mentors.Group("")
 			mentorsAuth.Use(middleware.AuthMiddleware(tokenMaker))
 			{
@@ -36,14 +36,14 @@ func SetupMentorshipRoutes(
 				mentorsAuth.GET("/recommended", mentorshipHandler.GetRecommendedMentors)
 			}
 
-			// Mentor Application Routes
+			
 			applications := mentors.Group("/applications")
 			{
-				// Public routes
+				
 				applications.GET("/:id", mentorshipHandler.GetMentorApplication)
 				applications.GET("/pending", mentorshipHandler.GetPendingMentorApplications)
 
-				// Protected routes
+				
 				applicationsAuth := applications.Group("")
 				applicationsAuth.Use(middleware.AuthMiddleware(tokenMaker))
 				{
@@ -54,17 +54,17 @@ func SetupMentorshipRoutes(
 			}
 		}
 
-		// ========================================================================
-		// Tutor Profile Routes
-		// ========================================================================
+		
+		
+		
 		tutors := mentorship.Group("/tutors")
 		{
-			// Public routes
+			
 			tutors.GET("/search", mentorshipHandler.SearchTutors)
 			tutors.GET("/profile/:id", mentorshipHandler.GetTutorProfile)
 			tutors.GET("/:id/reviews", mentorshipHandler.GetTutorReviews)
 
-			// Protected routes
+			
 			tutorsAuth := tutors.Group("")
 			tutorsAuth.Use(middleware.AuthMiddleware(tokenMaker))
 			{
@@ -74,14 +74,14 @@ func SetupMentorshipRoutes(
 				tutorsAuth.GET("/recommended", mentorshipHandler.GetRecommendedTutors)
 			}
 
-			// Tutor Application Routes
+			
 			applications := tutors.Group("/applications")
 			{
-				// Public routes
+				
 				applications.GET("/:id", mentorshipHandler.GetTutorApplication)
 				applications.GET("/pending", mentorshipHandler.GetPendingTutorApplications)
 
-				// Protected routes
+				
 				applicationsAuth := applications.Group("")
 				applicationsAuth.Use(middleware.AuthMiddleware(tokenMaker))
 				{
@@ -92,15 +92,15 @@ func SetupMentorshipRoutes(
 			}
 		}
 
-		// ========================================================================
-		// Mentoring Session Routes
-		// ========================================================================
+		
+		
+		
 		mentoringSessions := mentorship.Group("/mentoring/sessions")
 		{
-			// Public routes
+			
 			mentoringSessions.GET("/:id", mentorshipHandler.GetMentoringSession)
 
-			// Protected routes
+			
 			mentoringAuth := mentoringSessions.Group("")
 			mentoringAuth.Use(middleware.AuthMiddleware(tokenMaker))
 			{
@@ -112,15 +112,15 @@ func SetupMentorshipRoutes(
 			}
 		}
 
-		// ========================================================================
-		// Tutoring Session Routes
-		// ========================================================================
+		
+		
+		
 		tutoringSessions := mentorship.Group("/tutoring/sessions")
 		{
-			// Public routes
+			
 			tutoringSessions.GET("/:id", mentorshipHandler.GetTutoringSession)
 
-			// Protected routes
+			
 			tutoringAuth := tutoringSessions.Group("")
 			tutoringAuth.Use(middleware.AuthMiddleware(tokenMaker))
 			{

@@ -7,11 +7,11 @@ import (
 )
 
 var (
-	// Slug pattern: lowercase letters, numbers, and hyphens only
+	
 	slugPattern = regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*$`)
 )
 
-// ValidateName validates the space name
+
 func ValidateName(name string) error {
 	name = strings.TrimSpace(name)
 	if len(name) < 2 {
@@ -23,7 +23,7 @@ func ValidateName(name string) error {
 	return nil
 }
 
-// ValidateSlug validates the space slug
+
 func ValidateSlug(slug string) error {
 	slug = strings.TrimSpace(slug)
 	if len(slug) < 2 {

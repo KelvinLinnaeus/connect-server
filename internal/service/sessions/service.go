@@ -6,23 +6,23 @@ import (
 	"fmt"
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
 	"github.com/google/uuid"
 )
 
-// Service handles session-related business logic
+
 type Service struct {
 	store db.Store
 }
 
-// NewService creates a new sessions service
+
 func NewService(store db.Store) *Service {
 	return &Service{
 		store: store,
 	}
 }
 
-// GetSession retrieves a session by ID
+
 func (s *Service) GetSession(ctx context.Context, sessionID uuid.UUID) (*SessionResponse, error) {
 	session, err := s.store.GetSession(ctx, sessionID)
 	if err != nil {
@@ -35,7 +35,7 @@ func (s *Service) GetSession(ctx context.Context, sessionID uuid.UUID) (*Session
 	return s.toSessionResponse(session), nil
 }
 
-// CreateSession creates a new session
+
 func (s *Service) CreateSession(ctx context.Context, req CreateSessionRequest) (*SessionResponse, error) {
 	sessionID, err := uuid.NewRandom()
 	if err != nil {
@@ -66,7 +66,7 @@ func (s *Service) CreateSession(ctx context.Context, req CreateSessionRequest) (
 	return s.toSessionResponse(session), nil
 }
 
-// toSessionResponse converts a database UserSession to SessionResponse
+
 func (s *Service) toSessionResponse(session db.UserSession) *SessionResponse {
 	resp := &SessionResponse{
 		ID:        session.ID,

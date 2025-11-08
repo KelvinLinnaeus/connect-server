@@ -7,9 +7,9 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
-// CreatePostRequest represents request to create a new post
+
 type CreatePostRequest struct {
-	AuthorID     uuid.UUID              `json:"author_id"` // Set from auth context, not from request
+	AuthorID     uuid.UUID              `json:"author_id"` 
 	SpaceID      uuid.UUID              `json:"space_id" binding:"required"`
 	CommunityID  *uuid.UUID             `json:"community_id,omitempty"`
 	GroupID      *uuid.UUID             `json:"group_id,omitempty"`
@@ -18,34 +18,34 @@ type CreatePostRequest struct {
 	Content      string                 `json:"content" binding:"required,min=1,max=5000"`
 	Media        *pqtype.NullRawMessage `json:"media,omitempty"`
 	Tags         []string               `json:"tags,omitempty"`
-	Visibility   string                 `json:"visibility,omitempty"` // public, followers, private
+	Visibility   string                 `json:"visibility,omitempty"` 
 }
 
-// UpdatePostRequest represents request to update a post
+
 type UpdatePostRequest struct {
 	Content    *string  `json:"content,omitempty"`
 	Tags       []string `json:"tags,omitempty"`
 	Visibility *string  `json:"visibility,omitempty"`
 }
 
-// CreateCommentRequest represents request to create a comment
+
 type CreateCommentRequest struct {
-	PostID          uuid.UUID  `json:"post_id"` // Set from URL param
-	AuthorID        uuid.UUID  `json:"author_id"` // Set from auth context
+	PostID          uuid.UUID  `json:"post_id"` 
+	AuthorID        uuid.UUID  `json:"author_id"` 
 	ParentCommentID *uuid.UUID `json:"parent_comment_id,omitempty"`
 	Content         string     `json:"content" binding:"required,min=1,max=1000"`
 }
 
-// CreateRepostRequest represents request to create a repost
+
 type CreateRepostParams struct {
-	AuthorID     uuid.UUID  `json:"author_id"` // Set from auth context
-	SpaceID      uuid.UUID  `json:"space_id"` // Set from auth context
-	QuotedPostID *uuid.UUID `json:"quoted_post_id"` // Set from URL param
+	AuthorID     uuid.UUID  `json:"author_id"` 
+	SpaceID      uuid.UUID  `json:"space_id"` 
+	QuotedPostID *uuid.UUID `json:"quoted_post_id"` 
 	Content      string     `json:"content,omitempty"`
 	Visibility   string     `json:"visibility,omitempty"`
 }
 
-// PostResponse represents a post in API responses
+
 type PostResponse struct {
 	ID               uuid.UUID              `json:"id"`
 	AuthorID         uuid.UUID              `json:"author_id"`
@@ -82,7 +82,7 @@ type PostResponse struct {
 	EngagementScore  *int32                 `json:"engagement_score,omitempty"`
 }
 
-// CommentResponse represents a comment in API responses
+
 type CommentResponse struct {
 	ID              uuid.UUID  `json:"id"`
 	PostID          uuid.UUID  `json:"post_id"`
@@ -99,7 +99,7 @@ type CommentResponse struct {
 	Depth           *int32     `json:"depth,omitempty"`
 }
 
-// UserLikeResponse represents a user who liked a post
+
 type UserLikeResponse struct {
 	ID        uuid.UUID  `json:"id"`
 	Username  string     `json:"username"`
@@ -108,14 +108,14 @@ type UserLikeResponse struct {
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 }
 
-// ListPostsParams represents parameters for listing posts
+
 type ListPostsParams struct {
 	Page   int    `json:"page"`
 	Limit  int    `json:"limit"`
-	SortBy string `json:"sort_by,omitempty"` // created_at, likes_count, etc.
+	SortBy string `json:"sort_by,omitempty"` 
 }
 
-// SearchPostsParams represents parameters for searching posts
+
 type SearchPostsParams struct {
 	Query   string    `json:"query" binding:"required"`
 	SpaceID uuid.UUID `json:"space_id" binding:"required"`
@@ -123,7 +123,7 @@ type SearchPostsParams struct {
 	Limit   int       `json:"limit"`
 }
 
-// TrendingTopicResponse represents a trending topic/hashtag
+
 type TrendingTopicResponse struct {
 	ID         string `json:"id"`
 	Name       string `json:"name"`

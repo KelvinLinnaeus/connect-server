@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/connect-univyn/connect_server/internal/service/mentorship"
-	"github.com/connect-univyn/connect_server/internal/util"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/service/mentorship"
+	"github.com/connect-univyn/connect-server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -21,17 +21,17 @@ func NewMentorshipHandler(mentorshipService *mentorship.Service) *MentorshipHand
 	}
 }
 
-// ============================================================================
-// Mentor Profile Operations
-// ============================================================================
 
-// CreateMentorProfile godoc
-// @Summary Create mentor profile
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Router /api/mentorship/mentors/profile [post]
+
+
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) CreateMentorProfile(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -62,12 +62,12 @@ func (h *MentorshipHandler) CreateMentorProfile(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(profile))
 }
 
-// GetMentorProfile godoc
-// @Summary Get mentor profile by ID
-// @Tags mentorship
-// @Produce json
-// @Param id path string true "Mentor Profile ID"
-// @Router /api/mentorship/mentors/profile/:id [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetMentorProfile(c *gin.Context) {
 	profileID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -84,14 +84,14 @@ func (h *MentorshipHandler) GetMentorProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(profile))
 }
 
-// UpdateMentorAvailability godoc
-// @Summary Update mentor availability
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Mentor Profile ID"
-// @Router /api/mentorship/mentors/profile/:id/availability [put]
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) UpdateMentorAvailability(c *gin.Context) {
 	profileID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -114,17 +114,17 @@ func (h *MentorshipHandler) UpdateMentorAvailability(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(profile))
 }
 
-// SearchMentors godoc
-// @Summary Search mentors
-// @Tags mentorship
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Param industry query string false "Industry filter"
-// @Param specialties query string false "Comma-separated specialties"
-// @Param min_rating query number false "Minimum rating"
-// @Param page query int false "Page number"
-// @Param limit query int false "Items per page"
-// @Router /api/mentorship/mentors/search [get]
+
+
+
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) SearchMentors(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -180,12 +180,12 @@ func (h *MentorshipHandler) SearchMentors(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(mentors))
 }
 
-// GetMentorReviews godoc
-// @Summary Get mentor reviews
-// @Tags mentorship
-// @Produce json
-// @Param id path string true "Mentor ID"
-// @Router /api/mentorship/mentors/:id/reviews [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetMentorReviews(c *gin.Context) {
 	mentorID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -202,17 +202,17 @@ func (h *MentorshipHandler) GetMentorReviews(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(reviews))
 }
 
-// ============================================================================
-// Tutor Profile Operations
-// ============================================================================
 
-// CreateTutorProfile godoc
-// @Summary Create tutor profile
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Router /api/mentorship/tutors/profile [post]
+
+
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) CreateTutorProfile(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -243,12 +243,12 @@ func (h *MentorshipHandler) CreateTutorProfile(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(profile))
 }
 
-// GetTutorProfile godoc
-// @Summary Get tutor profile by ID
-// @Tags mentorship
-// @Produce json
-// @Param id path string true "Tutor Profile ID"
-// @Router /api/mentorship/tutors/profile/:id [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetTutorProfile(c *gin.Context) {
 	profileID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -265,14 +265,14 @@ func (h *MentorshipHandler) GetTutorProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(profile))
 }
 
-// UpdateTutorAvailability godoc
-// @Summary Update tutor availability
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Tutor Profile ID"
-// @Router /api/mentorship/tutors/profile/:id/availability [put]
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) UpdateTutorAvailability(c *gin.Context) {
 	profileID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -295,17 +295,17 @@ func (h *MentorshipHandler) UpdateTutorAvailability(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(profile))
 }
 
-// SearchTutors godoc
-// @Summary Search tutors
-// @Tags mentorship
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Param subject query string false "Subject filter"
-// @Param max_rate query string false "Maximum hourly rate"
-// @Param min_rating query number false "Minimum rating"
-// @Param page query int false "Page number"
-// @Param limit query int false "Items per page"
-// @Router /api/mentorship/tutors/search [get]
+
+
+
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) SearchTutors(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -361,12 +361,12 @@ func (h *MentorshipHandler) SearchTutors(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(tutors))
 }
 
-// GetTutorReviews godoc
-// @Summary Get tutor reviews
-// @Tags mentorship
-// @Produce json
-// @Param id path string true "Tutor ID"
-// @Router /api/mentorship/tutors/:id/reviews [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetTutorReviews(c *gin.Context) {
 	tutorID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -383,17 +383,17 @@ func (h *MentorshipHandler) GetTutorReviews(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(reviews))
 }
 
-// ============================================================================
-// Mentoring Session Operations
-// ============================================================================
 
-// CreateMentoringSession godoc
-// @Summary Create mentoring session
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Router /api/mentorship/mentoring/sessions [post]
+
+
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) CreateMentoringSession(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -424,12 +424,12 @@ func (h *MentorshipHandler) CreateMentoringSession(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(session))
 }
 
-// GetMentoringSession godoc
-// @Summary Get mentoring session by ID
-// @Tags mentorship
-// @Produce json
-// @Param id path string true "Session ID"
-// @Router /api/mentorship/mentoring/sessions/:id [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetMentoringSession(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -446,15 +446,15 @@ func (h *MentorshipHandler) GetMentoringSession(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(session))
 }
 
-// GetUserMentoringSessions godoc
-// @Summary Get user's mentoring sessions
-// @Tags mentorship
-// @Produce json
-// @Security BearerAuth
-// @Param space_id query string true "Space ID"
-// @Param page query int false "Page number"
-// @Param limit query int false "Items per page"
-// @Router /api/mentorship/mentoring/sessions [get]
+
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) GetUserMentoringSessions(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -504,14 +504,14 @@ func (h *MentorshipHandler) GetUserMentoringSessions(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(sessions))
 }
 
-// UpdateMentoringSessionStatus godoc
-// @Summary Update mentoring session status
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Session ID"
-// @Router /api/mentorship/mentoring/sessions/:id/status [put]
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) UpdateMentoringSessionStatus(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -535,14 +535,14 @@ func (h *MentorshipHandler) UpdateMentoringSessionStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(map[string]string{"message": "Session status updated successfully"}))
 }
 
-// AddMentoringSessionMeetingLink godoc
-// @Summary Add meeting link to mentoring session
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Session ID"
-// @Router /api/mentorship/mentoring/sessions/:id/meeting-link [put]
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) AddMentoringSessionMeetingLink(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -566,14 +566,14 @@ func (h *MentorshipHandler) AddMentoringSessionMeetingLink(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(map[string]string{"message": "Meeting link added successfully"}))
 }
 
-// RateMentoringSession godoc
-// @Summary Rate mentoring session
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Session ID"
-// @Router /api/mentorship/mentoring/sessions/:id/rate [post]
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) RateMentoringSession(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -595,17 +595,17 @@ func (h *MentorshipHandler) RateMentoringSession(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(map[string]string{"message": "Session rated successfully"}))
 }
 
-// ============================================================================
-// Tutoring Session Operations
-// ============================================================================
 
-// CreateTutoringSession godoc
-// @Summary Create tutoring session
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Router /api/mentorship/tutoring/sessions [post]
+
+
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) CreateTutoringSession(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -636,12 +636,12 @@ func (h *MentorshipHandler) CreateTutoringSession(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(session))
 }
 
-// GetTutoringSession godoc
-// @Summary Get tutoring session by ID
-// @Tags mentorship
-// @Produce json
-// @Param id path string true "Session ID"
-// @Router /api/mentorship/tutoring/sessions/:id [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetTutoringSession(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -658,15 +658,15 @@ func (h *MentorshipHandler) GetTutoringSession(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(session))
 }
 
-// GetUserTutoringSessions godoc
-// @Summary Get user's tutoring sessions
-// @Tags mentorship
-// @Produce json
-// @Security BearerAuth
-// @Param space_id query string true "Space ID"
-// @Param page query int false "Page number"
-// @Param limit query int false "Items per page"
-// @Router /api/mentorship/tutoring/sessions [get]
+
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) GetUserTutoringSessions(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -716,14 +716,14 @@ func (h *MentorshipHandler) GetUserTutoringSessions(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(sessions))
 }
 
-// UpdateTutoringSessionStatus godoc
-// @Summary Update tutoring session status
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Session ID"
-// @Router /api/mentorship/tutoring/sessions/:id/status [put]
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) UpdateTutoringSessionStatus(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -747,14 +747,14 @@ func (h *MentorshipHandler) UpdateTutoringSessionStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(map[string]string{"message": "Session status updated successfully"}))
 }
 
-// AddTutoringSessionMeetingLink godoc
-// @Summary Add meeting link to tutoring session
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Session ID"
-// @Router /api/mentorship/tutoring/sessions/:id/meeting-link [put]
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) AddTutoringSessionMeetingLink(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -778,14 +778,14 @@ func (h *MentorshipHandler) AddTutoringSessionMeetingLink(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(map[string]string{"message": "Meeting link added successfully"}))
 }
 
-// RateTutoringSession godoc
-// @Summary Rate tutoring session
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Session ID"
-// @Router /api/mentorship/tutoring/sessions/:id/rate [post]
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) RateTutoringSession(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -807,17 +807,17 @@ func (h *MentorshipHandler) RateTutoringSession(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(map[string]string{"message": "Session rated successfully"}))
 }
 
-// ============================================================================
-// Mentor Application Operations
-// ============================================================================
 
-// CreateMentorApplication godoc
-// @Summary Create mentor application
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Router /api/mentorship/mentors/applications [post]
+
+
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) CreateMentorApplication(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -848,12 +848,12 @@ func (h *MentorshipHandler) CreateMentorApplication(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(application))
 }
 
-// GetMentorApplication godoc
-// @Summary Get mentor application by ID
-// @Tags mentorship
-// @Produce json
-// @Param id path string true "Application ID"
-// @Router /api/mentorship/mentors/applications/:id [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetMentorApplication(c *gin.Context) {
 	applicationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -870,14 +870,14 @@ func (h *MentorshipHandler) GetMentorApplication(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(application))
 }
 
-// UpdateMentorApplication godoc
-// @Summary Update mentor application (approve/reject)
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Application ID"
-// @Router /api/mentorship/mentors/applications/:id [put]
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) UpdateMentorApplication(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -913,12 +913,12 @@ func (h *MentorshipHandler) UpdateMentorApplication(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(application))
 }
 
-// GetPendingMentorApplications godoc
-// @Summary Get pending mentor applications
-// @Tags mentorship
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/mentorship/mentors/applications/pending [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetPendingMentorApplications(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -935,17 +935,17 @@ func (h *MentorshipHandler) GetPendingMentorApplications(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(applications))
 }
 
-// ============================================================================
-// Tutor Application Operations
-// ============================================================================
 
-// CreateTutorApplication godoc
-// @Summary Create tutor application
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Router /api/mentorship/tutors/applications [post]
+
+
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) CreateTutorApplication(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -976,12 +976,12 @@ func (h *MentorshipHandler) CreateTutorApplication(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(application))
 }
 
-// GetTutorApplication godoc
-// @Summary Get tutor application by ID
-// @Tags mentorship
-// @Produce json
-// @Param id path string true "Application ID"
-// @Router /api/mentorship/tutors/applications/:id [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetTutorApplication(c *gin.Context) {
 	applicationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -998,14 +998,14 @@ func (h *MentorshipHandler) GetTutorApplication(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(application))
 }
 
-// UpdateTutorApplication godoc
-// @Summary Update tutor application (approve/reject)
-// @Tags mentorship
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Application ID"
-// @Router /api/mentorship/tutors/applications/:id [put]
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) UpdateTutorApplication(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -1041,12 +1041,12 @@ func (h *MentorshipHandler) UpdateTutorApplication(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(application))
 }
 
-// GetPendingTutorApplications godoc
-// @Summary Get pending tutor applications
-// @Tags mentorship
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/mentorship/tutors/applications/pending [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetPendingTutorApplications(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -1063,16 +1063,16 @@ func (h *MentorshipHandler) GetPendingTutorApplications(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(applications))
 }
 
-// ============================================================================
-// Current User Status Operations
-// ============================================================================
 
-// GetMyMentorProfile godoc
-// @Summary Get current user's mentor profile
-// @Tags mentorship
-// @Produce json
-// @Security BearerAuth
-// @Router /api/mentorship/mentors/my-profile [get]
+
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) GetMyMentorProfile(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -1096,12 +1096,12 @@ func (h *MentorshipHandler) GetMyMentorProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(profile))
 }
 
-// GetMyTutorProfile godoc
-// @Summary Get current user's tutor profile
-// @Tags mentorship
-// @Produce json
-// @Security BearerAuth
-// @Router /api/mentorship/tutors/my-profile [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetMyTutorProfile(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -1125,12 +1125,12 @@ func (h *MentorshipHandler) GetMyTutorProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(profile))
 }
 
-// GetMyMentorApplication godoc
-// @Summary Get current user's mentor application status
-// @Tags mentorship
-// @Produce json
-// @Security BearerAuth
-// @Router /api/mentorship/mentors/my-application [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetMyMentorApplication(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -1160,12 +1160,12 @@ func (h *MentorshipHandler) GetMyMentorApplication(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(application))
 }
 
-// GetMyTutorApplication godoc
-// @Summary Get current user's tutor application status
-// @Tags mentorship
-// @Produce json
-// @Security BearerAuth
-// @Router /api/mentorship/tutors/my-application [get]
+
+
+
+
+
+
 func (h *MentorshipHandler) GetMyTutorApplication(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -1196,18 +1196,18 @@ func (h *MentorshipHandler) GetMyTutorApplication(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(application))
 }
 
-// ============================================================================
-// Recommendation Operations
-// ============================================================================
 
-// GetRecommendedTutors godoc
-// @Summary Get recommended tutors for the current user
-// @Tags mentorship
-// @Produce json
-// @Security BearerAuth
-// @Param space_id query string true "Space ID"
-// @Param limit query int false "Limit (default: 5)"
-// @Router /api/mentorship/tutors/recommended [get]
+
+
+
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) GetRecommendedTutors(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -1247,14 +1247,14 @@ func (h *MentorshipHandler) GetRecommendedTutors(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(tutors))
 }
 
-// GetRecommendedMentors godoc
-// @Summary Get recommended mentors for the current user
-// @Tags mentorship
-// @Produce json
-// @Security BearerAuth
-// @Param space_id query string true "Space ID"
-// @Param limit query int false "Limit (default: 5)"
-// @Router /api/mentorship/mentors/recommended [get]
+
+
+
+
+
+
+
+
 func (h *MentorshipHandler) GetRecommendedMentors(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {

@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/connect-univyn/connect_server/internal/util/auth"
-	"github.com/connect-univyn/connect_server/internal/service/analytics"
-	"github.com/connect-univyn/connect_server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/service/analytics"
+	"github.com/connect-univyn/connect-server/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -21,17 +21,17 @@ func NewAnalyticsHandler(analyticsService *analytics.Service) *AnalyticsHandler 
 	}
 }
 
-// ============================================================================
-// Content Moderation & Reporting Handlers
-// ============================================================================
 
-// CreateReport godoc
-// @Summary Submit a content report
-// @Tags analytics
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Router /api/analytics/reports [post]
+
+
+
+
+
+
+
+
+
+
 func (h *AnalyticsHandler) CreateReport(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -62,12 +62,12 @@ func (h *AnalyticsHandler) CreateReport(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(report))
 }
 
-// GetReport godoc
-// @Summary Get report by ID
-// @Tags analytics
-// @Produce json
-// @Param id path string true "Report ID"
-// @Router /api/analytics/reports/:id [get]
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetReport(c *gin.Context) {
 	reportID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -84,13 +84,13 @@ func (h *AnalyticsHandler) GetReport(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(report))
 }
 
-// GetReportsByContent godoc
-// @Summary Get reports for specific content
-// @Tags analytics
-// @Produce json
-// @Param content_type query string true "Content type"
-// @Param content_id query string true "Content ID"
-// @Router /api/analytics/reports/by-content [get]
+
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetReportsByContent(c *gin.Context) {
 	contentType := c.Query("content_type")
 	if contentType == "" {
@@ -113,14 +113,14 @@ func (h *AnalyticsHandler) GetReportsByContent(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(reports))
 }
 
-// GetModerationQueue godoc
-// @Summary Get moderation queue
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Param page query int false "Page number"
-// @Param limit query int false "Items per page"
-// @Router /api/analytics/moderation/queue [get]
+
+
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetModerationQueue(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -157,12 +157,12 @@ func (h *AnalyticsHandler) GetModerationQueue(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(reports))
 }
 
-// GetPendingReports godoc
-// @Summary Get pending reports
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/reports/pending [get]
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetPendingReports(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -179,14 +179,14 @@ func (h *AnalyticsHandler) GetPendingReports(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(reports))
 }
 
-// UpdateReport godoc
-// @Summary Update report (moderate)
-// @Tags analytics
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Report ID"
-// @Router /api/analytics/reports/:id [put]
+
+
+
+
+
+
+
+
 func (h *AnalyticsHandler) UpdateReport(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -222,12 +222,12 @@ func (h *AnalyticsHandler) UpdateReport(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(report))
 }
 
-// GetContentModerationStats godoc
-// @Summary Get moderation statistics
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/moderation/stats [get]
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetContentModerationStats(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -244,16 +244,16 @@ func (h *AnalyticsHandler) GetContentModerationStats(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(stats))
 }
 
-// ============================================================================
-// System & Space Metrics Handlers
-// ============================================================================
 
-// GetSystemMetrics godoc
-// @Summary Get current system metrics
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/metrics/system [get]
+
+
+
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetSystemMetrics(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -270,12 +270,12 @@ func (h *AnalyticsHandler) GetSystemMetrics(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(metrics))
 }
 
-// GetSpaceStats godoc
-// @Summary Get space statistics
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/metrics/space [get]
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetSpaceStats(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -292,16 +292,16 @@ func (h *AnalyticsHandler) GetSpaceStats(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(stats))
 }
 
-// ============================================================================
-// Engagement & Activity Handlers
-// ============================================================================
 
-// GetEngagementMetrics godoc
-// @Summary Get engagement metrics over time
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/engagement/metrics [get]
+
+
+
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetEngagementMetrics(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -318,12 +318,12 @@ func (h *AnalyticsHandler) GetEngagementMetrics(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(metrics))
 }
 
-// GetUserActivityStats godoc
-// @Summary Get user activity statistics
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/activity/stats [get]
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetUserActivityStats(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -340,12 +340,12 @@ func (h *AnalyticsHandler) GetUserActivityStats(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(stats))
 }
 
-// GetUserGrowth godoc
-// @Summary Get user growth over time
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/users/growth [get]
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetUserGrowth(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -362,12 +362,12 @@ func (h *AnalyticsHandler) GetUserGrowth(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(growth))
 }
 
-// GetUserEngagementRanking godoc
-// @Summary Get top users by engagement
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/users/ranking [get]
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetUserEngagementRanking(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -384,16 +384,16 @@ func (h *AnalyticsHandler) GetUserEngagementRanking(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(ranking))
 }
 
-// ============================================================================
-// Top Content Handlers
-// ============================================================================
 
-// GetTopPosts godoc
-// @Summary Get most engaging posts
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/top/posts [get]
+
+
+
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetTopPosts(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -410,12 +410,12 @@ func (h *AnalyticsHandler) GetTopPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(posts))
 }
 
-// GetTopCommunities godoc
-// @Summary Get most engaging communities
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/top/communities [get]
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetTopCommunities(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -432,12 +432,12 @@ func (h *AnalyticsHandler) GetTopCommunities(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(communities))
 }
 
-// GetTopGroups godoc
-// @Summary Get most active groups
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/top/groups [get]
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetTopGroups(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -454,16 +454,16 @@ func (h *AnalyticsHandler) GetTopGroups(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(groups))
 }
 
-// ============================================================================
-// Mentorship Analytics Handlers
-// ============================================================================
 
-// GetMentoringStats godoc
-// @Summary Get mentoring statistics
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/mentorship/mentoring [get]
+
+
+
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetMentoringStats(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -480,12 +480,12 @@ func (h *AnalyticsHandler) GetMentoringStats(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(stats))
 }
 
-// GetTutoringStats godoc
-// @Summary Get tutoring statistics
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/mentorship/tutoring [get]
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetTutoringStats(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -502,12 +502,12 @@ func (h *AnalyticsHandler) GetTutoringStats(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(stats))
 }
 
-// GetPopularIndustries godoc
-// @Summary Get popular mentoring industries
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/mentorship/industries [get]
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetPopularIndustries(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -524,12 +524,12 @@ func (h *AnalyticsHandler) GetPopularIndustries(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(industries))
 }
 
-// GetPopularSubjects godoc
-// @Summary Get popular tutoring subjects
-// @Tags analytics
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/analytics/mentorship/subjects [get]
+
+
+
+
+
+
 func (h *AnalyticsHandler) GetPopularSubjects(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {

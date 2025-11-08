@@ -5,20 +5,20 @@ import (
 	"database/sql"
 	"fmt"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	"github.com/connect-univyn/connect_server/internal/live"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	"github.com/connect-univyn/connect-server/internal/live"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"github.com/sqlc-dev/pqtype"
 )
 
-// Service handles post-related business logic
+
 type Service struct {
 	store       db.Store
 	liveService *live.Service
 }
 
-// NewService creates a new posts service
+
 func NewService(store db.Store, liveService *live.Service) *Service {
 	return &Service{
 		store:       store,
@@ -26,7 +26,7 @@ func NewService(store db.Store, liveService *live.Service) *Service {
 	}
 }
 
-// Helper function to convert interface{} from COALESCE to string pointer
+
 func interfaceToStringPtr(val interface{}) *string {
 	if val == nil {
 		return nil
@@ -37,7 +37,7 @@ func interfaceToStringPtr(val interface{}) *string {
 	return nil
 }
 
-// CreatePost creates a new post
+
 func (s *Service) CreatePost(ctx context.Context, req CreatePostRequest) (*PostResponse, error) {
 	var communityID, groupID, parentPostID, quotedPostID uuid.NullUUID
 	var visibility sql.NullString
@@ -88,7 +88,7 @@ func (s *Service) CreatePost(ctx context.Context, req CreatePostRequest) (*PostR
 
 	response := s.toPostResponse(post)
 
-	// Publish real-time event for post creation
+	
 	if s.liveService != nil {
 		postPayload := map[string]interface{}{
 			"id":         post.ID.String(),
@@ -117,7 +117,7 @@ func (s *Service) CreatePost(ctx context.Context, req CreatePostRequest) (*PostR
 	return response, nil
 }
 
-// GetPostByID retrieves a post by ID with detailed information
+
 func (s *Service) GetPostByID(ctx context.Context, postID uuid.UUID, userID uuid.UUID) (*PostResponse, error) {
 	post, err := s.store.GetPostByID(ctx, db.GetPostByIDParams{
 		UserID: userID,
@@ -133,7 +133,7 @@ func (s *Service) GetPostByID(ctx context.Context, postID uuid.UUID, userID uuid
 	return s.toDetailedPostResponse(post), nil
 }
 
-// DeletePost soft-deletes a post
+
 func (s *Service) DeletePost(ctx context.Context, postID uuid.UUID, authorID uuid.UUID) error {
 	err := s.store.DeletePost(ctx, db.DeletePostParams{
 		ID:       postID,
@@ -145,7 +145,7 @@ func (s *Service) DeletePost(ctx context.Context, postID uuid.UUID, authorID uui
 	return nil
 }
 
-// GetUserPosts retrieves all posts by a specific user
+
 func (s *Service) GetUserPosts(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*PostResponse, error) {
 	posts, err := s.store.GetUserPosts(ctx, db.GetUserPostsParams{
 		UserID: userID,
@@ -159,7 +159,7 @@ func (s *Service) GetUserPosts(ctx context.Context, userID uuid.UUID, limit, off
 	return s.toUserPostResponses(posts), nil
 }
 
-// GetUserFeed retrieves personalized feed for a user
+
 func (s *Service) GetUserFeed(ctx context.Context, userID uuid.UUID, spaceID uuid.UUID, limit, offset int32) ([]*PostResponse, error) {
 	posts, err := s.store.GetUserFeed(ctx, db.GetUserFeedParams{
 		UserID:  userID,
@@ -174,7 +174,7 @@ func (s *Service) GetUserFeed(ctx context.Context, userID uuid.UUID, spaceID uui
 	return s.toUserFeedResponses(posts), nil
 }
 
-// GetCommunityPosts retrieves posts from a specific community
+
 func (s *Service) GetCommunityPosts(ctx context.Context, userID uuid.UUID, communityID uuid.UUID, limit, offset int32) ([]*PostResponse, error) {
 	posts, err := s.store.GetCommunityPosts(ctx, db.GetCommunityPostsParams{
 		UserID:      userID,
@@ -189,7 +189,7 @@ func (s *Service) GetCommunityPosts(ctx context.Context, userID uuid.UUID, commu
 	return s.toCommunityPostResponses(posts), nil
 }
 
-// GetGroupPosts retrieves posts from a specific group
+
 func (s *Service) GetGroupPosts(ctx context.Context, userID uuid.UUID, groupID uuid.UUID, limit, offset int32) ([]*PostResponse, error) {
 	posts, err := s.store.GetGroupPosts(ctx, db.GetGroupPostsParams{
 		UserID:  userID,
@@ -204,7 +204,7 @@ func (s *Service) GetGroupPosts(ctx context.Context, userID uuid.UUID, groupID u
 	return s.toGroupPostResponses(posts), nil
 }
 
-// GetTrendingPosts retrieves trending posts in a space
+
 func (s *Service) GetTrendingPosts(ctx context.Context, spaceID uuid.UUID) ([]*PostResponse, error) {
 	posts, err := s.store.GetTrendingPosts(ctx, spaceID)
 	if err != nil {
@@ -214,9 +214,9 @@ func (s *Service) GetTrendingPosts(ctx context.Context, spaceID uuid.UUID) ([]*P
 	return s.toTrendingPostResponses(posts), nil
 }
 
-// GetTrendingTopics retrieves trending topics/hashtags in a space
+
 func (s *Service) GetTrendingTopics(ctx context.Context, spaceID uuid.UUID, limit, offset int32) ([]TrendingTopicResponse, error) {
-	// Default pagination if not provided
+	
 	if limit <= 0 {
 		limit = 10
 	}
@@ -238,7 +238,7 @@ func (s *Service) GetTrendingTopics(ctx context.Context, spaceID uuid.UUID, limi
 
 	responses := make([]TrendingTopicResponse, len(topics))
 	for i, topic := range topics {
-		// Type assertion for Name field (sqlc generates interface{} for string concatenation)
+		
 		name, ok := topic.Name.(string)
 		if !ok {
 			return nil, fmt.Errorf("failed to convert topic name to string")
@@ -256,7 +256,7 @@ func (s *Service) GetTrendingTopics(ctx context.Context, spaceID uuid.UUID, limi
 	return responses, nil
 }
 
-// SearchPosts searches for posts
+
 func (s *Service) SearchPosts(ctx context.Context, query string, spaceID uuid.UUID, limit, offset int32) ([]*PostResponse, error) {
 	posts, err := s.store.SearchPosts(ctx, db.SearchPostsParams{
 		SpaceID:        spaceID,
@@ -272,7 +272,7 @@ func (s *Service) SearchPosts(ctx context.Context, query string, spaceID uuid.UU
 	return s.toSearchPostResponses(posts), nil
 }
 
-// AdvancedSearchPosts performs advanced search on posts
+
 func (s *Service) AdvancedSearchPosts(ctx context.Context, query string, spaceID uuid.UUID, limit, offset int32) ([]*PostResponse, error) {
 	posts, err := s.store.AdvancedSearchPosts(ctx, db.AdvancedSearchPostsParams{
 		PlaintoTsquery: query,
@@ -287,7 +287,7 @@ func (s *Service) AdvancedSearchPosts(ctx context.Context, query string, spaceID
 	return s.toAdvancedSearchPostResponses(posts), nil
 }
 
-// GetUserLikedPosts retrieves posts liked by a user
+
 func (s *Service) GetUserLikedPosts(ctx context.Context, userID uuid.UUID, limit, offset int32) ([]*PostResponse, error) {
 	posts, err := s.store.GetUserLikedPosts(ctx, db.GetUserLikedPostsParams{
 		UserID: userID,
@@ -301,7 +301,7 @@ func (s *Service) GetUserLikedPosts(ctx context.Context, userID uuid.UUID, limit
 	return s.toUserLikedPostResponses(posts), nil
 }
 
-// GetPostComments retrieves comments for a post
+
 func (s *Service) GetPostComments(ctx context.Context, postID uuid.UUID) ([]*CommentResponse, error) {
 	comments, err := s.store.GetPostComments(ctx, postID)
 	if err != nil {
@@ -311,7 +311,7 @@ func (s *Service) GetPostComments(ctx context.Context, postID uuid.UUID) ([]*Com
 	return s.toCommentResponses(comments), nil
 }
 
-// GetPostLikes retrieves users who liked a post
+
 func (s *Service) GetPostLikes(ctx context.Context, postID uuid.UUID) ([]*UserLikeResponse, error) {
 	likes, err := s.store.GetPostLikes(ctx, uuid.NullUUID{UUID: postID, Valid: true})
 	if err != nil {
@@ -321,7 +321,7 @@ func (s *Service) GetPostLikes(ctx context.Context, postID uuid.UUID) ([]*UserLi
 	return s.toUserLikeResponses(likes), nil
 }
 
-// CreateComment creates a new comment on a post
+
 func (s *Service) CreateComment(ctx context.Context, req CreateCommentRequest) (*CommentResponse, error) {
 	var parentCommentID uuid.NullUUID
 	if req.ParentCommentID != nil {
@@ -340,7 +340,7 @@ func (s *Service) CreateComment(ctx context.Context, req CreateCommentRequest) (
 
 	response := s.toSimpleCommentResponse(comment)
 
-	// Publish real-time event for comment creation
+	
 	if s.liveService != nil {
 		commentPayload := map[string]interface{}{
 			"id":         comment.ID.String(),
@@ -361,7 +361,7 @@ func (s *Service) CreateComment(ctx context.Context, req CreateCommentRequest) (
 	return response, nil
 }
 
-// CreateRepost creates a repost/quote of a post
+
 func (s *Service) CreateRepost(ctx context.Context, req CreateRepostParams) (*PostResponse, error) {
 	var quotedPostID uuid.NullUUID
 	var visibility sql.NullString
@@ -390,9 +390,9 @@ func (s *Service) CreateRepost(ctx context.Context, req CreateRepostParams) (*Po
 	return s.toPostResponse(post), nil
 }
 
-// TogglePostLike toggles like on a post
+
 func (s *Service) TogglePostLike(ctx context.Context, userID uuid.UUID, postID uuid.UUID) (int32, error) {
-	// Get post details first for space_id
+	
 	postDetail, err := s.store.GetPostByID(ctx, db.GetPostByIDParams{
 		UserID: userID,
 		ID:     postID,
@@ -414,7 +414,7 @@ func (s *Service) TogglePostLike(ctx context.Context, userID uuid.UUID, postID u
 		count = likesCount.Int32
 	}
 
-	// Publish real-time event for post like
+	
 	if s.liveService != nil {
 		if err := s.liveService.PublishPostLiked(ctx, postID, userID, postDetail.SpaceID, int(count)); err != nil {
 			log.Error().Err(err).Msg("Failed to publish post.liked event")
@@ -424,7 +424,7 @@ func (s *Service) TogglePostLike(ctx context.Context, userID uuid.UUID, postID u
 	return count, nil
 }
 
-// ToggleCommentLike toggles like on a comment
+
 func (s *Service) ToggleCommentLike(ctx context.Context, userID uuid.UUID, commentID uuid.UUID) (bool, error) {
 	liked, err := s.store.ToggleCommentLike(ctx, db.ToggleCommentLikeParams{
 		UserID:    userID,
@@ -437,7 +437,7 @@ func (s *Service) ToggleCommentLike(ctx context.Context, userID uuid.UUID, comme
 	return liked, nil
 }
 
-// PinPost pins or unpins a post
+
 func (s *Service) PinPost(ctx context.Context, postID uuid.UUID, isPinned bool) error {
 	err := s.store.PinPost(ctx, db.PinPostParams{
 		IsPinned: sql.NullBool{Bool: isPinned, Valid: true},
@@ -449,7 +449,7 @@ func (s *Service) PinPost(ctx context.Context, postID uuid.UUID, isPinned bool) 
 	return nil
 }
 
-// IncrementPostViews increments the view count for a post
+
 func (s *Service) IncrementPostViews(ctx context.Context, postID uuid.UUID) error {
 	err := s.store.IncrementPostViews(ctx, postID)
 	if err != nil {
@@ -458,7 +458,7 @@ func (s *Service) IncrementPostViews(ctx context.Context, postID uuid.UUID) erro
 	return nil
 }
 
-// Helper methods to convert database models to response DTOs
+
 
 func (s *Service) toPostResponse(post db.Post) *PostResponse {
 	resp := &PostResponse{

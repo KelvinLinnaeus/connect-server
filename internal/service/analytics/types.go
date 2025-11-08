@@ -7,11 +7,11 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
-// ============================================================================
-// Content Moderation & Reporting Types
-// ============================================================================
 
-// CreateReportRequest represents a content report submission
+
+
+
+
 type CreateReportRequest struct {
 	SpaceID     uuid.UUID               `json:"space_id" binding:"required"`
 	ContentType string                  `json:"content_type" binding:"required,oneof=post comment event announcement message"`
@@ -19,10 +19,10 @@ type CreateReportRequest struct {
 	Reason      string                  `json:"reason" binding:"required,min=5"`
 	Description *string                 `json:"description,omitempty"`
 	Priority    *string                 `json:"priority,omitempty" binding:"omitempty,oneof=low medium high urgent"`
-	ReporterID  uuid.UUID               // Set from auth context
+	ReporterID  uuid.UUID               
 }
 
-// ReportResponse represents a content report
+
 type ReportResponse struct {
 	ID              uuid.UUID               `json:"id"`
 	SpaceID         uuid.UUID               `json:"space_id"`
@@ -41,7 +41,7 @@ type ReportResponse struct {
 	UpdatedAt       time.Time               `json:"updated_at"`
 }
 
-// ReportDetailResponse includes reporter and reviewer information
+
 type ReportDetailResponse struct {
 	ID               uuid.UUID               `json:"id"`
 	SpaceID          uuid.UUID               `json:"space_id"`
@@ -63,14 +63,14 @@ type ReportDetailResponse struct {
 	UpdatedAt        time.Time               `json:"updated_at"`
 }
 
-// UpdateReportRequest for moderating a report
+
 type UpdateReportRequest struct {
 	Status          string                  `json:"status" binding:"required,oneof=pending approved rejected"`
 	ModerationNotes *string                 `json:"moderation_notes,omitempty"`
 	ActionsTaken    *pqtype.NullRawMessage  `json:"actions_taken,omitempty"`
 }
 
-// ContentModerationStatsResponse provides moderation overview
+
 type ContentModerationStatsResponse struct {
 	TotalReports    int64 `json:"total_reports"`
 	PendingReports  int64 `json:"pending_reports"`
@@ -79,11 +79,11 @@ type ContentModerationStatsResponse struct {
 	UrgentReports   int64 `json:"urgent_reports"`
 }
 
-// ============================================================================
-// System & Space Metrics Types
-// ============================================================================
 
-// SystemMetricsResponse provides current system-wide metrics
+
+
+
+
 type SystemMetricsResponse struct {
 	TotalUsers                int64 `json:"total_users"`
 	ActiveUsers               int64 `json:"active_users"`
@@ -99,7 +99,7 @@ type SystemMetricsResponse struct {
 	PendingMentorApplications int64 `json:"pending_mentor_applications"`
 }
 
-// SpaceStatsResponse provides space-level statistics
+
 type SpaceStatsResponse struct {
 	Name           string     `json:"name"`
 	Slug           string     `json:"slug"`
@@ -110,11 +110,11 @@ type SpaceStatsResponse struct {
 	FirstUserDate  *time.Time `json:"first_user_date,omitempty"`
 }
 
-// ============================================================================
-// Engagement & Activity Types
-// ============================================================================
 
-// EngagementMetricResponse represents engagement data for a day
+
+
+
+
 type EngagementMetricResponse struct {
 	Date          time.Time `json:"date"`
 	PostCount     int64     `json:"post_count"`
@@ -123,20 +123,20 @@ type EngagementMetricResponse struct {
 	TotalViews    int64     `json:"total_views"`
 }
 
-// UserActivityStatResponse represents user activity by action type
+
 type UserActivityStatResponse struct {
 	Action string    `json:"action"`
 	Count  int64     `json:"count"`
 	Date   time.Time `json:"date"`
 }
 
-// UserGrowthResponse represents new user registrations
+
 type UserGrowthResponse struct {
 	Date     time.Time `json:"date"`
 	NewUsers int64     `json:"new_users"`
 }
 
-// UserEngagementRankingResponse represents top engaged users
+
 type UserEngagementRankingResponse struct {
 	ID              uuid.UUID `json:"id"`
 	Username        string    `json:"username"`
@@ -148,11 +148,11 @@ type UserEngagementRankingResponse struct {
 	EngagementScore int32     `json:"engagement_score"`
 }
 
-// ============================================================================
-// Top Content Types
-// ============================================================================
 
-// TopPostResponse represents a trending post
+
+
+
+
 type TopPostResponse struct {
 	ID              uuid.UUID               `json:"id"`
 	AuthorID        uuid.UUID               `json:"author_id"`
@@ -171,7 +171,7 @@ type TopPostResponse struct {
 	CreatedAt       time.Time               `json:"created_at"`
 }
 
-// TopCommunityResponse represents a top community
+
 type TopCommunityResponse struct {
 	ID              uuid.UUID `json:"id"`
 	SpaceID         uuid.UUID `json:"space_id"`
@@ -186,7 +186,7 @@ type TopCommunityResponse struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 
-// TopGroupResponse represents a top group
+
 type TopGroupResponse struct {
 	ID              uuid.UUID  `json:"id"`
 	SpaceID         uuid.UUID  `json:"space_id"`
@@ -202,11 +202,11 @@ type TopGroupResponse struct {
 	CreatedAt       time.Time  `json:"created_at"`
 }
 
-// ============================================================================
-// Mentorship Analytics Types
-// ============================================================================
 
-// MentoringStatsResponse provides mentoring session statistics
+
+
+
+
 type MentoringStatsResponse struct {
 	TotalSessions     int64   `json:"total_sessions"`
 	CompletedSessions int64   `json:"completed_sessions"`
@@ -215,7 +215,7 @@ type MentoringStatsResponse struct {
 	RatedSessions     int64   `json:"rated_sessions"`
 }
 
-// TutoringStatsResponse provides tutoring session statistics
+
 type TutoringStatsResponse struct {
 	TotalSessions     int64   `json:"total_sessions"`
 	CompletedSessions int64   `json:"completed_sessions"`
@@ -224,14 +224,14 @@ type TutoringStatsResponse struct {
 	RatedSessions     int64   `json:"rated_sessions"`
 }
 
-// PopularIndustryResponse represents popular mentoring industries
+
 type PopularIndustryResponse struct {
 	Industry      string  `json:"industry"`
 	SessionCount  int64   `json:"session_count"`
 	AverageRating float64 `json:"average_rating"`
 }
 
-// PopularSubjectResponse represents popular tutoring subjects
+
 type PopularSubjectResponse struct {
 	Subject       string  `json:"subject"`
 	SessionCount  int64   `json:"session_count"`

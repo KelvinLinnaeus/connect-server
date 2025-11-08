@@ -3,22 +3,22 @@ package middleware
 import (
 	"strings"
 
-	"github.com/connect-univyn/connect_server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 )
 
-// CORSMiddleware returns a CORS middleware with configuration from app config
-// SECURITY: Wildcard origins (*) are explicitly rejected in production
+
+
 func CORSMiddleware(appConfig util.Config) gin.HandlerFunc {
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = false
 
-	// Parse allowed origins from config
+	
 	originsStr := strings.TrimSpace(appConfig.CORSAllowedOrigins)
 
-	// SECURITY: Reject wildcard in production
+	
 	if originsStr == "*" {
 		if appConfig.Environment == "production" {
 			log.Fatal().Msg("CRITICAL SECURITY ERROR: Wildcard CORS origin (*) is not allowed in production. Set CORS_ALLOWED_ORIGINS to specific domains.")
@@ -27,7 +27,7 @@ func CORSMiddleware(appConfig util.Config) gin.HandlerFunc {
 			config.AllowAllOrigins = true
 		}
 	} else {
-		// Parse comma-separated origins
+		
 		origins := strings.Split(originsStr, ",")
 		config.AllowOrigins = make([]string, 0, len(origins))
 		for _, origin := range origins {
@@ -44,7 +44,7 @@ func CORSMiddleware(appConfig util.Config) gin.HandlerFunc {
 		log.Info().Strs("allowed_origins", config.AllowOrigins).Msg("CORS configured with allowed origins")
 	}
 
-	// Parse allowed methods from config
+	
 	methodsStr := strings.TrimSpace(appConfig.CORSAllowedMethods)
 	if methodsStr != "" {
 		methods := strings.Split(methodsStr, ",")
@@ -56,11 +56,11 @@ func CORSMiddleware(appConfig util.Config) gin.HandlerFunc {
 			}
 		}
 	} else {
-		// Default methods
+		
 		config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
 	}
 
-	// Parse allowed headers from config
+	
 	headersStr := strings.TrimSpace(appConfig.CORSAllowedHeaders)
 	if headersStr != "" {
 		headers := strings.Split(headersStr, ",")
@@ -72,7 +72,7 @@ func CORSMiddleware(appConfig util.Config) gin.HandlerFunc {
 			}
 		}
 	} else {
-		// Default headers
+		
 		config.AllowHeaders = []string{
 			"Origin",
 			"Content-Type",
@@ -82,17 +82,17 @@ func CORSMiddleware(appConfig util.Config) gin.HandlerFunc {
 		}
 	}
 
-	// Expose useful headers to the client
+	
 	config.ExposeHeaders = []string{
 		"Content-Length",
 		"X-Request-ID",
 	}
 
-	// Allow credentials (cookies, authorization headers)
+	
 	config.AllowCredentials = appConfig.CORSAllowCredentials
 
-	// Cache preflight requests for 12 hours
-	config.MaxAge = 12 * 3600 // 12 hours
+	
+	config.MaxAge = 12 * 3600 
 
 	log.Info().
 		Strs("origins", config.AllowOrigins).

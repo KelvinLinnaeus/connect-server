@@ -6,13 +6,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/connect-univyn/connect_server/internal/live/eventbus"
+	"github.com/connect-univyn/connect-server/internal/live/eventbus"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
 )
 
-// NewManager creates a new WebSocket manager
+
 func NewManager(ctx context.Context, bus eventbus.EventBus) *Manager {
 	managerCtx, cancel := context.WithCancel(ctx)
 
@@ -28,7 +28,7 @@ func NewManager(ctx context.Context, bus eventbus.EventBus) *Manager {
 		metrics:    &Metrics{StartTime: time.Now()},
 	}
 
-	// Start background workers
+	
 	go m.run()
 	go m.listenToEventBus(bus)
 
@@ -42,7 +42,7 @@ func NewManager(ctx context.Context, bus eventbus.EventBus) *Manager {
 	return m
 }
 
-// run is the main event loop for the manager
+
 func (m *Manager) run() {
 	ticker := time.NewTicker(PingPeriod)
 	defer ticker.Stop()
@@ -63,15 +63,15 @@ func (m *Manager) run() {
 			m.broadcastMessage(broadcast)
 
 		case <-ticker.C:
-			// Periodic tasks: cleanup idle clients, send pings
+			
 			m.cleanupIdleClients()
 		}
 	}
 }
 
-// registerClient registers a new client
+
 func (m *Manager) registerClient(client *Client) {
-	// Check connection limits
+	
 	m.indexMu.RLock()
 	userConnCount := len(m.userIndex[client.UserID])
 	m.indexMu.RUnlock()
@@ -87,7 +87,7 @@ func (m *Manager) registerClient(client *Client) {
 			Int("max_allowed", MaxConnectionsPerUser).
 			Msg("Connection rejected: max connections per user exceeded")
 
-		// Send error and close connection
+		
 		client.Conn.WriteControl(
 			websocket.CloseMessage,
 			websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "Maximum connections per user exceeded"),
@@ -112,7 +112,7 @@ func (m *Manager) registerClient(client *Client) {
 			Int("max_allowed", MaxConnectionsPerIP).
 			Msg("Connection rejected: max connections per IP exceeded")
 
-		// Send error and close connection
+		
 		client.Conn.WriteControl(
 			websocket.CloseMessage,
 			websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "Maximum connections per IP exceeded"),
@@ -122,22 +122,22 @@ func (m *Manager) registerClient(client *Client) {
 		return
 	}
 
-	// Register client
+	
 	m.clientsMu.Lock()
 	m.clients[client.ID] = client
 	m.clientsMu.Unlock()
 
-	// Add to user index
+	
 	m.indexMu.Lock()
 	m.userIndex[client.UserID] = append(m.userIndex[client.UserID], client)
 	m.indexMu.Unlock()
 
-	// Add to IP index
+	
 	m.ipMu.Lock()
 	m.ipIndex[client.IPAddress] = append(m.ipIndex[client.IPAddress], client)
 	m.ipMu.Unlock()
 
-	// Update metrics
+	
 	m.metrics.mu.Lock()
 	m.metrics.TotalConnections++
 	m.metrics.ActiveConnections++
@@ -151,7 +151,7 @@ func (m *Manager) registerClient(client *Client) {
 		Msg("Client registered")
 }
 
-// unregisterClient unregisters a client
+
 func (m *Manager) unregisterClient(client *Client) {
 	m.clientsMu.Lock()
 	if _, exists := m.clients[client.ID]; exists {
@@ -160,7 +160,7 @@ func (m *Manager) unregisterClient(client *Client) {
 	}
 	m.clientsMu.Unlock()
 
-	// Remove from user index
+	
 	m.indexMu.Lock()
 	if clients, exists := m.userIndex[client.UserID]; exists {
 		for i, c := range clients {
@@ -169,14 +169,14 @@ func (m *Manager) unregisterClient(client *Client) {
 				break
 			}
 		}
-		// Clean up empty entries
+		
 		if len(m.userIndex[client.UserID]) == 0 {
 			delete(m.userIndex, client.UserID)
 		}
 	}
 	m.indexMu.Unlock()
 
-	// Remove from IP index
+	
 	m.ipMu.Lock()
 	if clients, exists := m.ipIndex[client.IPAddress]; exists {
 		for i, c := range clients {
@@ -185,19 +185,19 @@ func (m *Manager) unregisterClient(client *Client) {
 				break
 			}
 		}
-		// Clean up empty entries
+		
 		if len(m.ipIndex[client.IPAddress]) == 0 {
 			delete(m.ipIndex, client.IPAddress)
 		}
 	}
 	m.ipMu.Unlock()
 
-	// Update metrics
+	
 	m.metrics.mu.Lock()
 	m.metrics.ActiveConnections--
 	m.metrics.mu.Unlock()
 
-	// Calculate session duration
+	
 	duration := time.Since(client.ConnectedAt)
 
 	log.Info().
@@ -209,12 +209,12 @@ func (m *Manager) unregisterClient(client *Client) {
 		Msg("Client unregistered")
 }
 
-// broadcastMessage broadcasts a message to target clients
+
 func (m *Manager) broadcastMessage(broadcast *BroadcastMessage) {
 	var targetClients []*Client
 
 	if broadcast.UserIDs == nil {
-		// Broadcast to all clients
+		
 		m.clientsMu.RLock()
 		targetClients = make([]*Client, 0, len(m.clients))
 		for _, client := range m.clients {
@@ -222,7 +222,7 @@ func (m *Manager) broadcastMessage(broadcast *BroadcastMessage) {
 		}
 		m.clientsMu.RUnlock()
 	} else {
-		// Broadcast to specific users
+		
 		m.indexMu.RLock()
 		for _, userID := range broadcast.UserIDs {
 			if clients, exists := m.userIndex[userID]; exists {
@@ -232,7 +232,7 @@ func (m *Manager) broadcastMessage(broadcast *BroadcastMessage) {
 		m.indexMu.RUnlock()
 	}
 
-	// Send to each target client
+	
 	data, err := json.Marshal(broadcast.Message)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to marshal broadcast message")
@@ -241,7 +241,7 @@ func (m *Manager) broadcastMessage(broadcast *BroadcastMessage) {
 
 	sent := 0
 	for _, client := range targetClients {
-		// Check if client is subscribed to this channel
+		
 		client.SubscriptionsMu.RLock()
 		subscribed := client.Subscriptions[broadcast.Channel] || broadcast.Channel == ""
 		client.SubscriptionsMu.RUnlock()
@@ -266,10 +266,10 @@ func (m *Manager) broadcastMessage(broadcast *BroadcastMessage) {
 		Msg("Broadcast completed")
 }
 
-// listenToEventBus listens to the event bus and broadcasts events to clients
+
 func (m *Manager) listenToEventBus(bus eventbus.EventBus) {
-	// Subscribe to all events (pattern: *)
-	// In production, you might want more specific subscriptions
+	
+	
 	eventChan, err := bus.SubscribePattern(m.ctx, "*")
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to subscribe to event bus")
@@ -288,7 +288,7 @@ func (m *Manager) listenToEventBus(bus eventbus.EventBus) {
 				return
 			}
 
-			// Convert event bus event to server message
+			
 			serverMsg := ServerMessage{
 				Type:      MessageTypeEvent,
 				Channel:   event.Channel,
@@ -297,7 +297,7 @@ func (m *Manager) listenToEventBus(bus eventbus.EventBus) {
 				Timestamp: event.Timestamp,
 			}
 
-			// Broadcast to relevant clients
+			
 			var userIDs []uuid.UUID
 			if event.UserID != nil {
 				userIDs = []uuid.UUID{*event.UserID}
@@ -312,7 +312,7 @@ func (m *Manager) listenToEventBus(bus eventbus.EventBus) {
 	}
 }
 
-// cleanupIdleClients removes clients that haven't had activity
+
 func (m *Manager) cleanupIdleClients() {
 	now := time.Now()
 	var idleClients []*Client
@@ -336,17 +336,17 @@ func (m *Manager) cleanupIdleClients() {
 	}
 }
 
-// Register registers a new client
+
 func (m *Manager) Register(client *Client) {
 	m.register <- client
 }
 
-// Unregister unregisters a client
+
 func (m *Manager) Unregister(client *Client) {
 	m.unregister <- client
 }
 
-// Broadcast broadcasts a message to specific users or all users
+
 func (m *Manager) Broadcast(userIDs []uuid.UUID, channel string, message ServerMessage) {
 	m.broadcast <- &BroadcastMessage{
 		UserIDs: userIDs,
@@ -355,27 +355,27 @@ func (m *Manager) Broadcast(userIDs []uuid.UUID, channel string, message ServerM
 	}
 }
 
-// GetActiveConnections returns the number of active connections
+
 func (m *Manager) GetActiveConnections() int64 {
 	m.metrics.mu.RLock()
 	defer m.metrics.mu.RUnlock()
 	return m.metrics.ActiveConnections
 }
 
-// GetMetrics returns a copy of the current metrics
+
 func (m *Manager) GetMetrics() Metrics {
 	m.metrics.mu.RLock()
 	defer m.metrics.mu.RUnlock()
 	return *m.metrics
 }
 
-// GetUserConnections returns all active connections for a user
+
 func (m *Manager) GetUserConnections(userID uuid.UUID) []*Client {
 	m.indexMu.RLock()
 	defer m.indexMu.RUnlock()
 
 	if clients, exists := m.userIndex[userID]; exists {
-		// Return a copy to avoid race conditions
+		
 		result := make([]*Client, len(clients))
 		copy(result, clients)
 		return result
@@ -384,7 +384,7 @@ func (m *Manager) GetUserConnections(userID uuid.UUID) []*Client {
 	return nil
 }
 
-// IsUserOnline checks if a user has any active connections
+
 func (m *Manager) IsUserOnline(userID uuid.UUID) bool {
 	m.indexMu.RLock()
 	defer m.indexMu.RUnlock()
@@ -393,14 +393,14 @@ func (m *Manager) IsUserOnline(userID uuid.UUID) bool {
 	return exists && len(clients) > 0
 }
 
-// Shutdown gracefully shuts down the manager
+
 func (m *Manager) Shutdown() error {
 	log.Info().Msg("Shutting down WebSocket manager")
 
-	// Cancel context
+	
 	m.cancel()
 
-	// Close all client connections
+	
 	m.clientsMu.RLock()
 	clients := make([]*Client, 0, len(m.clients))
 	for _, client := range m.clients {
@@ -423,7 +423,7 @@ func (m *Manager) Shutdown() error {
 		}(client)
 	}
 
-	// Wait for all clients to close (with timeout)
+	
 	done := make(chan struct{})
 	go func() {
 		wg.Wait()

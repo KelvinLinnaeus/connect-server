@@ -4,26 +4,26 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/connect-univyn/connect_server/internal/util/auth"
-	"github.com/connect-univyn/connect_server/internal/service/messaging"
-	"github.com/connect-univyn/connect_server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/service/messaging"
+	"github.com/connect-univyn/connect-server/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-// MessagingHandler handles messaging-related HTTP requests
+
 type MessagingHandler struct {
 	messagingService *messaging.Service
 }
 
-// NewMessagingHandler creates a new messaging handler
+
 func NewMessagingHandler(messagingService *messaging.Service) *MessagingHandler {
 	return &MessagingHandler{
 		messagingService: messagingService,
 	}
 }
 
-// CreateConversation handles POST /api/conversations
+
 func (h *MessagingHandler) CreateConversation(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -38,7 +38,7 @@ func (h *MessagingHandler) CreateConversation(c *gin.Context) {
 		return
 	}
 	
-	// Ensure creator is in participants
+	
 	creatorID, _ := uuid.Parse(authPayload.UserID)
 	hasCreator := false
 	for _, pid := range req.ParticipantIDs {
@@ -60,7 +60,7 @@ func (h *MessagingHandler) CreateConversation(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(conversation))
 }
 
-// GetConversation handles GET /api/conversations/:id
+
 func (h *MessagingHandler) GetConversation(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -86,7 +86,7 @@ func (h *MessagingHandler) GetConversation(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(conversation))
 }
 
-// GetUserConversations handles GET /api/conversations
+
 func (h *MessagingHandler) GetUserConversations(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -106,7 +106,7 @@ func (h *MessagingHandler) GetUserConversations(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(conversations))
 }
 
-// GetOrCreateDirectConversation handles POST /api/conversations/direct
+
 func (h *MessagingHandler) GetOrCreateDirectConversation(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -140,7 +140,7 @@ func (h *MessagingHandler) GetOrCreateDirectConversation(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"conversation_id": conversationID}))
 }
 
-// SendMessage handles POST /api/conversations/:id/messages
+
 func (h *MessagingHandler) SendMessage(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -174,7 +174,7 @@ func (h *MessagingHandler) SendMessage(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(message))
 }
 
-// GetConversationMessages handles GET /api/conversations/:id/messages
+
 func (h *MessagingHandler) GetConversationMessages(c *gin.Context) {
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -199,7 +199,7 @@ func (h *MessagingHandler) GetConversationMessages(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(messages))
 }
 
-// GetMessage handles GET /api/messages/:id
+
 func (h *MessagingHandler) GetMessage(c *gin.Context) {
 	messageID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -216,7 +216,7 @@ func (h *MessagingHandler) GetMessage(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(message))
 }
 
-// DeleteMessage handles DELETE /api/messages/:id
+
 func (h *MessagingHandler) DeleteMessage(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -242,7 +242,7 @@ func (h *MessagingHandler) DeleteMessage(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Message deleted successfully"}))
 }
 
-// MarkMessagesAsRead handles POST /api/conversations/:id/read
+
 func (h *MessagingHandler) MarkMessagesAsRead(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -268,7 +268,7 @@ func (h *MessagingHandler) MarkMessagesAsRead(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Messages marked as read"}))
 }
 
-// GetUnreadCount handles GET /api/conversations/:id/unread
+
 func (h *MessagingHandler) GetUnreadCount(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -294,7 +294,7 @@ func (h *MessagingHandler) GetUnreadCount(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"unread_count": count}))
 }
 
-// GetConversationParticipants handles GET /api/conversations/:id/participants
+
 func (h *MessagingHandler) GetConversationParticipants(c *gin.Context) {
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -311,7 +311,7 @@ func (h *MessagingHandler) GetConversationParticipants(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(participants))
 }
 
-// AddConversationParticipants handles POST /api/conversations/:id/participants
+
 func (h *MessagingHandler) AddConversationParticipants(c *gin.Context) {
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -336,7 +336,7 @@ func (h *MessagingHandler) AddConversationParticipants(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Participants added successfully"}))
 }
 
-// LeaveConversation handles POST /api/conversations/:id/leave
+
 func (h *MessagingHandler) LeaveConversation(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -362,7 +362,7 @@ func (h *MessagingHandler) LeaveConversation(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Left conversation successfully"}))
 }
 
-// UpdateParticipantSettings handles PUT /api/conversations/:id/settings
+
 func (h *MessagingHandler) UpdateParticipantSettings(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -394,7 +394,7 @@ func (h *MessagingHandler) UpdateParticipantSettings(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Settings updated successfully"}))
 }
 
-// AddMessageReaction handles POST /api/messages/:id/reactions
+
 func (h *MessagingHandler) AddMessageReaction(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -426,7 +426,7 @@ func (h *MessagingHandler) AddMessageReaction(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Reaction added successfully"}))
 }
 
-// RemoveMessageReaction handles DELETE /api/messages/:id/reactions/:emoji
+
 func (h *MessagingHandler) RemoveMessageReaction(c *gin.Context) {
 	messageID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -449,7 +449,7 @@ func (h *MessagingHandler) RemoveMessageReaction(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Reaction removed successfully"}))
 }
 
-// Helper function to parse pagination
+
 func parseMessagePagination(c *gin.Context) (int32, int32) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))

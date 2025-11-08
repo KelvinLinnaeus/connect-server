@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/connect-univyn/connect_server/internal/service/admin"
-	"github.com/connect-univyn/connect_server/internal/util"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/service/admin"
+	"github.com/connect-univyn/connect-server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -21,9 +21,9 @@ func NewAdminHandler(adminService *admin.Service) *AdminHandler {
 	return &AdminHandler{adminService: adminService}
 }
 
-// PUT /api/admin/users/:id/suspend
+
 func (h *AdminHandler) SuspendUser(c *gin.Context) {
-	// Get authenticated admin user
+	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "No auth payload"))
@@ -32,14 +32,14 @@ func (h *AdminHandler) SuspendUser(c *gin.Context) {
 	authPayload := payload.(*auth.Payload)
 	adminUserID, _ := uuid.Parse(authPayload.UserID)
 
-	// Parse user ID
+	
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID"))
 		return
 	}
 
-	// Parse request body
+	
 	var req struct {
 		Reason       string `json:"reason" binding:"required"`
 		Notes        string `json:"notes"`
@@ -50,7 +50,7 @@ func (h *AdminHandler) SuspendUser(c *gin.Context) {
 		return
 	}
 
-	// Suspend user
+	
 	err = h.adminService.SuspendUser(c.Request.Context(), admin.SuspendUserRequest{
 		UserID:       userID,
 		SuspendedBy:  adminUserID,
@@ -69,7 +69,7 @@ func (h *AdminHandler) SuspendUser(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/users/:id/unsuspend
+
 func (h *AdminHandler) UnsuspendUser(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -92,7 +92,7 @@ func (h *AdminHandler) UnsuspendUser(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/users/:id/ban
+
 func (h *AdminHandler) BanUser(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -123,7 +123,7 @@ func (h *AdminHandler) BanUser(c *gin.Context) {
 	}))
 }
 
-// GET /api/admin/reports
+
 func (h *AdminHandler) GetReports(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
@@ -158,7 +158,7 @@ func (h *AdminHandler) GetReports(c *gin.Context) {
 	}))
 }
 
-// GET /api/admin/spaces/:id/activities
+
 func (h *AdminHandler) GetSpaceActivities(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -198,7 +198,7 @@ func (h *AdminHandler) GetSpaceActivities(c *gin.Context) {
 	}))
 }
 
-// GET /api/admin/dashboard/stats
+
 func (h *AdminHandler) GetDashboardStats(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
@@ -216,7 +216,7 @@ func (h *AdminHandler) GetDashboardStats(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(stats))
 }
 
-// GET /api/admin/users
+
 func (h *AdminHandler) GetUsers(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
@@ -243,7 +243,7 @@ func (h *AdminHandler) GetUsers(c *gin.Context) {
 	}))
 }
 
-// DELETE /api/admin/users/:id
+
 func (h *AdminHandler) DeleteUser(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -266,7 +266,7 @@ func (h *AdminHandler) DeleteUser(c *gin.Context) {
 	}))
 }
 
-// GET /api/admin/applications/tutors
+
 func (h *AdminHandler) GetTutorApplications(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
@@ -292,7 +292,7 @@ func (h *AdminHandler) GetTutorApplications(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/applications/tutors/:id/approve
+
 func (h *AdminHandler) ApproveTutorApplication(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -323,7 +323,7 @@ func (h *AdminHandler) ApproveTutorApplication(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/applications/tutors/:id/reject
+
 func (h *AdminHandler) RejectTutorApplication(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -354,7 +354,7 @@ func (h *AdminHandler) RejectTutorApplication(c *gin.Context) {
 	}))
 }
 
-// GET /api/admin/applications/mentors
+
 func (h *AdminHandler) GetMentorApplications(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
@@ -380,7 +380,7 @@ func (h *AdminHandler) GetMentorApplications(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/applications/mentors/:id/approve
+
 func (h *AdminHandler) ApproveMentorApplication(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -411,7 +411,7 @@ func (h *AdminHandler) ApproveMentorApplication(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/applications/mentors/:id/reject
+
 func (h *AdminHandler) RejectMentorApplication(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -442,7 +442,7 @@ func (h *AdminHandler) RejectMentorApplication(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/reports/:id/resolve
+
 func (h *AdminHandler) ResolveReport(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -474,7 +474,7 @@ func (h *AdminHandler) ResolveReport(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/reports/:id/escalate
+
 func (h *AdminHandler) EscalateReport(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -497,7 +497,7 @@ func (h *AdminHandler) EscalateReport(c *gin.Context) {
 	}))
 }
 
-// GET /api/admin/groups
+
 func (h *AdminHandler) GetGroups(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
@@ -525,7 +525,7 @@ func (h *AdminHandler) GetGroups(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/groups/:id/approve
+
 func (h *AdminHandler) ApproveGroup(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -548,7 +548,7 @@ func (h *AdminHandler) ApproveGroup(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/groups/:id/reject
+
 func (h *AdminHandler) RejectGroup(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -579,7 +579,7 @@ func (h *AdminHandler) RejectGroup(c *gin.Context) {
 	}))
 }
 
-// DELETE /api/admin/groups/:id
+
 func (h *AdminHandler) DeleteGroup(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -602,9 +602,9 @@ func (h *AdminHandler) DeleteGroup(c *gin.Context) {
 	}))
 }
 
-// System Settings Handlers
 
-// GET /api/admin/settings
+
+
 func (h *AdminHandler) GetSettings(c *gin.Context) {
 	settings, err := h.adminService.GetAllSettings(c.Request.Context())
 	if err != nil {
@@ -617,7 +617,7 @@ func (h *AdminHandler) GetSettings(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/settings/:key
+
 func (h *AdminHandler) UpdateSetting(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -634,7 +634,7 @@ func (h *AdminHandler) UpdateSetting(c *gin.Context) {
 		return
 	}
 
-	// Convert value to JSON
+	
 	valueJSON, err := json.Marshal(req.Value)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_value", "Invalid value format"))
@@ -653,9 +653,9 @@ func (h *AdminHandler) UpdateSetting(c *gin.Context) {
 	}))
 }
 
-// Analytics Handlers
 
-// GET /api/admin/analytics/user-growth
+
+
 func (h *AdminHandler) GetUserGrowth(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -663,7 +663,7 @@ func (h *AdminHandler) GetUserGrowth(c *gin.Context) {
 		return
 	}
 
-	// Default to last 6 months
+	
 	since := time.Now().AddDate(0, -6, 0)
 	if sinceParam := c.Query("since"); sinceParam != "" {
 		parsedSince, err := time.Parse(time.RFC3339, sinceParam)
@@ -683,7 +683,7 @@ func (h *AdminHandler) GetUserGrowth(c *gin.Context) {
 	}))
 }
 
-// GET /api/admin/analytics/engagement
+
 func (h *AdminHandler) GetEngagementMetrics(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -691,7 +691,7 @@ func (h *AdminHandler) GetEngagementMetrics(c *gin.Context) {
 		return
 	}
 
-	since := time.Now().AddDate(0, -1, 0) // Last month by default
+	since := time.Now().AddDate(0, -1, 0) 
 	if sinceParam := c.Query("since"); sinceParam != "" {
 		parsedSince, err := time.Parse(time.RFC3339, sinceParam)
 		if err == nil {
@@ -710,7 +710,7 @@ func (h *AdminHandler) GetEngagementMetrics(c *gin.Context) {
 	}))
 }
 
-// GET /api/admin/analytics/activity
+
 func (h *AdminHandler) GetActivityAnalytics(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -718,7 +718,7 @@ func (h *AdminHandler) GetActivityAnalytics(c *gin.Context) {
 		return
 	}
 
-	since := time.Now().AddDate(0, -1, 0) // Last month by default
+	since := time.Now().AddDate(0, -1, 0) 
 	if sinceParam := c.Query("since"); sinceParam != "" {
 		parsedSince, err := time.Parse(time.RFC3339, sinceParam)
 		if err == nil {
@@ -735,9 +735,9 @@ func (h *AdminHandler) GetActivityAnalytics(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(stats))
 }
 
-// Admin Management Handlers
 
-// GET /api/admin/admins
+
+
 func (h *AdminHandler) GetAdmins(c *gin.Context) {
 	status := c.Query("status")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -757,7 +757,7 @@ func (h *AdminHandler) GetAdmins(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/admins/:id/role
+
 func (h *AdminHandler) UpdateAdminRole(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -788,7 +788,7 @@ func (h *AdminHandler) UpdateAdminRole(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/admins/:id/status
+
 func (h *AdminHandler) UpdateAdminStatus(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -819,9 +819,9 @@ func (h *AdminHandler) UpdateAdminStatus(c *gin.Context) {
 	}))
 }
 
-// Notification Handlers
 
-// GET /api/admin/notifications
+
+
 func (h *AdminHandler) GetNotifications(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -852,7 +852,7 @@ func (h *AdminHandler) GetNotifications(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/notifications/:id/read
+
 func (h *AdminHandler) MarkNotificationRead(c *gin.Context) {
 	notificationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -871,7 +871,7 @@ func (h *AdminHandler) MarkNotificationRead(c *gin.Context) {
 	}))
 }
 
-// DELETE /api/admin/notifications/:id
+
 func (h *AdminHandler) DeleteNotification(c *gin.Context) {
 	notificationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -890,7 +890,7 @@ func (h *AdminHandler) DeleteNotification(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/notifications/read-all
+
 func (h *AdminHandler) MarkAllNotificationsRead(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -907,9 +907,9 @@ func (h *AdminHandler) MarkAllNotificationsRead(c *gin.Context) {
 	}))
 }
 
-// ==================== Communities Management ====================
 
-// GET /api/admin/communities
+
+
 func (h *AdminHandler) GetCommunities(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -938,7 +938,7 @@ func (h *AdminHandler) GetCommunities(c *gin.Context) {
 	}))
 }
 
-// POST /api/admin/communities
+
 func (h *AdminHandler) CreateCommunity(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -961,7 +961,7 @@ func (h *AdminHandler) CreateCommunity(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/communities/:id
+
 func (h *AdminHandler) UpdateCommunity(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -990,7 +990,7 @@ func (h *AdminHandler) UpdateCommunity(c *gin.Context) {
 	}))
 }
 
-// DELETE /api/admin/communities/:id
+
 func (h *AdminHandler) DeleteCommunity(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1013,7 +1013,7 @@ func (h *AdminHandler) DeleteCommunity(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/communities/:id/status
+
 func (h *AdminHandler) UpdateCommunityStatus(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1044,7 +1044,7 @@ func (h *AdminHandler) UpdateCommunityStatus(c *gin.Context) {
 	}))
 }
 
-// POST /api/admin/communities/:id/moderators
+
 func (h *AdminHandler) AssignCommunityModerator(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1082,9 +1082,9 @@ func (h *AdminHandler) AssignCommunityModerator(c *gin.Context) {
 	}))
 }
 
-// ==================== Announcements Management ====================
 
-// GET /api/admin/announcements
+
+
 func (h *AdminHandler) GetAnnouncements(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -1111,7 +1111,7 @@ func (h *AdminHandler) GetAnnouncements(c *gin.Context) {
 	}))
 }
 
-// POST /api/admin/announcements
+
 func (h *AdminHandler) CreateAnnouncement(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1134,7 +1134,7 @@ func (h *AdminHandler) CreateAnnouncement(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/announcements/:id
+
 func (h *AdminHandler) UpdateAnnouncement(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1163,7 +1163,7 @@ func (h *AdminHandler) UpdateAnnouncement(c *gin.Context) {
 	}))
 }
 
-// DELETE /api/admin/announcements/:id
+
 func (h *AdminHandler) DeleteAnnouncement(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1186,7 +1186,7 @@ func (h *AdminHandler) DeleteAnnouncement(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/announcements/:id/status
+
 func (h *AdminHandler) UpdateAnnouncementStatus(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1217,9 +1217,9 @@ func (h *AdminHandler) UpdateAnnouncementStatus(c *gin.Context) {
 	}))
 }
 
-// ==================== Events Management ====================
 
-// GET /api/admin/events
+
+
 func (h *AdminHandler) GetEvents(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -1246,7 +1246,7 @@ func (h *AdminHandler) GetEvents(c *gin.Context) {
 	}))
 }
 
-// POST /api/admin/events
+
 func (h *AdminHandler) CreateEvent(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1269,7 +1269,7 @@ func (h *AdminHandler) CreateEvent(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/events/:id
+
 func (h *AdminHandler) UpdateEvent(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1298,7 +1298,7 @@ func (h *AdminHandler) UpdateEvent(c *gin.Context) {
 	}))
 }
 
-// DELETE /api/admin/events/:id
+
 func (h *AdminHandler) DeleteEvent(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1321,7 +1321,7 @@ func (h *AdminHandler) DeleteEvent(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/events/:id/status
+
 func (h *AdminHandler) UpdateEventStatus(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1352,7 +1352,7 @@ func (h *AdminHandler) UpdateEventStatus(c *gin.Context) {
 	}))
 }
 
-// GET /api/admin/events/:id/registrations
+
 func (h *AdminHandler) GetEventRegistrations(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -1371,9 +1371,9 @@ func (h *AdminHandler) GetEventRegistrations(c *gin.Context) {
 	}))
 }
 
-// ==================== User Management ====================
 
-// POST /api/admin/users
+
+
 func (h *AdminHandler) CreateUser(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1396,7 +1396,7 @@ func (h *AdminHandler) CreateUser(c *gin.Context) {
 	}))
 }
 
-// PUT /api/admin/users/:id
+
 func (h *AdminHandler) UpdateUser(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1425,7 +1425,7 @@ func (h *AdminHandler) UpdateUser(c *gin.Context) {
 	}))
 }
 
-// POST /api/admin/users/:id/reset-password
+
 func (h *AdminHandler) ResetUserPassword(c *gin.Context) {
 	payload, _ := c.Get("authorization_payload")
 	authPayload := payload.(*auth.Payload)
@@ -1456,7 +1456,7 @@ func (h *AdminHandler) ResetUserPassword(c *gin.Context) {
 	}))
 }
 
-// GET /api/admin/export/:dataType
+
 func (h *AdminHandler) ExportData(c *gin.Context) {
 	dataType := c.Param("dataType")
 	format := c.Query("format")
@@ -1464,7 +1464,7 @@ func (h *AdminHandler) ExportData(c *gin.Context) {
 		format = "csv"
 	}
 
-	// Validate data type
+	
 	validDataTypes := map[string]bool{
 		"users":         true,
 		"communities":   true,
@@ -1478,19 +1478,19 @@ func (h *AdminHandler) ExportData(c *gin.Context) {
 		return
 	}
 
-	// Set appropriate headers for file download
+	
 	timestamp := time.Now().Format("2006-01-02-150405")
 	filename := dataType + "-export-" + timestamp + "." + format
 	c.Header("Content-Type", "text/csv")
 	c.Header("Content-Disposition", "attachment; filename="+filename)
 
-	// For now, return a basic CSV header
-	// TODO: Implement actual data export from service layer
+	
+	
 	csv := "id,name,created_at\n"
 	c.String(http.StatusOK, csv)
 }
 
-// Legacy handler for compatibility
+
 func AdminPanel(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "admin ok"})
 }

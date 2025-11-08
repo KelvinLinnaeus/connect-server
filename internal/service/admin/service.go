@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
@@ -19,10 +19,10 @@ func NewService(store db.Store) *Service {
 	return &Service{store: store}
 }
 
-// User Suspension Management
+
 
 func (s *Service) SuspendUser(ctx context.Context, req SuspendUserRequest) error {
-	// Create suspension record
+	
 	var suspendedUntil sql.NullTime
 	if req.DurationDays > 0 {
 		suspendedUntil = sql.NullTime{
@@ -43,7 +43,7 @@ func (s *Service) SuspendUser(ctx context.Context, req SuspendUserRequest) error
 		return fmt.Errorf("failed to create suspension: %w", err)
 	}
 
-	// Update user account status
+	
 	err = s.store.UpdateUserAccountStatus(ctx, db.UpdateUserAccountStatusParams{
 		ID:     req.UserID,
 		Status: sql.NullString{String: "suspended", Valid: true},
@@ -52,7 +52,7 @@ func (s *Service) SuspendUser(ctx context.Context, req SuspendUserRequest) error
 		return fmt.Errorf("failed to update user status: %w", err)
 	}
 
-	// Create audit log
+	
 	details := fmt.Sprintf(`{"reason": "%s", "duration_days": %d}`, req.Reason, req.DurationDays)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  req.SuspendedBy,
@@ -71,7 +71,7 @@ func (s *Service) UnsuspendUser(ctx context.Context, userID, adminID uuid.UUID) 
 		return fmt.Errorf("failed to unsuspend user: %w", err)
 	}
 
-	// Create audit log
+	
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
 		Action:       "unsuspend_user",
@@ -84,7 +84,7 @@ func (s *Service) UnsuspendUser(ctx context.Context, userID, adminID uuid.UUID) 
 }
 
 func (s *Service) BanUser(ctx context.Context, userID, adminID uuid.UUID, reason string) error {
-	// Create permanent suspension
+	
 	_, err := s.store.CreateUserSuspension(ctx, db.CreateUserSuspensionParams{
 		UserID:      userID,
 		SuspendedBy: adminID,
@@ -96,7 +96,7 @@ func (s *Service) BanUser(ctx context.Context, userID, adminID uuid.UUID, reason
 		return fmt.Errorf("failed to create ban: %w", err)
 	}
 
-	// Update user account status to banned
+	
 	err = s.store.UpdateUserAccountStatus(ctx, db.UpdateUserAccountStatusParams{
 		ID:     userID,
 		Status: sql.NullString{String: "banned", Valid: true},
@@ -105,7 +105,7 @@ func (s *Service) BanUser(ctx context.Context, userID, adminID uuid.UUID, reason
 		return fmt.Errorf("failed to update user status: %w", err)
 	}
 
-	// Create audit log
+	
 	details := fmt.Sprintf(`{"reason": "%s"}`, reason)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -118,10 +118,10 @@ func (s *Service) BanUser(ctx context.Context, userID, adminID uuid.UUID, reason
 	return nil
 }
 
-// Content Report Management
+
 
 func (s *Service) GetContentReports(ctx context.Context, req GetReportsRequest) ([]ContentReportResponse, error) {
-	// Status is sql.NullString but ContentType is plain string in SQLC-generated params
+	
 	reports, err := s.store.GetContentReports(ctx, db.GetContentReportsParams{
 		SpaceID:     req.SpaceID,
 		Status:      sql.NullString{String: req.Status, Valid: req.Status != ""},
@@ -153,10 +153,10 @@ func (s *Service) GetContentReports(ctx context.Context, req GetReportsRequest) 
 	return responses, nil
 }
 
-// Space Activities
+
 
 func (s *Service) GetSpaceActivities(ctx context.Context, spaceID uuid.UUID, activityType string, since time.Time, limit, offset int32) ([]SpaceActivityResponse, error) {
-	// ActivityType and CreatedAt are plain types (not nullable) in SQLC-generated params
+	
 	activities, err := s.store.GetSpaceActivities(ctx, db.GetSpaceActivitiesParams{
 		SpaceID:      spaceID,
 		ActivityType: activityType,
@@ -187,7 +187,7 @@ func (s *Service) GetSpaceActivities(ctx context.Context, spaceID uuid.UUID, act
 	return responses, nil
 }
 
-// Dashboard Stats
+
 
 func (s *Service) GetDashboardStats(ctx context.Context, spaceID uuid.UUID) (DashboardStatsResponse, error) {
 	stats, err := s.store.GetAdminDashboardStats(ctx, spaceID)
@@ -206,10 +206,10 @@ func (s *Service) GetDashboardStats(ctx context.Context, spaceID uuid.UUID) (Das
 	}, nil
 }
 
-// User Management
+
 
 func (s *Service) GetUsers(ctx context.Context, spaceID uuid.UUID, limit, offset int32) ([]UserResponse, int64, error) {
-	// For now, get all users - TODO: add space filtering once GetSpaceUsers query is added
+	
 	users, err := s.store.ListUsers(ctx, db.ListUsersParams{
 		Limit:  limit,
 		Offset: offset,
@@ -218,7 +218,7 @@ func (s *Service) GetUsers(ctx context.Context, spaceID uuid.UUID, limit, offset
 		return nil, 0, fmt.Errorf("failed to get users: %w", err)
 	}
 
-	// Get total count - TODO: add proper count query
+	
 	count := int64(len(users))
 
 	responses := make([]UserResponse, len(users))
@@ -240,7 +240,7 @@ func (s *Service) GetUsers(ctx context.Context, spaceID uuid.UUID, limit, offset
 }
 
 func (s *Service) DeleteUser(ctx context.Context, userID, adminID uuid.UUID) error {
-	// Create audit log before deletion
+	
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
 		Action:       "delete_user",
@@ -249,7 +249,7 @@ func (s *Service) DeleteUser(ctx context.Context, userID, adminID uuid.UUID) err
 		Details:      pqtype.NullRawMessage{RawMessage: []byte(`{}`), Valid: true},
 	})
 
-	// Delete user
+	
 	err := s.store.DeleteUser(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
@@ -258,7 +258,7 @@ func (s *Service) DeleteUser(ctx context.Context, userID, adminID uuid.UUID) err
 	return nil
 }
 
-// Application Management
+
 
 func (s *Service) GetTutorApplications(ctx context.Context, spaceID uuid.UUID, limit, offset int32) ([]GetAllTutorApplicationsResponse, error) {
 	var applications []db.GetAllTutorApplicationsRow
@@ -314,7 +314,7 @@ func (s *Service) ApproveTutorApplication(ctx context.Context, appID, adminID uu
 		return fmt.Errorf("failed to approve tutor application: %w", err)
 	}
 
-	// Create audit log
+	
 	details := fmt.Sprintf(`{"notes": "%s"}`, notes)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -354,7 +354,7 @@ func (s *Service) RejectTutorApplication(ctx context.Context, appID, adminID uui
 		return fmt.Errorf("failed to reject tutor application: %w", err)
 	}
 
-	// Create audit log
+	
 	details := fmt.Sprintf(`{"notes": "%s"}`, notes)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -441,7 +441,7 @@ func (s *Service) ApproveMentorApplication(ctx context.Context, appID, adminID u
 		return fmt.Errorf("failed to create mentor profile: %w", err)
 	}
 
-	// Create audit log
+	
 	details := fmt.Sprintf(`{"notes": "%s"}`, notes)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -465,7 +465,7 @@ func (s *Service) RejectMentorApplication(ctx context.Context, appID, adminID uu
 		return fmt.Errorf("failed to reject mentor application: %w", err)
 	}
 
-	// Create audit log
+	
 	details := fmt.Sprintf(`{"notes": "%s"}`, notes)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -478,10 +478,10 @@ func (s *Service) RejectMentorApplication(ctx context.Context, appID, adminID uu
 	return nil
 }
 
-// Report Management
+
 
 func (s *Service) ResolveReport(ctx context.Context, reportID, adminID uuid.UUID, action, notes string) error {
-	// Encode action as JSONB
+	
 	actionJSON := []byte(fmt.Sprintf(`{"action": "%s"}`, action))
 
 	_, err := s.store.UpdateContentReportWithAction(ctx, db.UpdateContentReportWithActionParams{
@@ -495,7 +495,7 @@ func (s *Service) ResolveReport(ctx context.Context, reportID, adminID uuid.UUID
 		return fmt.Errorf("failed to resolve report: %w", err)
 	}
 
-	// Create audit log
+	
 	details := fmt.Sprintf(`{"action": "%s", "notes": "%s"}`, action, notes)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -517,7 +517,7 @@ func (s *Service) EscalateReport(ctx context.Context, reportID, adminID uuid.UUI
 		return fmt.Errorf("failed to escalate report: %w", err)
 	}
 
-	// Create audit log
+	
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
 		Action:       "escalate_report",
@@ -529,7 +529,7 @@ func (s *Service) EscalateReport(ctx context.Context, reportID, adminID uuid.UUI
 	return nil
 }
 
-// Groups Management
+
 
 func (s *Service) GetGroups(ctx context.Context, spaceID uuid.UUID, status string, limit, offset int32) ([]GroupResponse, int64, error) {
 	var groups []db.Group
@@ -554,7 +554,7 @@ func (s *Service) GetGroups(ctx context.Context, spaceID uuid.UUID, status strin
 		return nil, 0, fmt.Errorf("failed to get groups: %w", err)
 	}
 
-	// Get total count - TODO: add proper count query
+	
 	count := int64(len(groups))
 
 	responses := make([]GroupResponse, len(groups))
@@ -580,7 +580,7 @@ func (s *Service) ApproveGroup(ctx context.Context, groupID, adminID uuid.UUID) 
 		return fmt.Errorf("failed to approve group: %w", err)
 	}
 
-	// Create audit log
+	
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
 		Action:       "approve_group",
@@ -601,7 +601,7 @@ func (s *Service) RejectGroup(ctx context.Context, groupID, adminID uuid.UUID, r
 		return fmt.Errorf("failed to reject group: %w", err)
 	}
 
-	// Create audit log
+	
 	details := fmt.Sprintf(`{"reason": "%s"}`, reason)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -615,7 +615,7 @@ func (s *Service) RejectGroup(ctx context.Context, groupID, adminID uuid.UUID, r
 }
 
 func (s *Service) DeleteGroup(ctx context.Context, groupID, adminID uuid.UUID) error {
-	// Create audit log before deletion
+	
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
 		Action:       "delete_group",
@@ -624,7 +624,7 @@ func (s *Service) DeleteGroup(ctx context.Context, groupID, adminID uuid.UUID) e
 		Details:      pqtype.NullRawMessage{RawMessage: []byte(`{}`), Valid: true},
 	})
 
-	// Delete group
+	
 	err := s.store.DeleteGroup(ctx, groupID)
 	if err != nil {
 		return fmt.Errorf("failed to delete group: %w", err)
@@ -633,13 +633,13 @@ func (s *Service) DeleteGroup(ctx context.Context, groupID, adminID uuid.UUID) e
 	return nil
 }
 
-// Permission Checks
+
 
 func (s *Service) CheckAdminPermission(ctx context.Context, userID uuid.UUID) (bool, error) {
 	return s.store.CheckAdminPermission(ctx, userID)
 }
 
-// System Settings Management
+
 
 func (s *Service) GetAllSettings(ctx context.Context) ([]db.SystemSetting, error) {
 	settings, err := s.store.GetAllSystemSettings(ctx)
@@ -660,7 +660,7 @@ func (s *Service) UpdateSetting(ctx context.Context, key string, value []byte, d
 		return nil, fmt.Errorf("failed to update setting: %w", err)
 	}
 
-	// Create audit log
+	
 	details := fmt.Sprintf(`{"key": "%s"}`, key)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  updatedBy,
@@ -673,7 +673,7 @@ func (s *Service) UpdateSetting(ctx context.Context, key string, value []byte, d
 	return &setting, nil
 }
 
-// Analytics
+
 
 func (s *Service) GetUserGrowth(ctx context.Context, spaceID uuid.UUID, since time.Time) ([]db.GetUserGrowthDataRow, error) {
 	data, err := s.store.GetUserGrowthData(ctx, db.GetUserGrowthDataParams{
@@ -708,7 +708,7 @@ func (s *Service) GetActivityStats(ctx context.Context, spaceID uuid.UUID, since
 	return &stats, nil
 }
 
-// Admin Management
+
 
 func (s *Service) GetAllAdmins(ctx context.Context, status string, limit, offset int32) ([]db.GetAllAdminUsersRow, error) {
 	admins, err := s.store.GetAllAdminUsers(ctx, db.GetAllAdminUsersParams{
@@ -731,7 +731,7 @@ func (s *Service) UpdateAdminRole(ctx context.Context, userID, adminID uuid.UUID
 		return fmt.Errorf("failed to update admin role: %w", err)
 	}
 
-	// Create audit log
+	
 	rolesJSON := fmt.Sprintf(`{"roles": %v}`, roles)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -753,7 +753,7 @@ func (s *Service) UpdateAdminStatus(ctx context.Context, userID, adminID uuid.UU
 		return fmt.Errorf("failed to update admin status: %w", err)
 	}
 
-	// Create audit log
+	
 	details := fmt.Sprintf(`{"status": "%s"}`, status)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -766,11 +766,11 @@ func (s *Service) UpdateAdminStatus(ctx context.Context, userID, adminID uuid.UU
 	return nil
 }
 
-// Notifications Management
+
 
 func (s *Service) GetNotifications(ctx context.Context, userID uuid.UUID, typeFilter, priority string, isRead *bool, limit, offset int32) ([]db.GetUserNotificationsRow, error) {
-	// Note: This uses the basic GetUserNotifications for now
-	// Once GetAdminNotifications is generated by sqlc, we'll switch to it
+	
+	
 	notifications, err := s.store.GetUserNotifications(ctx, db.GetUserNotificationsParams{
 		ToUserID: userID,
 		Limit:    limit,
@@ -780,7 +780,7 @@ func (s *Service) GetNotifications(ctx context.Context, userID uuid.UUID, typeFi
 		return nil, fmt.Errorf("failed to get notifications: %w", err)
 	}
 
-	// Manual filtering for now (will be done in query after sqlc regen)
+	
 	var filtered []db.GetUserNotificationsRow
 	for _, n := range notifications {
 		if typeFilter != "" && n.Type != typeFilter {
@@ -822,7 +822,7 @@ func (s *Service) MarkAllNotificationsAsRead(ctx context.Context, userID uuid.UU
 	return nil
 }
 
-// Communities Management
+
 
 func (s *Service) GetAllCommunities(ctx context.Context, spaceID uuid.UUID, category, status string, limit, offset int32) ([]GetAllCommunitiesResponse, error) {
 	communities, err := s.store.ListAllCommunitiesAdmin(ctx, db.ListAllCommunitiesAdminParams{
@@ -863,14 +863,14 @@ func (s *Service) GetAllCommunities(ctx context.Context, spaceID uuid.UUID, cate
 }
 
 func (s *Service) CreateCommunity(ctx context.Context, adminID uuid.UUID, req CreateCommunityRequest) (*db.Community, error) {
-	// Validate that the space exists
-	// _, err := s.store.GetSpace(ctx, req.SpaceID)
-	// if err != nil {
-	// 	if err == sql.ErrNoRows {
-	// 		return nil, fmt.Errorf("space with ID %s does not exist. Please ensure you have a valid space configured. Run backend/scripts/create-default-space.sql to create a default space", req.SpaceID)
-	// 	}
-	// 	return nil, fmt.Errorf("failed to validate space: %w", err)
-	// }
+	
+	
+	
+	
+	
+	
+	
+	
 
 	community, err := s.store.CreateCommunity(ctx, db.CreateCommunityParams{
 		SpaceID:     req.SpaceID,
@@ -887,7 +887,7 @@ func (s *Service) CreateCommunity(ctx context.Context, adminID uuid.UUID, req Cr
 		return nil, fmt.Errorf("failed to create community: %w", err)
 	}
 
-	// Audit log
+	
 	details := fmt.Sprintf(`{"name": "%s", "category": "%s"}`, req.Name, req.Category)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -914,7 +914,7 @@ func (s *Service) UpdateCommunity(ctx context.Context, communityID, adminID uuid
 		return nil, fmt.Errorf("failed to update community: %w", err)
 	}
 
-	// Audit log
+	
 	details := fmt.Sprintf(`{"name": "%s"}`, req.Name)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -928,7 +928,7 @@ func (s *Service) UpdateCommunity(ctx context.Context, communityID, adminID uuid
 }
 
 func (s *Service) DeleteCommunity(ctx context.Context, communityID, adminID uuid.UUID) error {
-	// Audit log before deletion
+	
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
 		Action:       "delete_community",
@@ -954,7 +954,7 @@ func (s *Service) UpdateCommunityStatus(ctx context.Context, communityID, adminI
 		return nil, fmt.Errorf("failed to update community status: %w", err)
 	}
 
-	// Audit log
+	
 	details := fmt.Sprintf(`{"status": "%s"}`, status)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -977,7 +977,7 @@ func (s *Service) AssignCommunityModerator(ctx context.Context, communityID, use
 		return fmt.Errorf("failed to assign moderator: %w", err)
 	}
 
-	// Audit log
+	
 	details := fmt.Sprintf(`{"user_id": "%s", "permissions": %v}`, userID.String(), permissions)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -990,7 +990,7 @@ func (s *Service) AssignCommunityModerator(ctx context.Context, communityID, use
 	return nil
 }
 
-// Announcements Management
+
 
 func (s *Service) GetAllAnnouncements(ctx context.Context, spaceID uuid.UUID, status, priority string, limit, offset int32) ([]CreateAnnouncementRequest, error) {
 	announcements, err := s.store.ListAllAnnouncementsAdmin(ctx, db.ListAllAnnouncementsAdminParams{
@@ -1041,7 +1041,7 @@ func (s *Service) CreateAnnouncement(ctx context.Context, adminID uuid.UUID, req
 		return nil, fmt.Errorf("failed to create announcement: %w", err)
 	}
 
-	// Audit log
+	
 	details := fmt.Sprintf(`{"title": "%s", "type": "%s"}`, req.Title, req.Type)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -1071,7 +1071,7 @@ func (s *Service) UpdateAnnouncement(ctx context.Context, announcementID, adminI
 		return nil, fmt.Errorf("failed to update announcement: %w", err)
 	}
 
-	// Audit log
+	
 	details := fmt.Sprintf(`{"title": "%s"}`, req.Title)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -1085,7 +1085,7 @@ func (s *Service) UpdateAnnouncement(ctx context.Context, announcementID, adminI
 }
 
 func (s *Service) DeleteAnnouncement(ctx context.Context, announcementID, adminID uuid.UUID) error {
-	// Audit log before deletion
+	
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
 		Action:       "delete_announcement",
@@ -1111,7 +1111,7 @@ func (s *Service) UpdateAnnouncementStatus(ctx context.Context, announcementID, 
 		return nil, fmt.Errorf("failed to update announcement status: %w", err)
 	}
 
-	// Audit log
+	
 	details := fmt.Sprintf(`{"status": "%s"}`, status)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -1124,7 +1124,7 @@ func (s *Service) UpdateAnnouncementStatus(ctx context.Context, announcementID, 
 	return &announcement, nil
 }
 
-// Events Management
+
 
 func (s *Service) GetAllEvents(ctx context.Context, spaceID uuid.UUID, status, category string, limit, offset int32) ([]CreateEventRequest, error) {
 	events, err := s.store.ListAllEventsAdmin(ctx, db.ListAllEventsAdminParams{
@@ -1184,7 +1184,7 @@ func (s *Service) CreateEvent(ctx context.Context, adminID uuid.UUID, req Create
 		return nil, fmt.Errorf("failed to create event: %w", err)
 	}
 
-	// Audit log
+	
 	details := fmt.Sprintf(`{"title": "%s", "category": "%s"}`, req.Title, req.Category)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -1237,7 +1237,7 @@ func (s *Service) UpdateEvent(ctx context.Context, eventID, adminID uuid.UUID, r
 		return nil, fmt.Errorf("failed to update event: %w", err)
 	}
 
-	// Audit log
+	
 	details := fmt.Sprintf(`{"title": "%s"}`, req.Title)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -1251,7 +1251,7 @@ func (s *Service) UpdateEvent(ctx context.Context, eventID, adminID uuid.UUID, r
 }
 
 func (s *Service) DeleteEvent(ctx context.Context, eventID, adminID uuid.UUID) error {
-	// Audit log before deletion
+	
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
 		Action:       "delete_event",
@@ -1277,7 +1277,7 @@ func (s *Service) UpdateEventStatus(ctx context.Context, eventID, adminID uuid.U
 		return nil, fmt.Errorf("failed to update event status: %w", err)
 	}
 
-	// Audit log
+	
 	details := fmt.Sprintf(`{"status": "%s"}`, status)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -1298,10 +1298,10 @@ func (s *Service) GetEventRegistrations(ctx context.Context, eventID uuid.UUID) 
 	return attendees, nil
 }
 
-// Additional User Management
+
 
 func (s *Service) CreateUser(ctx context.Context, adminID uuid.UUID, req CreateUserRequest) (*db.User, error) {
-	// Hash password
+	
 	hashedPassword, err := hashPassword(req.Password)
 	if err != nil {
 		return nil, fmt.Errorf("failed to hash password: %w", err)
@@ -1326,7 +1326,7 @@ func (s *Service) CreateUser(ctx context.Context, adminID uuid.UUID, req CreateU
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	// Audit log
+	
 	details := fmt.Sprintf(`{"username": "%s", "email": "%s"}`, req.Username, req.Email)
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -1340,7 +1340,7 @@ func (s *Service) CreateUser(ctx context.Context, adminID uuid.UUID, req CreateU
 }
 
 func (s *Service) UpdateUser(ctx context.Context, userID, adminID uuid.UUID, req UpdateUserRequest) (*db.User, error) {
-	// Get current user to preserve fields not being updated
+	
 	fullName := ""
 	if req.FullName != nil {
 		fullName = *req.FullName
@@ -1362,7 +1362,7 @@ func (s *Service) UpdateUser(ctx context.Context, userID, adminID uuid.UUID, req
 		return nil, fmt.Errorf("failed to update user: %w", err)
 	}
 
-	// Update roles separately if provided
+	
 	if len(req.Roles) > 0 {
 		_, err = s.store.UpdateUserRole(ctx, db.UpdateUserRoleParams{
 			ID:    userID,
@@ -1373,7 +1373,7 @@ func (s *Service) UpdateUser(ctx context.Context, userID, adminID uuid.UUID, req
 		}
 	}
 
-	// Update status separately if provided
+	
 	if req.Status != nil {
 		err = s.store.UpdateUserAccountStatus(ctx, db.UpdateUserAccountStatusParams{
 			ID:     userID,
@@ -1384,7 +1384,7 @@ func (s *Service) UpdateUser(ctx context.Context, userID, adminID uuid.UUID, req
 		}
 	}
 
-	// Audit log
+	
 	details := fmt.Sprintf(`{"user_id": "%s"}`, userID.String())
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
@@ -1411,7 +1411,7 @@ func (s *Service) ResetUserPassword(ctx context.Context, userID, adminID uuid.UU
 		return fmt.Errorf("failed to reset password: %w", err)
 	}
 
-	// Audit log
+	
 	_, _ = s.store.CreateAuditLog(ctx, db.CreateAuditLogParams{
 		AdminUserID:  adminID,
 		Action:       "reset_user_password",
@@ -1423,9 +1423,9 @@ func (s *Service) ResetUserPassword(ctx context.Context, userID, adminID uuid.UU
 	return nil
 }
 
-// Helper function for password hashing
+
 func hashPassword(password string) (string, error) {
-	// TODO: Implement proper password hashing (bcrypt, argon2, etc.)
-	// For now, returning a placeholder
+	
+	
 	return "hashed_" + password, nil
 }

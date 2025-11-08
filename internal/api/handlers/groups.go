@@ -3,26 +3,26 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/connect-univyn/connect_server/internal/util/auth"
-	"github.com/connect-univyn/connect_server/internal/service/groups"
-	"github.com/connect-univyn/connect_server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/service/groups"
+	"github.com/connect-univyn/connect-server/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-// GroupHandler handles group-related HTTP requests
+
 type GroupHandler struct {
 	groupService *groups.Service
 }
 
-// NewGroupHandler creates a new group handler
+
 func NewGroupHandler(groupService *groups.Service) *GroupHandler {
 	return &GroupHandler{
 		groupService: groupService,
 	}
 }
 
-// CreateGroup handles POST /api/groups
+
 func (h *GroupHandler) CreateGroup(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -37,7 +37,7 @@ func (h *GroupHandler) CreateGroup(c *gin.Context) {
 		return
 	}
 	
-	// Set the creator from the auth payload
+	
 	creatorID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user", "Invalid user ID"))
@@ -54,7 +54,7 @@ func (h *GroupHandler) CreateGroup(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(group))
 }
 
-// GetGroup handles GET /api/groups/:id
+
 func (h *GroupHandler) GetGroup(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -62,7 +62,7 @@ func (h *GroupHandler) GetGroup(c *gin.Context) {
 		return
 	}
 	
-	// Try to get user ID from auth payload (optional for public groups)
+	
 	var userID uuid.UUID
 	if payload, exists := c.Get("authorization_payload"); exists {
 		authPayload := payload.(*auth.Payload)
@@ -78,7 +78,7 @@ func (h *GroupHandler) GetGroup(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(group))
 }
 
-// ListGroups handles GET /api/groups
+
 func (h *GroupHandler) ListGroups(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
@@ -87,7 +87,7 @@ func (h *GroupHandler) ListGroups(c *gin.Context) {
 		return
 	}
 	
-	// Try to get user ID from auth payload (optional)
+	
 	var userID uuid.UUID
 	if payload, exists := c.Get("authorization_payload"); exists {
 		authPayload := payload.(*auth.Payload)
@@ -95,7 +95,7 @@ func (h *GroupHandler) ListGroups(c *gin.Context) {
 	}
 	
 	page, limit := parsePagination(c)
-	sortBy := c.DefaultQuery("sort", "recent") // members, recent
+	sortBy := c.DefaultQuery("sort", "recent") 
 	
 	params := groups.ListGroupsParams{
 		UserID:  userID,
@@ -114,7 +114,7 @@ func (h *GroupHandler) ListGroups(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(groupList))
 }
 
-// SearchGroups handles GET /api/groups/search
+
 func (h *GroupHandler) SearchGroups(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -129,7 +129,7 @@ func (h *GroupHandler) SearchGroups(c *gin.Context) {
 		return
 	}
 	
-	// Try to get user ID from auth payload (optional)
+	
 	var userID uuid.UUID
 	if payload, exists := c.Get("authorization_payload"); exists {
 		authPayload := payload.(*auth.Payload)
@@ -151,7 +151,7 @@ func (h *GroupHandler) SearchGroups(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(results))
 }
 
-// UpdateGroup handles PUT /api/groups/:id
+
 func (h *GroupHandler) UpdateGroup(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -174,7 +174,7 @@ func (h *GroupHandler) UpdateGroup(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(group))
 }
 
-// GetUserGroups handles GET /api/users/groups
+
 func (h *GroupHandler) GetUserGroups(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -205,7 +205,7 @@ func (h *GroupHandler) GetUserGroups(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(userGroups))
 }
 
-// JoinGroup handles POST /api/groups/:id/join
+
 func (h *GroupHandler) JoinGroup(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -235,7 +235,7 @@ func (h *GroupHandler) JoinGroup(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(membership))
 }
 
-// LeaveGroup handles POST /api/groups/:id/leave
+
 func (h *GroupHandler) LeaveGroup(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -265,7 +265,7 @@ func (h *GroupHandler) LeaveGroup(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Successfully left group"}))
 }
 
-// GetGroupJoinRequests handles GET /api/groups/:id/join-requests
+
 func (h *GroupHandler) GetGroupJoinRequests(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -282,7 +282,7 @@ func (h *GroupHandler) GetGroupJoinRequests(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(requests))
 }
 
-// AddGroupAdmin handles POST /api/groups/:id/admins
+
 func (h *GroupHandler) AddGroupAdmin(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -305,7 +305,7 @@ func (h *GroupHandler) AddGroupAdmin(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(membership))
 }
 
-// RemoveGroupAdmin handles DELETE /api/groups/:id/admins/:userId
+
 func (h *GroupHandler) RemoveGroupAdmin(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -328,7 +328,7 @@ func (h *GroupHandler) RemoveGroupAdmin(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Admin removed successfully"}))
 }
 
-// AddGroupModerator handles POST /api/groups/:id/moderators
+
 func (h *GroupHandler) AddGroupModerator(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -351,7 +351,7 @@ func (h *GroupHandler) AddGroupModerator(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(membership))
 }
 
-// RemoveGroupModerator handles DELETE /api/groups/:id/moderators/:userId
+
 func (h *GroupHandler) RemoveGroupModerator(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -374,7 +374,7 @@ func (h *GroupHandler) RemoveGroupModerator(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Moderator removed successfully"}))
 }
 
-// UpdateGroupMemberRole handles PUT /api/groups/:id/members/:userId/role
+
 func (h *GroupHandler) UpdateGroupMemberRole(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -403,7 +403,7 @@ func (h *GroupHandler) UpdateGroupMemberRole(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Member role updated successfully"}))
 }
 
-// CreateProjectRole handles POST /api/groups/:id/roles
+
 func (h *GroupHandler) CreateProjectRole(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -426,7 +426,7 @@ func (h *GroupHandler) CreateProjectRole(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(role))
 }
 
-// GetProjectRoles handles GET /api/groups/:id/roles
+
 func (h *GroupHandler) GetProjectRoles(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -443,7 +443,7 @@ func (h *GroupHandler) GetProjectRoles(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(roles))
 }
 
-// ApplyForProjectRole handles POST /api/roles/:roleId/apply
+
 func (h *GroupHandler) ApplyForProjectRole(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -479,7 +479,7 @@ func (h *GroupHandler) ApplyForProjectRole(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(application))
 }
 
-// GetRoleApplications handles GET /api/groups/:id/applications
+
 func (h *GroupHandler) GetRoleApplications(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {

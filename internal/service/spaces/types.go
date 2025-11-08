@@ -3,12 +3,12 @@ package spaces
 import (
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
 
-// CreateSpaceRequest represents the request to create a space
+
 type CreateSpaceRequest struct {
 	Name         string  `json:"name" binding:"required,min=2,max=100"`
 	Slug         string  `json:"slug" binding:"required,min=2,max=100"`
@@ -21,7 +21,7 @@ type CreateSpaceRequest struct {
 	PhoneNumber  *string `json:"phone_number,omitempty"`
 }
 
-// UpdateSpaceRequest represents the request to update a space
+
 type UpdateSpaceRequest struct {
 	Name         *string                `json:"name,omitempty"`
 	Slug         *string                `json:"slug,omitempty"`
@@ -37,7 +37,7 @@ type UpdateSpaceRequest struct {
 	Settings     *pqtype.NullRawMessage `json:"settings,omitempty"`
 }
 
-// SpaceResponse represents the response for a space
+
 type SpaceResponse struct {
 	ID           uuid.UUID             `json:"id"`
 	Name         string                `json:"name"`
@@ -56,7 +56,7 @@ type SpaceResponse struct {
 	UpdatedAt    *time.Time            `json:"updated_at,omitempty"`
 }
 
-// PaginatedSpacesResponse represents paginated spaces response
+
 type PaginatedSpacesResponse struct {
 	Spaces []*SpaceResponse `json:"spaces"`
 	Total  int64            `json:"total"`
@@ -64,7 +64,7 @@ type PaginatedSpacesResponse struct {
 	Limit  int32            `json:"limit"`
 }
 
-// ToSpaceResponse converts a database space to a response
+
 func ToSpaceResponse(space *db.Space) *SpaceResponse {
 	if space == nil {
 		return nil

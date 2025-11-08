@@ -6,15 +6,15 @@ import (
 	"strings"
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	"github.com/connect-univyn/connect_server/internal/service/users"
-	"github.com/connect-univyn/connect_server/internal/util"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	"github.com/connect-univyn/connect-server/internal/service/users"
+	"github.com/connect-univyn/connect-server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-// AuthHandler handles authentication-related HTTP requests
+
 type AuthHandler struct {
 	userService          *users.Service
 	tokenMaker           auth.Maker
@@ -23,7 +23,7 @@ type AuthHandler struct {
 	refreshTokenDuration time.Duration
 }
 
-// NewAuthHandler creates a new auth handler
+
 func NewAuthHandler(
 	userService *users.Service,
 	tokenMaker auth.Maker,
@@ -40,13 +40,13 @@ func NewAuthHandler(
 	}
 }
 
-// LoginRequest represents login request
+
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
 
-// LoginResponse represents login response
+
 type LoginResponse struct {
 	AccessToken           string              `json:"access_token"`
 	RefreshToken          string              `json:"refresh_token"`
@@ -55,7 +55,7 @@ type LoginResponse struct {
 	User                  *users.UserResponse `json:"user"`
 }
 
-// Login handles POST /api/users/login
+
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -64,14 +64,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 	req.Email = strings.ToLower(req.Email)
 
-	// Authenticate user
+	
 	user, err := h.userService.Authenticate(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
 		util.HandleError(c, err)
 		return
 	}
 
-	// Create access token
+	
 	accessToken, accessPayload, err := h.tokenMaker.CreateToken(
 		user.ID.String(),
 		user.Username,
@@ -83,7 +83,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// Create refresh token
+	
 	refreshToken, refreshPayload, err := h.tokenMaker.CreateToken(
 		user.ID.String(),
 		user.Username,
@@ -95,7 +95,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// Create session in database
+	
 	var ipAddress sql.NullString
 	if c.ClientIP() != "" {
 		ipAddress = sql.NullString{String: c.ClientIP(), Valid: true}
@@ -129,18 +129,18 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(response))
 }
 
-// RefreshTokenRequest represents refresh token request
+
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
-// RefreshTokenResponse represents refresh token response
+
 type RefreshTokenResponse struct {
 	AccessToken          string    `json:"access_token"`
 	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
 }
 
-// RefreshToken handles POST /api/users/refresh
+
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	var req RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -148,14 +148,14 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	// Verify refresh token
+	
 	refreshPayload, err := h.tokenMaker.VerifyToken(req.RefreshToken)
 	if err != nil {
 		util.HandleError(c, err)
 		return
 	}
 
-	// Get session from database
+	
 	session, err := h.store.GetSession(c.Request.Context(), refreshPayload.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -166,31 +166,31 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	// Check if session is blocked
+	
 	if session.IsBlocked {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("blocked_session", "Session is blocked"))
 		return
 	}
 
-	// Check if session user matches token user
+	
 	if session.UserID.String() != refreshPayload.UserID {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("invalid_session", "Session user mismatch"))
 		return
 	}
 
-	// Check if refresh token matches
+	
 	if session.RefreshToken != req.RefreshToken {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("invalid_token", "Token mismatch"))
 		return
 	}
 
-	// Check if session has expired
+	
 	if time.Now().After(session.ExpiresAt) {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("expired_session", "Session has expired"))
 		return
 	}
 
-	// Create new access token
+	
 	accessToken, accessPayload, err := h.tokenMaker.CreateToken(
 		refreshPayload.UserID,
 		refreshPayload.Username,
@@ -210,9 +210,9 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(response))
 }
 
-// Logout handles POST /api/users/logout
+
 func (h *AuthHandler) Logout(c *gin.Context) {
-	// Get authenticated user from context (set by auth middleware)
+	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
@@ -221,12 +221,12 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 
 	authPayload := payload.(*auth.Payload)
 
-	// TODO: Block or delete the session
-	// For now, we just return success
-	// In production, you'd want to:
-	// 1. Mark the session as blocked in the database
-	// 2. Or delete the session entirely
-	// 3. Consider implementing a token blacklist
+	
+	
+	
+	
+	
+	
 
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{
 		"message": "Logged out successfully",
@@ -234,7 +234,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	}))
 }
 
-// GetSession handles GET /api/sessions/:id
+
 func (h *AuthHandler) GetSession(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -242,7 +242,7 @@ func (h *AuthHandler) GetSession(c *gin.Context) {
 		return
 	}
 
-	// TODO: Verify user has permission to view this session
+	
 
 	session, err := h.store.GetSession(c.Request.Context(), sessionID)
 	if err != nil {

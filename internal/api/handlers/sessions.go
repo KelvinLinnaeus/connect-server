@@ -3,25 +3,25 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/connect-univyn/connect_server/internal/service/sessions"
-	"github.com/connect-univyn/connect_server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/service/sessions"
+	"github.com/connect-univyn/connect-server/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-// SessionHandler handles session-related HTTP requests
+
 type SessionHandler struct {
 	sessionService *sessions.Service
 }
 
-// NewSessionHandler creates a new session handler
+
 func NewSessionHandler(sessionService *sessions.Service) *SessionHandler {
 	return &SessionHandler{
 		sessionService: sessionService,
 	}
 }
 
-// GetSession handles GET /api/sessions/:id
+
 func (h *SessionHandler) GetSession(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {

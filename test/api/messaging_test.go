@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 	"github.com/google/uuid"
 )
 
@@ -74,7 +74,7 @@ func TestSendMessage(t *testing.T) {
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	token := ts.CreateAuthToken(t, user.ID)
 
-	// Use a mock conversation ID
+	
 	conversationID := uuid.New().String()
 
 	testCases := []struct {
@@ -122,9 +122,9 @@ func TestGetConversationMessages(t *testing.T) {
 	conversationID := uuid.New().String()
 	url := fmt.Sprintf("/api/conversations/%s/messages", conversationID)
 	
-	// This will likely return 404 or 403, but that's OK for testing
+	
 	recorder := ts.MakeRequest(t, http.MethodGet, url, nil, token)
-	// Accept various codes as the conversation doesn't exist
+	
 	if recorder.Code != http.StatusOK && recorder.Code != http.StatusNotFound && recorder.Code != http.StatusForbidden {
 		CheckResponseCode(t, recorder, http.StatusOK)
 	}
@@ -142,7 +142,7 @@ func TestMarkMessagesAsRead(t *testing.T) {
 	url := fmt.Sprintf("/api/conversations/%s/read", conversationID)
 	
 	recorder := ts.MakeRequest(t, http.MethodPost, url, nil, token)
-	// Accept various codes
+	
 	if recorder.Code != http.StatusOK && recorder.Code != http.StatusNotFound && recorder.Code != http.StatusForbidden {
 		CheckResponseCode(t, recorder, http.StatusOK)
 	}
@@ -217,7 +217,7 @@ func TestGetOrCreateDirectConversation(t *testing.T) {
 				data := ParseSuccessResponse(t, recorder)
 				RequireFieldExists(t, data, "conversation_id")
 
-				// Verify conversation_id is a valid UUID
+				
 				conversationIDStr, ok := data["conversation_id"].(string)
 				if !ok {
 					t.Errorf("conversation_id should be a string")
@@ -228,7 +228,7 @@ func TestGetOrCreateDirectConversation(t *testing.T) {
 					t.Errorf("conversation_id should be a valid UUID, got: %s", conversationIDStr)
 				}
 
-				// Test idempotency - creating the same direct conversation again should return the same ID
+				
 				recorder2 := ts.MakeRequest(t, http.MethodPost, "/api/conversations/direct", tc.body, tc.token)
 				CheckResponseCode(t, recorder2, http.StatusOK)
 

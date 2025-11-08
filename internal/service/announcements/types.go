@@ -7,20 +7,20 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
-// Announcement Request Types
+
 
 type CreateAnnouncementRequest struct {
 	SpaceID        uuid.UUID              `json:"space_id" binding:"required"`
 	Title          string                 `json:"title" binding:"required,min=3,max=200"`
 	Content        string                 `json:"content" binding:"required,min=1"`
-	Type           string                 `json:"type" binding:"required"` // info, warning, urgent, maintenance
-	TargetAudience []string               `json:"target_audience,omitempty"` // empty = all users
-	Priority       *string                `json:"priority,omitempty"` // low, normal, high
+	Type           string                 `json:"type" binding:"required"` 
+	TargetAudience []string               `json:"target_audience,omitempty"` 
+	Priority       *string                `json:"priority,omitempty"` 
 	ScheduledFor   *time.Time             `json:"scheduled_for,omitempty"`
 	ExpiresAt      *time.Time             `json:"expires_at,omitempty"`
-	Attachments    *pqtype.NullRawMessage `json:"attachments,omitempty"` // JSONB for files/links
+	Attachments    *pqtype.NullRawMessage `json:"attachments,omitempty"` 
 	IsPinned       *bool                  `json:"is_pinned,omitempty"`
-	AuthorID       uuid.UUID              // Set from auth context, not from request body
+	AuthorID       uuid.UUID              
 }
 
 type UpdateAnnouncementRequest struct {
@@ -46,7 +46,7 @@ type ListAnnouncementsParams struct {
 	Limit          int32
 }
 
-// Announcement Response Types
+
 
 type AnnouncementResponse struct {
 	ID             uuid.UUID              `json:"id"`
@@ -82,7 +82,7 @@ type AnnouncementDetailResponse struct {
 	CreatedAt      *time.Time             `json:"created_at,omitempty"`
 	UpdatedAt      *time.Time             `json:"updated_at,omitempty"`
 
-	// Author info
+	
 	AuthorID       *uuid.UUID `json:"author_id,omitempty"`
 	AuthorUsername string     `json:"author_username"`
 	AuthorFullName string     `json:"author_full_name"`
@@ -100,7 +100,7 @@ type AnnouncementListResponse struct {
 	IsPinned       *bool      `json:"is_pinned,omitempty"`
 	CreatedAt      *time.Time `json:"created_at,omitempty"`
 
-	// Author
+	
 	AuthorUsername string `json:"author_username"`
 	AuthorFullName string `json:"author_full_name"`
 }

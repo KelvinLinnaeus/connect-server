@@ -5,40 +5,40 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/connect-univyn/connect_server/internal/live"
+	"github.com/connect-univyn/connect-server/internal/live"
 	"github.com/gin-gonic/gin"
 )
 
-// MetricsHandler handles metrics endpoints
+
 type MetricsHandler struct {
 	liveService *live.Service
 }
 
-// NewMetricsHandler creates a new metrics handler
+
 func NewMetricsHandler(liveService *live.Service) *MetricsHandler {
 	return &MetricsHandler{
 		liveService: liveService,
 	}
 }
 
-// HandlePrometheusMetrics handles Prometheus-compatible metrics endpoint
+
 func (h *MetricsHandler) HandlePrometheusMetrics(c *gin.Context) {
 	if h.liveService == nil {
 		c.String(http.StatusServiceUnavailable, "# Live service not available\n")
 		return
 	}
 
-	// Get WebSocket metrics
+	
 	wsMetrics := h.liveService.GetWebSocketMetrics()
 
-	// Get Redis broker metrics (if available)
+	
 	brokerMetrics := h.liveService.GetBrokerMetrics()
 
-	// Build Prometheus format output
+	
 	var output string
 	now := time.Now().UnixMilli()
 
-	// WebSocket metrics
+	
 	output += "# HELP websocket_active_connections Current number of active WebSocket connections\n"
 	output += "# TYPE websocket_active_connections gauge\n"
 	output += fmt.Sprintf("websocket_active_connections %d %d\n", wsMetrics.ActiveConnections, now)
@@ -71,7 +71,7 @@ func (h *MetricsHandler) HandlePrometheusMetrics(c *gin.Context) {
 	output += "# TYPE websocket_message_throughput_sec gauge\n"
 	output += fmt.Sprintf("websocket_message_throughput_sec %.2f %d\n", wsMetrics.GetMessageThroughput(), now)
 
-	// Redis broker metrics (if available)
+	
 	if brokerMetrics != nil {
 		output += "# HELP redis_events_published Total events published to Redis\n"
 		output += "# TYPE redis_events_published counter\n"
@@ -100,7 +100,7 @@ func (h *MetricsHandler) HandlePrometheusMetrics(c *gin.Context) {
 	c.String(http.StatusOK, output)
 }
 
-// HandleJSONMetrics handles JSON metrics endpoint
+
 func (h *MetricsHandler) HandleJSONMetrics(c *gin.Context) {
 	if h.liveService == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -109,10 +109,10 @@ func (h *MetricsHandler) HandleJSONMetrics(c *gin.Context) {
 		return
 	}
 
-	// Get WebSocket metrics
+	
 	wsMetrics := h.liveService.GetWebSocketMetrics()
 
-	// Get Redis broker metrics (if available)
+	
 	brokerMetrics := h.liveService.GetBrokerMetrics()
 
 	response := gin.H{

@@ -7,41 +7,41 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
-// CreateConversationRequest represents the request to create a new conversation
+
 type CreateConversationRequest struct {
 	SpaceID          uuid.UUID              `json:"space_id" binding:"required"`
 	Name             *string                `json:"name,omitempty"`
 	Avatar           *string                `json:"avatar,omitempty"`
 	Description      *string                `json:"description,omitempty"`
-	ConversationType string                 `json:"conversation_type" binding:"required"` // direct, group, channel
+	ConversationType string                 `json:"conversation_type" binding:"required"` 
 	Settings         *pqtype.NullRawMessage `json:"settings,omitempty"`
 	ParticipantIDs   []uuid.UUID            `json:"participant_ids" binding:"required,min=1"`
 }
 
-// SendMessageRequest represents the request to send a message
+
 type SendMessageRequest struct {
 	ConversationID uuid.UUID              `json:"conversation_id" binding:"required"`
 	SenderID       uuid.UUID              `json:"sender_id"`
 	RecipientID    *uuid.UUID             `json:"recipient_id,omitempty"`
 	Content        string                 `json:"content" binding:"required,min=1"`
 	Attachments    *pqtype.NullRawMessage `json:"attachments,omitempty"`
-	MessageType    string                 `json:"message_type,omitempty"` // text, image, file, audio, video
+	MessageType    string                 `json:"message_type,omitempty"` 
 	ReplyToID      *uuid.UUID             `json:"reply_to_id,omitempty"`
 }
 
-// UpdateParticipantSettingsRequest represents participant preferences
+
 type UpdateParticipantSettingsRequest struct {
 	NotificationsEnabled *bool                  `json:"notifications_enabled,omitempty"`
 	CustomSettings       *pqtype.NullRawMessage `json:"custom_settings,omitempty"`
 }
 
-// AddReactionRequest represents adding a reaction to a message
+
 type AddReactionRequest struct {
 	Emoji  string    `json:"emoji" binding:"required"`
 	UserID uuid.UUID `json:"user_id" binding:"required"`
 }
 
-// ConversationResponse represents a conversation
+
 type ConversationResponse struct {
 	ID               uuid.UUID              `json:"id"`
 	SpaceID          uuid.UUID              `json:"space_id"`
@@ -58,7 +58,7 @@ type ConversationResponse struct {
 	UnreadCount      int64                  `json:"unread_count"`
 }
 
-// ConversationDetailResponse represents detailed conversation info
+
 type ConversationDetailResponse struct {
 	ID                   uuid.UUID              `json:"id"`
 	SpaceID              uuid.UUID              `json:"space_id"`
@@ -81,7 +81,7 @@ type ConversationDetailResponse struct {
 	LastSenderFullName   *string                `json:"last_sender_full_name,omitempty"`
 }
 
-// MessageResponse represents a message
+
 type MessageResponse struct {
 	ID             uuid.UUID              `json:"id"`
 	ConversationID uuid.UUID              `json:"conversation_id"`
@@ -101,7 +101,7 @@ type MessageResponse struct {
 	SenderAvatar   *string                `json:"sender_avatar,omitempty"`
 }
 
-// MessageDetailResponse represents a message with reply context
+
 type MessageDetailResponse struct {
 	ID             uuid.UUID              `json:"id"`
 	ConversationID uuid.UUID              `json:"conversation_id"`
@@ -123,7 +123,7 @@ type MessageDetailResponse struct {
 	ReplyUsername  *string                `json:"reply_username,omitempty"`
 }
 
-// ParticipantResponse represents a conversation participant
+
 type ParticipantResponse struct {
 	ID                   uuid.UUID  `json:"id"`
 	Username             string     `json:"username"`
@@ -136,7 +136,7 @@ type ParticipantResponse struct {
 	NotificationsEnabled bool       `json:"notifications_enabled"`
 }
 
-// GetConversationMessagesParams represents parameters for getting messages
+
 type GetConversationMessagesParams struct {
 	ConversationID uuid.UUID
 	Page           int32

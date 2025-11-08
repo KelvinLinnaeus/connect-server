@@ -7,14 +7,14 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
-// CreateGroupRequest represents the request to create a new group
+
 type CreateGroupRequest struct {
 	SpaceID          uuid.UUID              `json:"space_id" binding:"required"`
 	CommunityID      *uuid.UUID             `json:"community_id,omitempty"`
 	Name             string                 `json:"name" binding:"required,min=1,max=100"`
 	Description      *string                `json:"description,omitempty"`
 	Category         string                 `json:"category" binding:"required"`
-	GroupType        string                 `json:"group_type" binding:"required"` // project, study, social
+	GroupType        string                 `json:"group_type" binding:"required"` 
 	Avatar           *string                `json:"avatar,omitempty"`
 	Banner           *string                `json:"banner,omitempty"`
 	AllowInvites     *bool                  `json:"allow_invites,omitempty"`
@@ -24,7 +24,7 @@ type CreateGroupRequest struct {
 	Settings         *pqtype.NullRawMessage `json:"settings,omitempty"`
 }
 
-// UpdateGroupRequest represents the request to update a group
+
 type UpdateGroupRequest struct {
 	Name             string                 `json:"name" binding:"required,min=1,max=100"`
 	Description      *string                `json:"description,omitempty"`
@@ -37,7 +37,7 @@ type UpdateGroupRequest struct {
 	Settings         *pqtype.NullRawMessage `json:"settings,omitempty"`
 }
 
-// CreateProjectRoleRequest represents the request to create a project role
+
 type CreateProjectRoleRequest struct {
 	Name           string   `json:"name" binding:"required"`
 	Description    *string  `json:"description,omitempty"`
@@ -46,30 +46,30 @@ type CreateProjectRoleRequest struct {
 	SkillsRequired []string `json:"skills_required,omitempty"`
 }
 
-// ApplyForRoleRequest represents the request to apply for a project role
+
 type ApplyForRoleRequest struct {
 	Message *string `json:"message,omitempty"`
 }
 
-// AddGroupAdminRequest represents the request to add a group admin
+
 type AddGroupAdminRequest struct {
 	UserID      uuid.UUID `json:"user_id" binding:"required"`
 	Permissions []string  `json:"permissions,omitempty"`
 }
 
-// AddGroupModeratorRequest represents the request to add a group moderator
+
 type AddGroupModeratorRequest struct {
 	UserID      uuid.UUID `json:"user_id" binding:"required"`
 	Permissions []string  `json:"permissions,omitempty"`
 }
 
-// UpdateMemberRoleRequest represents the request to update a member's role
+
 type UpdateMemberRoleRequest struct {
 	Role        string   `json:"role" binding:"required"`
 	Permissions []string `json:"permissions,omitempty"`
 }
 
-// GroupResponse represents a basic group response
+
 type GroupResponse struct {
 	ID               uuid.UUID              `json:"id"`
 	SpaceID          uuid.UUID              `json:"space_id"`
@@ -93,7 +93,7 @@ type GroupResponse struct {
 	UpdatedAt        *time.Time             `json:"updated_at,omitempty"`
 }
 
-// GroupDetailResponse represents detailed group information
+
 type GroupDetailResponse struct {
 	ID                uuid.UUID              `json:"id"`
 	SpaceID           uuid.UUID              `json:"space_id"`
@@ -124,7 +124,7 @@ type GroupDetailResponse struct {
 	ActualPostCount   int64                  `json:"actual_post_count"`
 }
 
-// GroupListResponse represents a group in list view
+
 type GroupListResponse struct {
 	ID                uuid.UUID              `json:"id"`
 	SpaceID           uuid.UUID              `json:"space_id"`
@@ -152,7 +152,7 @@ type GroupListResponse struct {
 	ActualMemberCount int64                  `json:"actual_member_count"`
 }
 
-// UserGroupResponse represents a user's group membership
+
 type UserGroupResponse struct {
 	ID               uuid.UUID              `json:"id"`
 	SpaceID          uuid.UUID              `json:"space_id"`
@@ -179,7 +179,7 @@ type UserGroupResponse struct {
 	JoinedAt         *time.Time             `json:"joined_at,omitempty"`
 }
 
-// GroupMemberResponse represents a group member
+
 type GroupMemberResponse struct {
 	ID          uuid.UUID  `json:"id"`
 	Username    string     `json:"username"`
@@ -193,7 +193,7 @@ type GroupMemberResponse struct {
 	Permissions []string   `json:"permissions"`
 }
 
-// GroupMembershipResponse represents a membership action result
+
 type GroupMembershipResponse struct {
 	ID          uuid.UUID  `json:"id"`
 	GroupID     uuid.UUID  `json:"group_id"`
@@ -204,7 +204,7 @@ type GroupMembershipResponse struct {
 	Permissions []string   `json:"permissions"`
 }
 
-// ProjectRoleResponse represents a project role
+
 type ProjectRoleResponse struct {
 	ID             uuid.UUID  `json:"id"`
 	GroupID        uuid.UUID  `json:"group_id"`
@@ -218,7 +218,7 @@ type ProjectRoleResponse struct {
 	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 }
 
-// RoleApplicationResponse represents a role application
+
 type RoleApplicationResponse struct {
 	ID          uuid.UUID  `json:"id"`
 	RoleID      uuid.UUID  `json:"role_id"`
@@ -235,16 +235,16 @@ type RoleApplicationResponse struct {
 	RoleName    string     `json:"role_name"`
 }
 
-// ListGroupsParams represents parameters for listing groups
+
 type ListGroupsParams struct {
 	UserID  uuid.UUID
 	SpaceID uuid.UUID
-	SortBy  string // "members", "recent"
+	SortBy  string 
 	Page    int32
 	Limit   int32
 }
 
-// SearchGroupsParams represents parameters for searching groups
+
 type SearchGroupsParams struct {
 	UserID  uuid.UUID
 	SpaceID uuid.UUID

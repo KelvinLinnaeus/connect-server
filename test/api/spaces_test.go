@@ -6,19 +6,19 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 )
 
 func TestCreateSpace(t *testing.T) {
 	ts := SetupTestServer(t)
 	defer ts.Teardown()
 
-	// Create test user and token
+	
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	token := ts.CreateAuthToken(t, user.ID)
 
-	// Generate unique slug for this test run to avoid conflicts
+	
 	uniqueSlug := fmt.Sprintf("new-university-%s", uuid.New().String()[:8])
 
 	testCases := []struct {
@@ -82,7 +82,7 @@ func TestListSpaces(t *testing.T) {
 	ts := SetupTestServer(t)
 	defer ts.Teardown()
 
-	// Create a test space
+	
 	testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 
 	recorder := ts.MakeRequest(t, http.MethodGet, "/api/spaces?page=1&limit=20", nil, "")
@@ -96,7 +96,7 @@ func TestGetSpace(t *testing.T) {
 	ts := SetupTestServer(t)
 	defer ts.Teardown()
 
-	// Create a test space
+	
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 
 	testCases := []struct {
@@ -134,7 +134,7 @@ func TestUpdateSpace(t *testing.T) {
 	ts := SetupTestServer(t)
 	defer ts.Teardown()
 
-	// Create test space and user
+	
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	token := ts.CreateAuthToken(t, user.ID)
@@ -194,7 +194,7 @@ func TestDeleteSpace(t *testing.T) {
 	ts := SetupTestServer(t)
 	defer ts.Teardown()
 
-	// Create test space and user
+	
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	token := ts.CreateAuthToken(t, user.ID)

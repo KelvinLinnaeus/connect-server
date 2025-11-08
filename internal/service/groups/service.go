@@ -5,22 +5,22 @@ import (
 	"database/sql"
 	"fmt"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
 
-// Service handles group business logic
+
 type Service struct {
 	store db.Store
 }
 
-// NewService creates a new group service
+
 func NewService(store db.Store) *Service {
 	return &Service{store: store}
 }
 
-// CreateGroup creates a new group
+
 func (s *Service) CreateGroup(ctx context.Context, req CreateGroupRequest) (*GroupResponse, error) {
 	var communityID uuid.NullUUID
 	var description, avatar, banner sql.NullString
@@ -78,7 +78,7 @@ func (s *Service) CreateGroup(ctx context.Context, req CreateGroupRequest) (*Gro
 	return s.toGroupResponse(group), nil
 }
 
-// GetGroupByID gets a group by ID
+
 func (s *Service) GetGroupByID(ctx context.Context, userID, groupID uuid.UUID) (*GroupDetailResponse, error) {
 	group, err := s.store.GetGroupByID(ctx, db.GetGroupByIDParams{
 		UserID: userID,
@@ -94,7 +94,7 @@ func (s *Service) GetGroupByID(ctx context.Context, userID, groupID uuid.UUID) (
 	return s.toGroupDetailResponse(group), nil
 }
 
-// ListGroups lists groups with pagination and sorting
+
 func (s *Service) ListGroups(ctx context.Context, params ListGroupsParams) ([]GroupListResponse, error) {
 	offset := (params.Page - 1) * params.Limit
 	
@@ -112,7 +112,7 @@ func (s *Service) ListGroups(ctx context.Context, params ListGroupsParams) ([]Gr
 	return s.toGroupListResponses(groups), nil
 }
 
-// SearchGroups searches groups by name, description, or tags
+
 func (s *Service) SearchGroups(ctx context.Context, params SearchGroupsParams) ([]GroupListResponse, error) {
 	groups, err := s.store.SearchGroups(ctx, db.SearchGroupsParams{
 		UserID:  params.UserID,
@@ -126,7 +126,7 @@ func (s *Service) SearchGroups(ctx context.Context, params SearchGroupsParams) (
 	return s.toSearchGroupListResponses(groups), nil
 }
 
-// UpdateGroup updates a group
+
 func (s *Service) UpdateGroup(ctx context.Context, groupID uuid.UUID, req UpdateGroupRequest) (*GroupResponse, error) {
 	var description, avatar, banner sql.NullString
 	var allowInvites, allowMemberPosts sql.NullBool
@@ -175,7 +175,7 @@ func (s *Service) UpdateGroup(ctx context.Context, groupID uuid.UUID, req Update
 	return s.toGroupResponse(group), nil
 }
 
-// GetUserGroups gets all groups a user is a member of
+
 func (s *Service) GetUserGroups(ctx context.Context, userID, spaceID uuid.UUID) ([]UserGroupResponse, error) {
 	groups, err := s.store.GetUserGroups(ctx, db.GetUserGroupsParams{
 		UserID:  userID,
@@ -188,7 +188,7 @@ func (s *Service) GetUserGroups(ctx context.Context, userID, spaceID uuid.UUID) 
 	return s.toUserGroupResponses(groups), nil
 }
 
-// JoinGroup allows a user to join a group
+
 func (s *Service) JoinGroup(ctx context.Context, groupID, userID uuid.UUID, invitedBy *uuid.UUID) (*GroupMembershipResponse, error) {
 	var inviter uuid.NullUUID
 	if invitedBy != nil {
@@ -204,13 +204,13 @@ func (s *Service) JoinGroup(ctx context.Context, groupID, userID uuid.UUID, invi
 		return nil, fmt.Errorf("failed to join group: %w", err)
 	}
 	
-	// Update group stats asynchronously
+	
 	go s.store.UpdateGroupStats(context.Background(), groupID)
 	
 	return s.toGroupMembershipResponse(membership), nil
 }
 
-// LeaveGroup allows a user to leave a group
+
 func (s *Service) LeaveGroup(ctx context.Context, groupID, userID uuid.UUID) error {
 	err := s.store.LeaveGroup(ctx, db.LeaveGroupParams{
 		GroupID: groupID,
@@ -220,13 +220,13 @@ func (s *Service) LeaveGroup(ctx context.Context, groupID, userID uuid.UUID) err
 		return fmt.Errorf("failed to leave group: %w", err)
 	}
 	
-	// Update group stats asynchronously
+	
 	go s.store.UpdateGroupStats(context.Background(), groupID)
 	
 	return nil
 }
 
-// GetGroupJoinRequests gets all join requests for a group
+
 func (s *Service) GetGroupJoinRequests(ctx context.Context, groupID uuid.UUID) ([]GroupMemberResponse, error) {
 	requests, err := s.store.GetGroupJoinRequests(ctx, groupID)
 	if err != nil {
@@ -236,7 +236,7 @@ func (s *Service) GetGroupJoinRequests(ctx context.Context, groupID uuid.UUID) (
 	return s.toGroupMemberResponses(requests), nil
 }
 
-// AddGroupAdmin adds an admin to a group
+
 func (s *Service) AddGroupAdmin(ctx context.Context, groupID uuid.UUID, req AddGroupAdminRequest) (*GroupMembershipResponse, error) {
 	permissions := req.Permissions
 	if permissions == nil {
@@ -256,7 +256,7 @@ func (s *Service) AddGroupAdmin(ctx context.Context, groupID uuid.UUID, req AddG
 	return s.toGroupMembershipResponse(membership), nil
 }
 
-// RemoveGroupAdmin removes an admin from a group
+
 func (s *Service) RemoveGroupAdmin(ctx context.Context, groupID, userID uuid.UUID) error {
 	err := s.store.RemoveGroupAdmin(ctx, db.RemoveGroupAdminParams{
 		GroupID: groupID,
@@ -269,7 +269,7 @@ func (s *Service) RemoveGroupAdmin(ctx context.Context, groupID, userID uuid.UUI
 	return nil
 }
 
-// AddGroupModerator adds a moderator to a group
+
 func (s *Service) AddGroupModerator(ctx context.Context, groupID uuid.UUID, req AddGroupModeratorRequest) (*GroupMembershipResponse, error) {
 	permissions := req.Permissions
 	if permissions == nil {
@@ -289,7 +289,7 @@ func (s *Service) AddGroupModerator(ctx context.Context, groupID uuid.UUID, req 
 	return s.toGroupMembershipResponse(membership), nil
 }
 
-// RemoveGroupModerator removes a moderator from a group
+
 func (s *Service) RemoveGroupModerator(ctx context.Context, groupID, userID uuid.UUID) error {
 	err := s.store.RemoveGroupModerator(ctx, db.RemoveGroupModeratorParams{
 		GroupID: groupID,
@@ -302,7 +302,7 @@ func (s *Service) RemoveGroupModerator(ctx context.Context, groupID, userID uuid
 	return nil
 }
 
-// IsGroupAdmin checks if a user is a group admin
+
 func (s *Service) IsGroupAdmin(ctx context.Context, groupID, userID uuid.UUID) (bool, error) {
 	isAdmin, err := s.store.IsGroupAdmin(ctx, db.IsGroupAdminParams{
 		GroupID: groupID,
@@ -315,7 +315,7 @@ func (s *Service) IsGroupAdmin(ctx context.Context, groupID, userID uuid.UUID) (
 	return isAdmin, nil
 }
 
-// IsGroupModerator checks if a user is a group moderator
+
 func (s *Service) IsGroupModerator(ctx context.Context, groupID, userID uuid.UUID) (bool, error) {
 	isModerator, err := s.store.IsGroupModerator(ctx, db.IsGroupModeratorParams{
 		GroupID: groupID,
@@ -328,7 +328,7 @@ func (s *Service) IsGroupModerator(ctx context.Context, groupID, userID uuid.UUI
 	return isModerator, nil
 }
 
-// UpdateGroupMemberRole updates a member's role
+
 func (s *Service) UpdateGroupMemberRole(ctx context.Context, groupID, userID uuid.UUID, req UpdateMemberRoleRequest) error {
 	permissions := req.Permissions
 	if permissions == nil {
@@ -348,7 +348,7 @@ func (s *Service) UpdateGroupMemberRole(ctx context.Context, groupID, userID uui
 	return nil
 }
 
-// CreateProjectRole creates a new project role
+
 func (s *Service) CreateProjectRole(ctx context.Context, groupID uuid.UUID, req CreateProjectRoleRequest) (*ProjectRoleResponse, error) {
 	var description, requirements sql.NullString
 	
@@ -379,7 +379,7 @@ func (s *Service) CreateProjectRole(ctx context.Context, groupID uuid.UUID, req 
 	return s.toProjectRoleResponse(role), nil
 }
 
-// GetProjectRoles gets all project roles for a group
+
 func (s *Service) GetProjectRoles(ctx context.Context, groupID uuid.UUID) ([]ProjectRoleResponse, error) {
 	roles, err := s.store.GetProjectRoles(ctx, groupID)
 	if err != nil {
@@ -389,7 +389,7 @@ func (s *Service) GetProjectRoles(ctx context.Context, groupID uuid.UUID) ([]Pro
 	return s.toProjectRoleResponses(roles), nil
 }
 
-// ApplyForProjectRole applies for a project role
+
 func (s *Service) ApplyForProjectRole(ctx context.Context, roleID, userID uuid.UUID, req ApplyForRoleRequest) (*RoleApplicationResponse, error) {
 	var message sql.NullString
 	if req.Message != nil {
@@ -408,7 +408,7 @@ func (s *Service) ApplyForProjectRole(ctx context.Context, roleID, userID uuid.U
 	return s.toSimpleRoleApplicationResponse(application), nil
 }
 
-// GetRoleApplications gets all role applications for a group
+
 func (s *Service) GetRoleApplications(ctx context.Context, groupID uuid.UUID) ([]RoleApplicationResponse, error) {
 	applications, err := s.store.GetRoleApplications(ctx, groupID)
 	if err != nil {
@@ -418,7 +418,7 @@ func (s *Service) GetRoleApplications(ctx context.Context, groupID uuid.UUID) ([
 	return s.toRoleApplicationResponses(applications), nil
 }
 
-// Helper conversion functions
+
 
 func (s *Service) toGroupResponse(g db.Group) *GroupResponse {
 	resp := &GroupResponse{

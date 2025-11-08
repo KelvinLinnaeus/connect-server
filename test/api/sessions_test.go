@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
@@ -17,12 +17,12 @@ func TestGetSession(t *testing.T) {
 	ts := SetupTestServer(t)
 	defer ts.Teardown()
 
-	// Create test space and user
+	
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	token := ts.CreateAuthToken(t, user.ID)
 
-	// Create a session
+	
 	session, err := ts.TestDB.Store.CreateSession(context.Background(), db.CreateSessionParams{
 		ID:           uuid.New(),
 		UserID:       user.ID,
@@ -31,7 +31,7 @@ func TestGetSession(t *testing.T) {
 		UserAgent:    "test-agent",
 		IsBlocked:    false,
 		SpaceID:      spaceID,
-		ExpiresAt:    time.Now().Add(24 * time.Hour), // Set expiry to 24 hours from now
+		ExpiresAt:    time.Now().Add(24 * time.Hour), 
 	})
 	require.NoError(t, err)
 

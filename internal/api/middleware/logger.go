@@ -8,33 +8,33 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// LoggerMiddleware logs HTTP requests with structured logging
+
 func LoggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Generate request ID
+		
 		requestID := uuid.New().String()
 		c.Set("request_id", requestID)
 
-		// Start timer
+		
 		start := time.Now()
 		path := c.Request.URL.Path
 		raw := c.Request.URL.RawQuery
 
-		// Process request
+		
 		c.Next()
 
-		// Calculate latency
+		
 		latency := time.Since(start)
 
-		// Get status code
+		
 		statusCode := c.Writer.Status()
 
-		// Build query string
+		
 		if raw != "" {
 			path = path + "?" + raw
 		}
 
-		// Log request details
+		
 		logger := log.Info()
 
 		if statusCode >= 500 {

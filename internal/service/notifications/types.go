@@ -7,20 +7,20 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
-// CreateNotificationRequest represents the request to create a notification
+
 type CreateNotificationRequest struct {
 	ToUserID       uuid.UUID              `json:"to_user_id" binding:"required"`
 	FromUserID     *uuid.UUID             `json:"from_user_id,omitempty"`
-	Type           string                 `json:"type" binding:"required"` // like, comment, follow, mention, message, etc.
+	Type           string                 `json:"type" binding:"required"` 
 	Title          *string                `json:"title,omitempty"`
 	Message        *string                `json:"message,omitempty"`
-	RelatedID      *uuid.UUID             `json:"related_id,omitempty"` // ID of related resource (post, comment, etc.)
+	RelatedID      *uuid.UUID             `json:"related_id,omitempty"` 
 	Metadata       *pqtype.NullRawMessage `json:"metadata,omitempty"`
-	Priority       string                 `json:"priority,omitempty"` // low, normal, high, urgent
+	Priority       string                 `json:"priority,omitempty"` 
 	ActionRequired bool                   `json:"action_required,omitempty"`
 }
 
-// NotificationResponse represents a notification
+
 type NotificationResponse struct {
 	ID             uuid.UUID              `json:"id"`
 	ToUserID       uuid.UUID              `json:"to_user_id"`
@@ -36,7 +36,7 @@ type NotificationResponse struct {
 	CreatedAt      *time.Time             `json:"created_at,omitempty"`
 }
 
-// NotificationWithUserResponse includes sender information
+
 type NotificationWithUserResponse struct {
 	ID             uuid.UUID              `json:"id"`
 	ToUserID       uuid.UUID              `json:"to_user_id"`
@@ -55,12 +55,12 @@ type NotificationWithUserResponse struct {
 	CreatedAt      *time.Time             `json:"created_at,omitempty"`
 }
 
-// GetNotificationsParams represents parameters for listing notifications
+
 type GetNotificationsParams struct {
 	UserID   uuid.UUID
-	IsRead   *bool // nil = all, true = read only, false = unread only
+	IsRead   *bool 
 	Page     int32
 	Limit    int32
 	Offset   int32
-	Priority *string // filter by priority
+	Priority *string 
 }

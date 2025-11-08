@@ -1,4 +1,4 @@
-module github.com/connect-univyn/connect_server
+module github.com/connect-univyn/connect-server
 
 go 1.24.0
 
@@ -10,7 +10,6 @@ require (
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
-	github.com/jackc/pgx/v5 v5.7.6
 	github.com/lib/pq v1.10.9
 	github.com/o1egl/paseto v1.0.0
 	github.com/redis/go-redis/v9 v9.7.0

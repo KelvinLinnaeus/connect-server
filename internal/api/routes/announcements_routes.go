@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"github.com/connect-univyn/connect_server/internal/api/handlers"
-	"github.com/connect-univyn/connect_server/internal/api/middleware"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/api/handlers"
+	"github.com/connect-univyn/connect-server/internal/api/middleware"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,11 +16,11 @@ func SetupAnnouncementRoutes(
 	announcements := r.Group("/announcements")
 	announcements.Use(middleware.RateLimitMiddleware(rateLimitDefault))
 	{
-		// Public routes
+		
 		announcements.GET("", announcementHandler.ListAnnouncements)
 		announcements.GET("/:id", announcementHandler.GetAnnouncement)
 
-		// Protected routes
+		
 		authenticated := announcements.Group("")
 		authenticated.Use(middleware.AuthMiddleware(tokenMaker))
 		{

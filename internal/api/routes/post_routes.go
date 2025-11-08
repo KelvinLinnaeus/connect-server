@@ -1,18 +1,18 @@
 package routes
 
 import (
-	"github.com/connect-univyn/connect_server/internal/api/handlers"
-	"github.com/connect-univyn/connect_server/internal/api/middleware"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/api/handlers"
+	"github.com/connect-univyn/connect-server/internal/api/middleware"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/gin-gonic/gin"
 )
 
-// SetupPostRoutes sets up post-related routes
+
 func SetupPostRoutes(r *gin.RouterGroup, postHandler *handlers.PostHandler, tokenMaker auth.Maker, rateLimitDefault int) {
 	posts := r.Group("/posts")
 	posts.Use(middleware.RateLimitMiddleware(rateLimitDefault))
 	{
-		// Public routes (optional auth)
+		
 		posts.GET("/search", postHandler.SearchPosts)
 		posts.GET("/advanced-search", postHandler.AdvancedSearchPosts)
 		posts.GET("/trending", postHandler.GetTrendingPosts)
@@ -23,7 +23,7 @@ func SetupPostRoutes(r *gin.RouterGroup, postHandler *handlers.PostHandler, toke
 		posts.GET("/community/:community_id", postHandler.GetCommunityPosts)
 		posts.GET("/group/:group_id", postHandler.GetGroupPosts)
 
-		// Protected routes - require authentication
+		
 		postsAuth := posts.Group("")
 		postsAuth.Use(middleware.AuthMiddleware(tokenMaker))
 		{
@@ -38,15 +38,15 @@ func SetupPostRoutes(r *gin.RouterGroup, postHandler *handlers.PostHandler, toke
 		}
 	}
 
-	// Topics routes (related to posts)
+	
 	topics := r.Group("/topics")
 	topics.Use(middleware.RateLimitMiddleware(rateLimitDefault))
 	{
-		// Public route
-		topics.GET("/trending", postHandler.GetTrendingTopics) // Get trending topics/hashtags
+		
+		topics.GET("/trending", postHandler.GetTrendingTopics) 
 	}
 
-	// Comments routes
+	
 	comments := r.Group("/comments")
 	comments.Use(middleware.RateLimitMiddleware(rateLimitDefault))
 	comments.Use(middleware.AuthMiddleware(tokenMaker))

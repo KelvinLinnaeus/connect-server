@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 )
 
 func TestCreateReport(t *testing.T) {

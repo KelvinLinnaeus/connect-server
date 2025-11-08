@@ -5,11 +5,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/connect-univyn/connect_server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util"
 	"github.com/gin-gonic/gin"
 )
 
-// RateLimiter implements a simple token bucket rate limiter
+
 type RateLimiter struct {
 	clients map[string]*client
 	mu      sync.RWMutex
@@ -23,9 +23,9 @@ type client struct {
 	mu         sync.Mutex
 }
 
-// NewRateLimiter creates a new rate limiter
-// rate: maximum number of requests allowed per window
-// window: time window for rate limiting (typically 1 minute)
+
+
+
 func NewRateLimiter(rate int, window time.Duration) *RateLimiter {
 	rl := &RateLimiter{
 		clients: make(map[string]*client),
@@ -33,21 +33,21 @@ func NewRateLimiter(rate int, window time.Duration) *RateLimiter {
 		window:  window,
 	}
 
-	// Cleanup goroutine to remove old clients
+	
 	go rl.cleanup()
 
 	return rl
 }
 
-// RateLimitMiddleware creates a rate limiting middleware
+
 func RateLimitMiddleware(rate int) gin.HandlerFunc {
 	limiter := NewRateLimiter(rate, time.Minute)
 
 	return func(c *gin.Context) {
-		// Use client IP as identifier
+		
 		clientID := c.ClientIP()
 
-		// Check if request is allowed
+		
 		if !limiter.Allow(clientID) {
 			c.Header("Retry-After", "60")
 			c.AbortWithStatusJSON(http.StatusTooManyRequests,
@@ -59,7 +59,7 @@ func RateLimitMiddleware(rate int) gin.HandlerFunc {
 	}
 }
 
-// Allow checks if a request from the given client is allowed
+
 func (rl *RateLimiter) Allow(clientID string) bool {
 	rl.mu.Lock()
 	c, exists := rl.clients[clientID]
@@ -75,16 +75,16 @@ func (rl *RateLimiter) Allow(clientID string) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	// Refill tokens based on time passed
+	
 	now := time.Now()
 	elapsed := now.Sub(c.lastRefill)
 
 	if elapsed >= rl.window {
-		// Full window passed, refill to max
+		
 		c.tokens = rl.rate
 		c.lastRefill = now
 	} else {
-		// Partial refill based on time elapsed
+		
 		tokensToAdd := int(float64(rl.rate) * elapsed.Seconds() / rl.window.Seconds())
 		c.tokens += tokensToAdd
 		if c.tokens > rl.rate {
@@ -95,7 +95,7 @@ func (rl *RateLimiter) Allow(clientID string) bool {
 		}
 	}
 
-	// Check if we have tokens available
+	
 	if c.tokens > 0 {
 		c.tokens--
 		return true
@@ -104,7 +104,7 @@ func (rl *RateLimiter) Allow(clientID string) bool {
 	return false
 }
 
-// cleanup removes clients that haven't made requests in a while
+
 func (rl *RateLimiter) cleanup() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()

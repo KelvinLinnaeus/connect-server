@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"net/http"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	"github.com/connect-univyn/connect_server/internal/util"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	"github.com/connect-univyn/connect-server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
-// RequireRole creates a middleware that checks if the user has the required role
-// This middleware should be used after AuthMiddleware to ensure authorization_payload exists
+
+
 func RequireRole(store db.Store, role string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		payload, exists := c.Get("authorization_payload")
@@ -26,7 +26,7 @@ func RequireRole(store db.Store, role string) gin.HandlerFunc {
 
 		authPayload := payload.(*auth.Payload)
 
-		// Parse user ID from payload
+		
 		userID, err := uuid.Parse(authPayload.UserID)
 		if err != nil {
 			log.Error().Err(err).Str("user_id", authPayload.UserID).Msg("Invalid user ID in token payload")
@@ -35,7 +35,7 @@ func RequireRole(store db.Store, role string) gin.HandlerFunc {
 			return
 		}
 
-		// Fetch user from database to get current roles
+		
 		user, err := store.GetUserByID(c.Request.Context(), userID)
 		if err != nil {
 			log.Error().Err(err).Str("user_id", userID.String()).Msg("Failed to fetch user for role verification")
@@ -44,7 +44,7 @@ func RequireRole(store db.Store, role string) gin.HandlerFunc {
 			return
 		}
 
-		// Check if user has the required role
+		
 		hasRole := false
 		for _, userRole := range user.Roles {
 			if userRole == role {
@@ -65,7 +65,7 @@ func RequireRole(store db.Store, role string) gin.HandlerFunc {
 			return
 		}
 
-		// Log successful authorization for audit trail
+		
 		log.Debug().
 			Str("user_id", userID.String()).
 			Str("username", authPayload.Username).
@@ -76,8 +76,8 @@ func RequireRole(store db.Store, role string) gin.HandlerFunc {
 	}
 }
 
-// RequireRoles creates a middleware that checks if the user has at least one of the required roles
-// This middleware should be used after AuthMiddleware to ensure authorization_payload exists
+
+
 func RequireRoles(store db.Store, roles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		payload, exists := c.Get("authorization_payload")
@@ -90,7 +90,7 @@ func RequireRoles(store db.Store, roles ...string) gin.HandlerFunc {
 
 		authPayload := payload.(*auth.Payload)
 
-		// Parse user ID from payload
+		
 		userID, err := uuid.Parse(authPayload.UserID)
 		if err != nil {
 			log.Error().Err(err).Str("user_id", authPayload.UserID).Msg("Invalid user ID in token payload")
@@ -99,7 +99,7 @@ func RequireRoles(store db.Store, roles ...string) gin.HandlerFunc {
 			return
 		}
 
-		// Fetch user from database to get current roles
+		
 		user, err := store.GetUserByID(c.Request.Context(), userID)
 		if err != nil {
 			log.Error().Err(err).Str("user_id", userID.String()).Msg("Failed to fetch user for role verification")
@@ -108,7 +108,7 @@ func RequireRoles(store db.Store, roles ...string) gin.HandlerFunc {
 			return
 		}
 
-		// Check if user has at least one of the required roles
+		
 		hasRole := false
 		matchedRole := ""
 		for _, requiredRole := range roles {
@@ -136,7 +136,7 @@ func RequireRoles(store db.Store, roles ...string) gin.HandlerFunc {
 			return
 		}
 
-		// Log successful authorization for audit trail
+		
 		log.Debug().
 			Str("user_id", userID.String()).
 			Str("username", authPayload.Username).
@@ -148,8 +148,8 @@ func RequireRoles(store db.Store, roles ...string) gin.HandlerFunc {
 	}
 }
 
-// RequireOwnership creates a middleware that ensures the user can only access their own resources
-// userIDParam is the name of the URL parameter containing the resource owner's user ID
+
+
 func RequireOwnership(userIDParam string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		payload, exists := c.Get("authorization_payload")
@@ -183,8 +183,8 @@ func RequireOwnership(userIDParam string) gin.HandlerFunc {
 	}
 }
 
-// RequireOwnershipOrRole ensures user owns the resource OR has a privileged role (admin/moderator)
-// This allows admins/moderators to access any user's resources for moderation purposes
+
+
 func RequireOwnershipOrRole(store db.Store, userIDParam string, allowedRoles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		payload, exists := c.Get("authorization_payload")
@@ -198,7 +198,7 @@ func RequireOwnershipOrRole(store db.Store, userIDParam string, allowedRoles ...
 		authPayload := payload.(*auth.Payload)
 		resourceUserID := c.Param(userIDParam)
 
-		// Check ownership first (cheaper than DB query)
+		
 		if authPayload.UserID == resourceUserID {
 			log.Debug().
 				Str("user_id", authPayload.UserID).
@@ -208,7 +208,7 @@ func RequireOwnershipOrRole(store db.Store, userIDParam string, allowedRoles ...
 			return
 		}
 
-		// Not the owner, check if user has privileged role
+		
 		userID, err := uuid.Parse(authPayload.UserID)
 		if err != nil {
 			log.Error().Err(err).Str("user_id", authPayload.UserID).Msg("Invalid user ID in token payload")
@@ -225,7 +225,7 @@ func RequireOwnershipOrRole(store db.Store, userIDParam string, allowedRoles ...
 			return
 		}
 
-		// Check if user has any of the allowed roles
+		
 		hasRole := false
 		matchedRole := ""
 		for _, allowedRole := range allowedRoles {
@@ -265,17 +265,17 @@ func RequireOwnershipOrRole(store db.Store, userIDParam string, allowedRoles ...
 	}
 }
 
-// RequireAdmin is a convenience function that requires the "admin" role
+
 func RequireAdmin(store db.Store) gin.HandlerFunc {
 	return RequireRole(store, "admin")
 }
 
-// RequireModerator is a convenience function that requires the "moderator" role
+
 func RequireModerator(store db.Store) gin.HandlerFunc {
 	return RequireRole(store, "moderator")
 }
 
-// RequireAdminOrModerator is a convenience function that requires either "admin" or "moderator" role
+
 func RequireAdminOrModerator(store db.Store) gin.HandlerFunc {
 	return RequireRoles(store, "admin", "moderator")
 }

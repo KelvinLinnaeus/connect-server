@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/connect-univyn/connect_server/internal/util/auth"
-	"github.com/connect-univyn/connect_server/internal/service/events"
-	"github.com/connect-univyn/connect_server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/service/events"
+	"github.com/connect-univyn/connect-server/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -22,13 +22,13 @@ func NewEventHandler(eventService *events.Service) *EventHandler {
 	}
 }
 
-// CreateEvent godoc
-// @Summary Create event
-// @Tags events
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Router /api/events [post]
+
+
+
+
+
+
+
 func (h *EventHandler) CreateEvent(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -59,12 +59,12 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(event))
 }
 
-// GetEvent godoc
-// @Summary Get event by ID
-// @Tags events
-// @Produce json
-// @Param id path string true "Event ID"
-// @Router /api/events/:id [get]
+
+
+
+
+
+
 func (h *EventHandler) GetEvent(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -72,7 +72,7 @@ func (h *EventHandler) GetEvent(c *gin.Context) {
 		return
 	}
 
-	// Try to get user ID from auth (optional for public events)
+	
 	userID := uuid.Nil
 	if payload, exists := c.Get("authorization_payload"); exists {
 		authPayload := payload.(*auth.Payload)
@@ -90,17 +90,17 @@ func (h *EventHandler) GetEvent(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(event))
 }
 
-// ListEvents godoc
-// @Summary List events
-// @Tags events
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Param category query string false "Category filter"
-// @Param start_date query string false "Start date filter (ISO 8601)"
-// @Param sort query string false "Sort by: upcoming, popular, recent"
-// @Param page query int false "Page number" default(1)
-// @Param limit query int false "Items per page" default(20)
-// @Router /api/events [get]
+
+
+
+
+
+
+
+
+
+
+
 func (h *EventHandler) ListEvents(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -154,12 +154,12 @@ func (h *EventHandler) ListEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(eventsList))
 }
 
-// GetUpcomingEvents godoc
-// @Summary Get upcoming events (next 7 days)
-// @Tags events
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/events/upcoming [get]
+
+
+
+
+
+
 func (h *EventHandler) GetUpcomingEvents(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -176,15 +176,15 @@ func (h *EventHandler) GetUpcomingEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(eventsList))
 }
 
-// GetUserEvents godoc
-// @Summary Get user's registered events
-// @Tags events
-// @Produce json
-// @Security BearerAuth
-// @Param space_id query string true "Space ID"
-// @Param page query int false "Page number" default(1)
-// @Param limit query int false "Items per page" default(20)
-// @Router /api/users/events [get]
+
+
+
+
+
+
+
+
+
 func (h *EventHandler) GetUserEvents(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -224,13 +224,13 @@ func (h *EventHandler) GetUserEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(eventsList))
 }
 
-// SearchEvents godoc
-// @Summary Search events
-// @Tags events
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Param q query string true "Search query"
-// @Router /api/events/search [get]
+
+
+
+
+
+
+
 func (h *EventHandler) SearchEvents(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -267,12 +267,12 @@ func (h *EventHandler) SearchEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(eventsList))
 }
 
-// GetEventCategories godoc
-// @Summary Get event categories
-// @Tags events
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Router /api/events/categories [get]
+
+
+
+
+
+
 func (h *EventHandler) GetEventCategories(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -289,13 +289,13 @@ func (h *EventHandler) GetEventCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(categories))
 }
 
-// RegisterForEvent godoc
-// @Summary Register for event
-// @Tags events
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Event ID"
-// @Router /api/events/:id/register [post]
+
+
+
+
+
+
+
 func (h *EventHandler) RegisterForEvent(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -325,13 +325,13 @@ func (h *EventHandler) RegisterForEvent(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(registration))
 }
 
-// UnregisterFromEvent godoc
-// @Summary Unregister from event
-// @Tags events
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Event ID"
-// @Router /api/events/:id/unregister [post]
+
+
+
+
+
+
+
 func (h *EventHandler) UnregisterFromEvent(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -361,12 +361,12 @@ func (h *EventHandler) UnregisterFromEvent(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Successfully unregistered from event"}))
 }
 
-// GetEventAttendees godoc
-// @Summary Get event attendees
-// @Tags events
-// @Produce json
-// @Param id path string true "Event ID"
-// @Router /api/events/:id/attendees [get]
+
+
+
+
+
+
 func (h *EventHandler) GetEventAttendees(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -383,14 +383,14 @@ func (h *EventHandler) GetEventAttendees(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(attendees))
 }
 
-// MarkEventAttendance godoc
-// @Summary Mark user as attended
-// @Tags events
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Event ID"
-// @Param user_id path string true "User ID"
-// @Router /api/events/:id/attendance/:user_id [post]
+
+
+
+
+
+
+
+
 func (h *EventHandler) MarkEventAttendance(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -413,14 +413,14 @@ func (h *EventHandler) MarkEventAttendance(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Attendance marked successfully"}))
 }
 
-// AddEventCoOrganizer godoc
-// @Summary Add co-organizer to event
-// @Tags events
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Event ID"
-// @Router /api/events/:id/co-organizers [post]
+
+
+
+
+
+
+
+
 func (h *EventHandler) AddEventCoOrganizer(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -443,12 +443,12 @@ func (h *EventHandler) AddEventCoOrganizer(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(coOrganizer))
 }
 
-// GetEventCoOrganizers godoc
-// @Summary Get event co-organizers
-// @Tags events
-// @Produce json
-// @Param id path string true "Event ID"
-// @Router /api/events/:id/co-organizers [get]
+
+
+
+
+
+
 func (h *EventHandler) GetEventCoOrganizers(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -465,14 +465,14 @@ func (h *EventHandler) GetEventCoOrganizers(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(coOrganizers))
 }
 
-// RemoveEventCoOrganizer godoc
-// @Summary Remove co-organizer from event
-// @Tags events
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Event ID"
-// @Param user_id path string true "User ID"
-// @Router /api/events/:id/co-organizers/:user_id [delete]
+
+
+
+
+
+
+
+
 func (h *EventHandler) RemoveEventCoOrganizer(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -495,14 +495,14 @@ func (h *EventHandler) RemoveEventCoOrganizer(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Co-organizer removed successfully"}))
 }
 
-// UpdateEvent godoc
-// @Summary Update event
-// @Tags events
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Event ID"
-// @Router /api/events/:id [put]
+
+
+
+
+
+
+
+
 func (h *EventHandler) UpdateEvent(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -525,14 +525,14 @@ func (h *EventHandler) UpdateEvent(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(event))
 }
 
-// UpdateEventStatus godoc
-// @Summary Update event status
-// @Tags events
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Event ID"
-// @Router /api/events/:id/status [put]
+
+
+
+
+
+
+
+
 func (h *EventHandler) UpdateEventStatus(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {

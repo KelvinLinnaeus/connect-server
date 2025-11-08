@@ -5,20 +5,20 @@ import (
 	"database/sql"
 	"fmt"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	"github.com/connect-univyn/connect_server/internal/live"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	"github.com/connect-univyn/connect-server/internal/live"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"github.com/sqlc-dev/pqtype"
 )
 
-// Service handles messaging business logic
+
 type Service struct {
 	store       db.Store
 	liveService *live.Service
 }
 
-// NewService creates a new messaging service
+
 func NewService(store db.Store, liveService *live.Service) *Service {
 	return &Service{
 		store:       store,
@@ -26,7 +26,7 @@ func NewService(store db.Store, liveService *live.Service) *Service {
 	}
 }
 
-// CreateConversation creates a new conversation
+
 func (s *Service) CreateConversation(ctx context.Context, req CreateConversationRequest) (*ConversationResponse, error) {
 	var name, avatar, description, conversationType sql.NullString
 	var settings pqtype.NullRawMessage
@@ -59,7 +59,7 @@ func (s *Service) CreateConversation(ctx context.Context, req CreateConversation
 		return nil, fmt.Errorf("failed to create conversation: %w", err)
 	}
 	
-	// Add participants
+	
 	if len(req.ParticipantIDs) > 0 {
 		err = s.store.AddConversationParticipants(ctx, db.AddConversationParticipantsParams{
 			ConversationID: conversation.ID,
@@ -73,7 +73,7 @@ func (s *Service) CreateConversation(ctx context.Context, req CreateConversation
 	return s.toConversationResponse(conversation, 0), nil
 }
 
-// GetConversationByID gets a conversation by ID
+
 func (s *Service) GetConversationByID(ctx context.Context, conversationID, userID uuid.UUID) (*ConversationResponse, error) {
 	conversation, err := s.store.GetConversationByID(ctx, db.GetConversationByIDParams{
 		RecipientID: uuid.NullUUID{UUID: userID, Valid: true},
@@ -89,7 +89,7 @@ func (s *Service) GetConversationByID(ctx context.Context, conversationID, userI
 	return s.toConversationDetailResponse(conversation), nil
 }
 
-// GetUserConversations gets all conversations for a user
+
 func (s *Service) GetUserConversations(ctx context.Context, userID uuid.UUID) ([]ConversationDetailResponse, error) {
 	conversations, err := s.store.GetUserConversations(ctx, uuid.NullUUID{UUID: userID, Valid: true})
 	if err != nil {
@@ -99,7 +99,7 @@ func (s *Service) GetUserConversations(ctx context.Context, userID uuid.UUID) ([
 	return s.toUserConversationResponses(conversations), nil
 }
 
-// GetOrCreateDirectConversation gets existing or creates new direct conversation
+
 func (s *Service) GetOrCreateDirectConversation(ctx context.Context, spaceID, user1ID, user2ID uuid.UUID) (uuid.UUID, error) {
 	conversationID, err := s.store.GetOrCreateDirectConversation(ctx, db.GetOrCreateDirectConversationParams{
 		SpaceID:  spaceID,
@@ -110,14 +110,14 @@ func (s *Service) GetOrCreateDirectConversation(ctx context.Context, spaceID, us
 		return uuid.Nil, fmt.Errorf("failed to get or create direct conversation: %w", err)
 	}
 	
-	// If conversation was just created, add both participants
-	// Note: The SQLC query creates the conversation but doesn't add participants
-	// We need to add them here
+	
+	
+	
 	
 	return conversationID, nil
 }
 
-// SendMessage sends a message in a conversation
+
 func (s *Service) SendMessage(ctx context.Context, req SendMessageRequest) (*MessageResponse, error) {
 	var recipientID, replyToID uuid.NullUUID
 	var content, messageType sql.NullString
@@ -154,22 +154,22 @@ func (s *Service) SendMessage(ctx context.Context, req SendMessageRequest) (*Mes
 		return nil, fmt.Errorf("failed to send message: %w", err)
 	}
 	
-	// Update conversation last message asynchronously
+	
 	go s.store.UpdateConversationLastMessage(context.Background(), db.UpdateConversationLastMessageParams{
 		LastMessageID: uuid.NullUUID{UUID: message.ID, Valid: true},
 		ID:            req.ConversationID,
 	})
 	
-	// Get sender info for response
+	
 	messageDetail, err := s.store.GetMessageByID(ctx, message.ID)
 	if err != nil {
-		// Return basic message if we can't get details
+		
 		return s.toBasicMessageResponse(message), nil
 	}
 
 	response := s.toMessageResponse(messageDetail)
 
-	// Publish real-time event for message creation
+	
 	if s.liveService != nil {
 		messagePayload := map[string]interface{}{
 			"id":              message.ID.String(),
@@ -196,7 +196,7 @@ func (s *Service) SendMessage(ctx context.Context, req SendMessageRequest) (*Mes
 	return response, nil
 }
 
-// GetConversationMessages gets messages for a conversation
+
 func (s *Service) GetConversationMessages(ctx context.Context, params GetConversationMessagesParams) ([]MessageDetailResponse, error) {
 	offset := (params.Page - 1) * params.Limit
 	
@@ -212,7 +212,7 @@ func (s *Service) GetConversationMessages(ctx context.Context, params GetConvers
 	return s.toMessageDetailResponses(messages), nil
 }
 
-// GetMessageByID gets a message by ID
+
 func (s *Service) GetMessageByID(ctx context.Context, messageID uuid.UUID) (*MessageResponse, error) {
 	message, err := s.store.GetMessageByID(ctx, messageID)
 	if err != nil {
@@ -225,7 +225,7 @@ func (s *Service) GetMessageByID(ctx context.Context, messageID uuid.UUID) (*Mes
 	return s.toMessageResponse(message), nil
 }
 
-// DeleteMessage deletes a message (soft delete)
+
 func (s *Service) DeleteMessage(ctx context.Context, messageID, senderID uuid.UUID) error {
 	err := s.store.DeleteMessage(ctx, db.DeleteMessageParams{
 		ID:       messageID,
@@ -238,19 +238,19 @@ func (s *Service) DeleteMessage(ctx context.Context, messageID, senderID uuid.UU
 	return nil
 }
 
-// MarkMessagesAsRead marks all unread messages in a conversation as read
+
 func (s *Service) MarkMessagesAsRead(ctx context.Context, conversationID, userID uuid.UUID) error {
-	// Get unread message IDs before marking as read
+	
 	messages, err := s.store.GetConversationMessages(ctx, db.GetConversationMessagesParams{
 		ConversationID: conversationID,
-		Limit:          100, // Get recent unread messages
+		Limit:          100, 
 		Offset:         0,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to get messages: %w", err)
 	}
 
-	// Filter to only unread messages for this user
+	
 	var messageIDs []uuid.UUID
 	for _, msg := range messages {
 		if msg.RecipientID.Valid && msg.RecipientID.UUID == userID && msg.IsRead.Valid && !msg.IsRead.Bool {
@@ -266,7 +266,7 @@ func (s *Service) MarkMessagesAsRead(ctx context.Context, conversationID, userID
 		return fmt.Errorf("failed to mark messages as read: %w", err)
 	}
 
-	// Publish real-time event for message read
+	
 	if s.liveService != nil && len(messageIDs) > 0 {
 		if err := s.liveService.PublishMessageRead(ctx, conversationID, messageIDs, userID); err != nil {
 			log.Error().Err(err).Msg("Failed to publish message.read event")
@@ -276,7 +276,7 @@ func (s *Service) MarkMessagesAsRead(ctx context.Context, conversationID, userID
 	return nil
 }
 
-// GetUnreadMessageCount gets unread message count for a conversation
+
 func (s *Service) GetUnreadMessageCount(ctx context.Context, conversationID, userID uuid.UUID) (int64, error) {
 	count, err := s.store.GetUnreadMessageCount(ctx, db.GetUnreadMessageCountParams{
 		ConversationID: conversationID,
@@ -289,7 +289,7 @@ func (s *Service) GetUnreadMessageCount(ctx context.Context, conversationID, use
 	return count, nil
 }
 
-// GetConversationParticipants gets all participants in a conversation
+
 func (s *Service) GetConversationParticipants(ctx context.Context, conversationID uuid.UUID) ([]ParticipantResponse, error) {
 	participants, err := s.store.GetConversationParticipants(ctx, conversationID)
 	if err != nil {
@@ -299,7 +299,7 @@ func (s *Service) GetConversationParticipants(ctx context.Context, conversationI
 	return s.toParticipantResponses(participants), nil
 }
 
-// AddConversationParticipants adds multiple participants to a conversation
+
 func (s *Service) AddConversationParticipants(ctx context.Context, conversationID uuid.UUID, userIDs []uuid.UUID) error {
 	err := s.store.AddConversationParticipants(ctx, db.AddConversationParticipantsParams{
 		ConversationID: conversationID,
@@ -312,7 +312,7 @@ func (s *Service) AddConversationParticipants(ctx context.Context, conversationI
 	return nil
 }
 
-// LeaveConversation removes a user from a conversation
+
 func (s *Service) LeaveConversation(ctx context.Context, conversationID, userID uuid.UUID) error {
 	err := s.store.LeaveConversation(ctx, db.LeaveConversationParams{
 		ConversationID: conversationID,
@@ -325,7 +325,7 @@ func (s *Service) LeaveConversation(ctx context.Context, conversationID, userID 
 	return nil
 }
 
-// UpdateParticipantSettings updates participant preferences
+
 func (s *Service) UpdateParticipantSettings(ctx context.Context, conversationID, userID uuid.UUID, req UpdateParticipantSettingsRequest) error {
 	var notificationsEnabled sql.NullBool
 	var customSettings pqtype.NullRawMessage
@@ -350,10 +350,10 @@ func (s *Service) UpdateParticipantSettings(ctx context.Context, conversationID,
 	return nil
 }
 
-// AddMessageReaction adds a reaction to a message
+
 func (s *Service) AddMessageReaction(ctx context.Context, messageID uuid.UUID, req AddReactionRequest) error {
-	// The SQLC function uses jsonb_set which requires specific parameters
-	// For simplicity, we'll use a map to represent the reaction
+	
+	
 	err := s.store.AddMessageReaction(ctx, db.AddMessageReactionParams{
 		ID:      messageID,
 		Column2: req.Emoji,
@@ -366,12 +366,12 @@ func (s *Service) AddMessageReaction(ctx context.Context, messageID uuid.UUID, r
 	return nil
 }
 
-// RemoveMessageReaction removes a reaction from a message
+
 func (s *Service) RemoveMessageReaction(ctx context.Context, messageID uuid.UUID, emoji string) error {
-	// Note: The SQLC function signature needs the reactions field
+	
 	err := s.store.RemoveMessageReaction(ctx, db.RemoveMessageReactionParams{
 		ID:        messageID,
-		Reactions: pqtype.NullRawMessage{}, // This needs to be the emoji key to remove
+		Reactions: pqtype.NullRawMessage{}, 
 	})
 	if err != nil {
 		return fmt.Errorf("failed to remove reaction: %w", err)
@@ -380,7 +380,7 @@ func (s *Service) RemoveMessageReaction(ctx context.Context, messageID uuid.UUID
 	return nil
 }
 
-// Helper conversion functions
+
 
 func (s *Service) toConversationResponse(c db.Conversation, unreadCount int64) *ConversationResponse {
 	resp := &ConversationResponse{

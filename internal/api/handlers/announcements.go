@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/connect-univyn/connect_server/internal/util/auth"
-	"github.com/connect-univyn/connect_server/internal/service/announcements"
-	"github.com/connect-univyn/connect_server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/service/announcements"
+	"github.com/connect-univyn/connect-server/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -21,13 +21,13 @@ func NewAnnouncementHandler(announcementService *announcements.Service) *Announc
 	}
 }
 
-// CreateAnnouncement godoc
-// @Summary Create announcement
-// @Tags announcements
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Router /api/announcements [post]
+
+
+
+
+
+
+
 func (h *AnnouncementHandler) CreateAnnouncement(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -58,12 +58,12 @@ func (h *AnnouncementHandler) CreateAnnouncement(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(announcement))
 }
 
-// GetAnnouncement godoc
-// @Summary Get announcement by ID
-// @Tags announcements
-// @Produce json
-// @Param id path string true "Announcement ID"
-// @Router /api/announcements/:id [get]
+
+
+
+
+
+
 func (h *AnnouncementHandler) GetAnnouncement(c *gin.Context) {
 	announcementID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -80,15 +80,15 @@ func (h *AnnouncementHandler) GetAnnouncement(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(announcement))
 }
 
-// ListAnnouncements godoc
-// @Summary List announcements
-// @Tags announcements
-// @Produce json
-// @Param space_id query string true "Space ID"
-// @Param target_audience query string false "Target audience filter (comma-separated)"
-// @Param page query int false "Page number" default(1)
-// @Param limit query int false "Items per page" default(20)
-// @Router /api/announcements [get]
+
+
+
+
+
+
+
+
+
 func (h *AnnouncementHandler) ListAnnouncements(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
@@ -103,8 +103,8 @@ func (h *AnnouncementHandler) ListAnnouncements(c *gin.Context) {
 	}
 
 	if targetAudience := c.Query("target_audience"); targetAudience != "" {
-		// Parse comma-separated target audience
-		// For simplicity, we'll accept a single value for now
+		
+		
 		params.TargetAudience = []string{targetAudience}
 	}
 
@@ -125,14 +125,14 @@ func (h *AnnouncementHandler) ListAnnouncements(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(announcementsList))
 }
 
-// UpdateAnnouncement godoc
-// @Summary Update announcement
-// @Tags announcements
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Announcement ID"
-// @Router /api/announcements/:id [put]
+
+
+
+
+
+
+
+
 func (h *AnnouncementHandler) UpdateAnnouncement(c *gin.Context) {
 	announcementID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -155,14 +155,14 @@ func (h *AnnouncementHandler) UpdateAnnouncement(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(announcement))
 }
 
-// UpdateAnnouncementStatus godoc
-// @Summary Update announcement status
-// @Tags announcements
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Announcement ID"
-// @Router /api/announcements/:id/status [put]
+
+
+
+
+
+
+
+
 func (h *AnnouncementHandler) UpdateAnnouncementStatus(c *gin.Context) {
 	announcementID, err := uuid.Parse(c.Param("id"))
 	if err != nil {

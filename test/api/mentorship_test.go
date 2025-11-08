@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 	"github.com/stretchr/testify/require"
 )
 

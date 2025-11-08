@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
 	"github.com/google/uuid"
 )
 
@@ -20,14 +20,14 @@ func NewService(store db.Store) *Service {
 	}
 }
 
-// CreateEvent creates a new event
+
 func (s *Service) CreateEvent(ctx context.Context, req CreateEventRequest) (*EventResponse, error) {
-	// Validate dates
+	
 	if req.EndDate.Before(req.StartDate) {
 		return nil, fmt.Errorf("end date cannot be before start date")
 	}
 
-	// Convert request to SQLC params
+	
 	params := db.CreateEventParams{
 		SpaceID:              req.SpaceID,
 		Title:                req.Title,
@@ -77,7 +77,7 @@ func (s *Service) CreateEvent(ctx context.Context, req CreateEventRequest) (*Eve
 	}, nil
 }
 
-// GetEventByID retrieves an event by ID with enriched data
+
 func (s *Service) GetEventByID(ctx context.Context, eventID, userID uuid.UUID) (*EventDetailResponse, error) {
 	event, err := s.store.GetEventByID(ctx, db.GetEventByIDParams{
 		UserID: userID,
@@ -120,27 +120,27 @@ func (s *Service) GetEventByID(ctx context.Context, eventID, userID uuid.UUID) (
 	}, nil
 }
 
-// ListEvents retrieves events with filtering and pagination
+
 func (s *Service) ListEvents(ctx context.Context, params ListEventsParams) ([]EventListResponse, error) {
-	// Default pagination
+	
 	if params.Limit == 0 {
 		params.Limit = 20
 	}
 	offset := (params.Page - 1) * params.Limit
 
-	// Prepare start date filter (default to now to exclude past events)
+	
 	startDate := time.Now()
 	if params.StartDate != nil {
 		startDate = *params.StartDate
 	}
 
-	// Prepare category filter
+	
 	category := ""
 	if params.Category != nil {
 		category = *params.Category
 	}
 
-	// Prepare sort parameter
+	
 	var sortBy interface{} = "recent"
 	if params.Sort != nil {
 		sortBy = *params.Sort
@@ -185,7 +185,7 @@ func (s *Service) ListEvents(ctx context.Context, params ListEventsParams) ([]Ev
 	return result, nil
 }
 
-// GetUpcomingEvents retrieves events happening within the next 7 days
+
 func (s *Service) GetUpcomingEvents(ctx context.Context, spaceID uuid.UUID) ([]EventListResponse, error) {
 	events, err := s.store.GetUpcomingEvents(ctx, spaceID)
 	if err != nil {
@@ -217,7 +217,7 @@ func (s *Service) GetUpcomingEvents(ctx context.Context, spaceID uuid.UUID) ([]E
 	return result, nil
 }
 
-// GetUserEvents retrieves events the user is registered for
+
 func (s *Service) GetUserEvents(ctx context.Context, userID, spaceID uuid.UUID, page, limit int32) ([]UserEventResponse, error) {
 	if limit == 0 {
 		limit = 20
@@ -256,9 +256,9 @@ func (s *Service) GetUserEvents(ctx context.Context, userID, spaceID uuid.UUID, 
 	return result, nil
 }
 
-// SearchEvents searches for events by title, description, or tags
+
 func (s *Service) SearchEvents(ctx context.Context, params SearchEventsParams) ([]EventListResponse, error) {
-	// Prepare search pattern for ILIKE
+	
 	searchPattern := "%" + params.Query + "%"
 
 	events, err := s.store.SearchEvents(ctx, db.SearchEventsParams{
@@ -296,7 +296,7 @@ func (s *Service) SearchEvents(ctx context.Context, params SearchEventsParams) (
 	return result, nil
 }
 
-// GetEventCategories retrieves distinct event categories for a space
+
 func (s *Service) GetEventCategories(ctx context.Context, spaceID uuid.UUID) ([]string, error) {
 	categories, err := s.store.GetEventCategories(ctx, spaceID)
 	if err != nil {
@@ -305,7 +305,7 @@ func (s *Service) GetEventCategories(ctx context.Context, spaceID uuid.UUID) ([]
 	return categories, nil
 }
 
-// RegisterForEvent registers a user for an event
+
 func (s *Service) RegisterForEvent(ctx context.Context, eventID, userID uuid.UUID) (*RegistrationResponse, error) {
 	attendee, err := s.store.RegisterForEvent(ctx, db.RegisterForEventParams{
 		EventID: eventID,
@@ -324,7 +324,7 @@ func (s *Service) RegisterForEvent(ctx context.Context, eventID, userID uuid.UUI
 	}, nil
 }
 
-// UnregisterFromEvent removes a user's registration from an event
+
 func (s *Service) UnregisterFromEvent(ctx context.Context, eventID, userID uuid.UUID) error {
 	err := s.store.UnregisterFromEvent(ctx, db.UnregisterFromEventParams{
 		EventID: eventID,
@@ -336,7 +336,7 @@ func (s *Service) UnregisterFromEvent(ctx context.Context, eventID, userID uuid.
 	return nil
 }
 
-// GetEventAttendees retrieves all attendees for an event
+
 func (s *Service) GetEventAttendees(ctx context.Context, eventID uuid.UUID) ([]AttendeeResponse, error) {
 	attendees, err := s.store.GetEventAttendees(ctx, eventID)
 	if err != nil {
@@ -365,7 +365,7 @@ func (s *Service) GetEventAttendees(ctx context.Context, eventID uuid.UUID) ([]A
 	return result, nil
 }
 
-// MarkEventAttendance marks a user as having attended an event
+
 func (s *Service) MarkEventAttendance(ctx context.Context, eventID, userID uuid.UUID) error {
 	err := s.store.MarkEventAttendance(ctx, db.MarkEventAttendanceParams{
 		EventID: eventID,
@@ -377,7 +377,7 @@ func (s *Service) MarkEventAttendance(ctx context.Context, eventID, userID uuid.
 	return nil
 }
 
-// AddEventCoOrganizer adds a co-organizer to an event
+
 func (s *Service) AddEventCoOrganizer(ctx context.Context, eventID, userID uuid.UUID) (*CoOrganizerResponse, error) {
 	coOrganizer, err := s.store.AddEventCoOrganizer(ctx, db.AddEventCoOrganizerParams{
 		EventID: eventID,
@@ -387,8 +387,8 @@ func (s *Service) AddEventCoOrganizer(ctx context.Context, eventID, userID uuid.
 		return nil, fmt.Errorf("failed to add co-organizer: %w", err)
 	}
 
-	// Get user details - we need to query users table
-	// For now, return basic info from event_attendees
+	
+	
 	return &CoOrganizerResponse{
 		ID:           coOrganizer.ID,
 		EventID:      coOrganizer.EventID,
@@ -397,7 +397,7 @@ func (s *Service) AddEventCoOrganizer(ctx context.Context, eventID, userID uuid.
 	}, nil
 }
 
-// GetEventCoOrganizers retrieves all co-organizers for an event
+
 func (s *Service) GetEventCoOrganizers(ctx context.Context, eventID uuid.UUID) ([]CoOrganizerResponse, error) {
 	coOrganizers, err := s.store.GetEventCoOrganizers(ctx, eventID)
 	if err != nil {
@@ -420,7 +420,7 @@ func (s *Service) GetEventCoOrganizers(ctx context.Context, eventID uuid.UUID) (
 	return result, nil
 }
 
-// RemoveEventCoOrganizer removes a co-organizer from an event
+
 func (s *Service) RemoveEventCoOrganizer(ctx context.Context, eventID, userID uuid.UUID) error {
 	err := s.store.RemoveEventCoOrganizer(ctx, db.RemoveEventCoOrganizerParams{
 		EventID: eventID,
@@ -432,9 +432,9 @@ func (s *Service) RemoveEventCoOrganizer(ctx context.Context, eventID, userID uu
 	return nil
 }
 
-// UpdateEvent updates event details
+
 func (s *Service) UpdateEvent(ctx context.Context, eventID uuid.UUID, req UpdateEventRequest) (*EventResponse, error) {
-	// Validate dates
+	
 	if req.EndDate.Before(req.StartDate) {
 		return nil, fmt.Errorf("end date cannot be before start date")
 	}
@@ -487,7 +487,7 @@ func (s *Service) UpdateEvent(ctx context.Context, eventID uuid.UUID, req Update
 	}, nil
 }
 
-// UpdateEventStatus updates the status of an event
+
 func (s *Service) UpdateEventStatus(ctx context.Context, eventID uuid.UUID, status string) (*EventResponse, error) {
 	event, err := s.store.UpdateEventStatus(ctx, db.UpdateEventStatusParams{
 		Status: sql.NullString{String: status, Valid: true},
@@ -522,7 +522,7 @@ func (s *Service) UpdateEventStatus(ctx context.Context, eventID uuid.UUID, stat
 	}, nil
 }
 
-// Helper functions
+
 
 func sqlNullString(s *string) sql.NullString {
 	if s == nil {

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
@@ -21,7 +21,7 @@ func NewService(store db.Store) *Service {
 	}
 }
 
-// CreateAnnouncement creates a new announcement
+
 func (s *Service) CreateAnnouncement(ctx context.Context, req CreateAnnouncementRequest) (*AnnouncementResponse, error) {
 	params := db.CreateAnnouncementParams{
 		SpaceID:        req.SpaceID,
@@ -61,7 +61,7 @@ func (s *Service) CreateAnnouncement(ctx context.Context, req CreateAnnouncement
 	}, nil
 }
 
-// GetAnnouncementByID retrieves an announcement by ID
+
 func (s *Service) GetAnnouncementByID(ctx context.Context, announcementID uuid.UUID) (*AnnouncementDetailResponse, error) {
 	announcement, err := s.store.GetAnnouncementByID(ctx, announcementID)
 	if err != nil {
@@ -93,9 +93,9 @@ func (s *Service) GetAnnouncementByID(ctx context.Context, announcementID uuid.U
 	}, nil
 }
 
-// ListAnnouncements retrieves announcements with filtering and pagination
+
 func (s *Service) ListAnnouncements(ctx context.Context, params ListAnnouncementsParams) ([]AnnouncementListResponse, error) {
-	// Default pagination
+	
 	if params.Limit == 0 {
 		params.Limit = 20
 	}
@@ -131,7 +131,7 @@ func (s *Service) ListAnnouncements(ctx context.Context, params ListAnnouncement
 	return result, nil
 }
 
-// UpdateAnnouncement updates announcement details
+
 func (s *Service) UpdateAnnouncement(ctx context.Context, announcementID uuid.UUID, req UpdateAnnouncementRequest) (*AnnouncementResponse, error) {
 	params := db.UpdateAnnouncementParams{
 		Title:          req.Title,
@@ -170,7 +170,7 @@ func (s *Service) UpdateAnnouncement(ctx context.Context, announcementID uuid.UU
 	}, nil
 }
 
-// UpdateAnnouncementStatus updates the status of an announcement
+
 func (s *Service) UpdateAnnouncementStatus(ctx context.Context, announcementID uuid.UUID, status string) (*AnnouncementResponse, error) {
 	announcement, err := s.store.UpdateAnnouncementStatus(ctx, db.UpdateAnnouncementStatusParams{
 		Status: sql.NullString{String: status, Valid: true},
@@ -199,7 +199,7 @@ func (s *Service) UpdateAnnouncementStatus(ctx context.Context, announcementID u
 	}, nil
 }
 
-// Helper functions
+
 
 func sqlNullString(s *string) sql.NullString {
 	if s == nil {

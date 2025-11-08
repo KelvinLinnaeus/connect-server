@@ -5,26 +5,26 @@ import (
 	"database/sql"
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
 
-// Service provides analytics and reporting operations
+
 type Service struct {
 	store db.Store
 }
 
-// NewService creates a new analytics service
+
 func NewService(store db.Store) *Service {
 	return &Service{store: store}
 }
 
-// ============================================================================
-// Content Moderation & Reporting Operations
-// ============================================================================
 
-// CreateReport submits a new content report
+
+
+
+
 func (s *Service) CreateReport(ctx context.Context, req CreateReportRequest) (*ReportResponse, error) {
 	report, err := s.store.CreateReport(ctx, db.CreateReportParams{
 		SpaceID:     req.SpaceID,
@@ -42,7 +42,7 @@ func (s *Service) CreateReport(ctx context.Context, req CreateReportRequest) (*R
 	return reportToResponse(report), nil
 }
 
-// GetReport retrieves a report with full details including reporter/reviewer info
+
 func (s *Service) GetReport(ctx context.Context, reportID uuid.UUID) (*ReportDetailResponse, error) {
 	report, err := s.store.GetReport(ctx, reportID)
 	if err != nil {
@@ -71,7 +71,7 @@ func (s *Service) GetReport(ctx context.Context, reportID uuid.UUID) (*ReportDet
 	}, nil
 }
 
-// GetReportsByContent retrieves all reports for specific content
+
 func (s *Service) GetReportsByContent(ctx context.Context, contentType string, contentID uuid.UUID) ([]ReportResponse, error) {
 	reports, err := s.store.GetReportsByContent(ctx, db.GetReportsByContentParams{
 		ContentType: contentType,
@@ -89,7 +89,7 @@ func (s *Service) GetReportsByContent(ctx context.Context, contentType string, c
 	return responses, nil
 }
 
-// GetModerationQueue retrieves paginated moderation queue
+
 func (s *Service) GetModerationQueue(ctx context.Context, spaceID uuid.UUID, page, limit int32) ([]ReportDetailResponse, error) {
 	if limit == 0 {
 		limit = 20
@@ -132,7 +132,7 @@ func (s *Service) GetModerationQueue(ctx context.Context, spaceID uuid.UUID, pag
 	return responses, nil
 }
 
-// GetPendingReports retrieves pending reports ordered by priority
+
 func (s *Service) GetPendingReports(ctx context.Context, spaceID uuid.UUID) ([]ReportDetailResponse, error) {
 	reports, err := s.store.GetPendingReports(ctx, spaceID)
 	if err != nil {
@@ -165,7 +165,7 @@ func (s *Service) GetPendingReports(ctx context.Context, spaceID uuid.UUID) ([]R
 	return responses, nil
 }
 
-// UpdateReport updates a report with moderation decision
+
 func (s *Service) UpdateReport(ctx context.Context, reportID, reviewerID uuid.UUID, req UpdateReportRequest) (*ReportResponse, error) {
 	report, err := s.store.UpdateReport(ctx, db.UpdateReportParams{
 		ID:              reportID,
@@ -181,7 +181,7 @@ func (s *Service) UpdateReport(ctx context.Context, reportID, reviewerID uuid.UU
 	return reportToResponse(report), nil
 }
 
-// GetContentModerationStats provides moderation statistics overview
+
 func (s *Service) GetContentModerationStats(ctx context.Context, spaceID uuid.UUID) (*ContentModerationStatsResponse, error) {
 	stats, err := s.store.GetContentModerationStats(ctx, spaceID)
 	if err != nil {
@@ -197,11 +197,11 @@ func (s *Service) GetContentModerationStats(ctx context.Context, spaceID uuid.UU
 	}, nil
 }
 
-// ============================================================================
-// System & Space Metrics Operations
-// ============================================================================
 
-// GetSystemMetrics retrieves current system-wide metrics
+
+
+
+
 func (s *Service) GetSystemMetrics(ctx context.Context, spaceID uuid.UUID) (*SystemMetricsResponse, error) {
 	metrics, err := s.store.GetSystemMetrics(ctx, spaceID)
 	if err != nil {
@@ -224,7 +224,7 @@ func (s *Service) GetSystemMetrics(ctx context.Context, spaceID uuid.UUID) (*Sys
 	}, nil
 }
 
-// GetSpaceStats retrieves space-level statistics
+
 func (s *Service) GetSpaceStats(ctx context.Context, spaceID uuid.UUID) (*SpaceStatsResponse, error) {
 	stats, err := s.store.GetSpaceStats(ctx, spaceID)
 	if err != nil {
@@ -242,11 +242,11 @@ func (s *Service) GetSpaceStats(ctx context.Context, spaceID uuid.UUID) (*SpaceS
 	}, nil
 }
 
-// ============================================================================
-// Engagement & Activity Operations
-// ============================================================================
 
-// GetEngagementMetrics retrieves engagement metrics over time
+
+
+
+
 func (s *Service) GetEngagementMetrics(ctx context.Context, spaceID uuid.UUID) ([]EngagementMetricResponse, error) {
 	metrics, err := s.store.GetEngagementMetrics(ctx, spaceID)
 	if err != nil {
@@ -267,7 +267,7 @@ func (s *Service) GetEngagementMetrics(ctx context.Context, spaceID uuid.UUID) (
 	return responses, nil
 }
 
-// GetUserActivityStats retrieves user activity statistics
+
 func (s *Service) GetUserActivityStats(ctx context.Context, spaceID uuid.UUID) ([]UserActivityStatResponse, error) {
 	stats, err := s.store.GetUserActivityStats(ctx, spaceID)
 	if err != nil {
@@ -286,7 +286,7 @@ func (s *Service) GetUserActivityStats(ctx context.Context, spaceID uuid.UUID) (
 	return responses, nil
 }
 
-// GetUserGrowth retrieves new user registration trends
+
 func (s *Service) GetUserGrowth(ctx context.Context, spaceID uuid.UUID) ([]UserGrowthResponse, error) {
 	growth, err := s.store.GetUserGrowth(ctx, spaceID)
 	if err != nil {
@@ -304,7 +304,7 @@ func (s *Service) GetUserGrowth(ctx context.Context, spaceID uuid.UUID) ([]UserG
 	return responses, nil
 }
 
-// GetUserEngagementRanking retrieves top users by engagement score
+
 func (s *Service) GetUserEngagementRanking(ctx context.Context, spaceID uuid.UUID) ([]UserEngagementRankingResponse, error) {
 	ranking, err := s.store.GetUserEngagementRanking(ctx, spaceID)
 	if err != nil {
@@ -328,11 +328,11 @@ func (s *Service) GetUserEngagementRanking(ctx context.Context, spaceID uuid.UUI
 	return responses, nil
 }
 
-// ============================================================================
-// Top Content Operations
-// ============================================================================
 
-// GetTopPosts retrieves most engaging posts from last 7 days
+
+
+
+
 func (s *Service) GetTopPosts(ctx context.Context, spaceID uuid.UUID) ([]TopPostResponse, error) {
 	posts, err := s.store.GetTopPosts(ctx, spaceID)
 	if err != nil {
@@ -363,7 +363,7 @@ func (s *Service) GetTopPosts(ctx context.Context, spaceID uuid.UUID) ([]TopPost
 	return responses, nil
 }
 
-// GetTopCommunities retrieves most engaging communities
+
 func (s *Service) GetTopCommunities(ctx context.Context, spaceID uuid.UUID) ([]TopCommunityResponse, error) {
 	communities, err := s.store.GetTopCommunities(ctx, spaceID)
 	if err != nil {
@@ -390,7 +390,7 @@ func (s *Service) GetTopCommunities(ctx context.Context, spaceID uuid.UUID) ([]T
 	return responses, nil
 }
 
-// GetTopGroups retrieves most active groups
+
 func (s *Service) GetTopGroups(ctx context.Context, spaceID uuid.UUID) ([]TopGroupResponse, error) {
 	groups, err := s.store.GetTopGroups(ctx, spaceID)
 	if err != nil {
@@ -418,11 +418,11 @@ func (s *Service) GetTopGroups(ctx context.Context, spaceID uuid.UUID) ([]TopGro
 	return responses, nil
 }
 
-// ============================================================================
-// Mentorship Analytics Operations
-// ============================================================================
 
-// GetMentoringStats retrieves mentoring session statistics
+
+
+
+
 func (s *Service) GetMentoringStats(ctx context.Context, spaceID uuid.UUID) (*MentoringStatsResponse, error) {
 	stats, err := s.store.GetMentoringStats(ctx, spaceID)
 	if err != nil {
@@ -443,7 +443,7 @@ func (s *Service) GetMentoringStats(ctx context.Context, spaceID uuid.UUID) (*Me
 	}, nil
 }
 
-// GetTutoringStats retrieves tutoring session statistics
+
 func (s *Service) GetTutoringStats(ctx context.Context, spaceID uuid.UUID) (*TutoringStatsResponse, error) {
 	stats, err := s.store.GetTutoringStats(ctx, spaceID)
 	if err != nil {
@@ -464,7 +464,7 @@ func (s *Service) GetTutoringStats(ctx context.Context, spaceID uuid.UUID) (*Tut
 	}, nil
 }
 
-// GetPopularIndustries retrieves popular mentoring industries
+
 func (s *Service) GetPopularIndustries(ctx context.Context, spaceID uuid.UUID) ([]PopularIndustryResponse, error) {
 	industries, err := s.store.GetPopularIndustries(ctx, spaceID)
 	if err != nil {
@@ -483,7 +483,7 @@ func (s *Service) GetPopularIndustries(ctx context.Context, spaceID uuid.UUID) (
 	return responses, nil
 }
 
-// GetPopularSubjects retrieves popular tutoring subjects
+
 func (s *Service) GetPopularSubjects(ctx context.Context, spaceID uuid.UUID) ([]PopularSubjectResponse, error) {
 	subjects, err := s.store.GetPopularSubjects(ctx, spaceID)
 	if err != nil {
@@ -502,9 +502,9 @@ func (s *Service) GetPopularSubjects(ctx context.Context, spaceID uuid.UUID) ([]
 	return responses, nil
 }
 
-// ============================================================================
-// Helper Functions
-// ============================================================================
+
+
+
 
 func reportToResponse(report db.Report) *ReportResponse {
 	return &ReportResponse{

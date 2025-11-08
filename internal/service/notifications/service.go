@@ -5,20 +5,20 @@ import (
 	"database/sql"
 	"fmt"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	"github.com/connect-univyn/connect_server/internal/live"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	"github.com/connect-univyn/connect-server/internal/live"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"github.com/sqlc-dev/pqtype"
 )
 
-// Service handles notification business logic
+
 type Service struct {
 	store       db.Store
 	liveService *live.Service
 }
 
-// NewService creates a new notification service
+
 func NewService(store db.Store, liveService *live.Service) *Service {
 	return &Service{
 		store:       store,
@@ -26,7 +26,7 @@ func NewService(store db.Store, liveService *live.Service) *Service {
 	}
 }
 
-// CreateNotification creates a new notification
+
 func (s *Service) CreateNotification(ctx context.Context, req CreateNotificationRequest) (*NotificationResponse, error) {
 	var fromUserID, relatedID uuid.NullUUID
 	var title, message, priority sql.NullString
@@ -72,7 +72,7 @@ func (s *Service) CreateNotification(ctx context.Context, req CreateNotification
 
 	response := s.toNotificationResponse(notification)
 
-	// Publish real-time event for notification creation
+	
 	if s.liveService != nil {
 		notificationPayload := map[string]interface{}{
 			"id":              notification.ID.String(),
@@ -109,7 +109,7 @@ func (s *Service) CreateNotification(ctx context.Context, req CreateNotification
 	return response, nil
 }
 
-// GetUserNotifications gets notifications for a user
+
 func (s *Service) GetUserNotifications(ctx context.Context, params GetNotificationsParams) ([]NotificationWithUserResponse, error) {
 	notifications, err := s.store.GetUserNotifications(ctx, db.GetUserNotificationsParams{
 		ToUserID: params.UserID,
@@ -128,7 +128,7 @@ func (s *Service) GetUserNotifications(ctx context.Context, params GetNotificati
 	return responses, nil
 }
 
-// MarkNotificationAsRead marks a notification as read
+
 func (s *Service) MarkNotificationAsRead(ctx context.Context, notificationID uuid.UUID) error {
 	if err := s.store.MarkAsRead(ctx, notificationID); err != nil {
 		return fmt.Errorf("failed to mark notification as read: %w", err)
@@ -136,7 +136,7 @@ func (s *Service) MarkNotificationAsRead(ctx context.Context, notificationID uui
 	return nil
 }
 
-// MarkAllAsRead marks all notifications as read for a user
+
 func (s *Service) MarkAllAsRead(ctx context.Context, userID uuid.UUID) error {
 	if err := s.store.MarkAllAsRead(ctx, userID); err != nil {
 		return fmt.Errorf("failed to mark all notifications as read: %w", err)
@@ -144,7 +144,7 @@ func (s *Service) MarkAllAsRead(ctx context.Context, userID uuid.UUID) error {
 	return nil
 }
 
-// DeleteNotification deletes a notification
+
 func (s *Service) DeleteNotification(ctx context.Context, notificationID uuid.UUID) error {
 	if err := s.store.DeleteNotification(ctx, notificationID); err != nil {
 		return fmt.Errorf("failed to delete notification: %w", err)
@@ -152,7 +152,7 @@ func (s *Service) DeleteNotification(ctx context.Context, notificationID uuid.UU
 	return nil
 }
 
-// GetUnreadCount gets unread notification count
+
 func (s *Service) GetUnreadCount(ctx context.Context, userID uuid.UUID) (int64, error) {
 	count, err := s.store.GetUnreadCount(ctx, userID)
 	if err != nil {
@@ -161,7 +161,7 @@ func (s *Service) GetUnreadCount(ctx context.Context, userID uuid.UUID) (int64, 
 	return count, nil
 }
 
-// Helper conversion functions
+
 
 func (s *Service) rowToNotificationResponse(row db.GetUserNotificationsRow) NotificationWithUserResponse {
 	resp := NotificationWithUserResponse{

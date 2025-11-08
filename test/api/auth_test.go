@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/connect-univyn/connect_server/internal/util"
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	"github.com/connect-univyn/connect-server/internal/util"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 	"github.com/stretchr/testify/require"
 )
 
@@ -14,7 +14,7 @@ func TestLogin(t *testing.T) {
 	ts := SetupTestServer(t)
 	defer ts.Teardown()
 
-	// Create test space and user
+	
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 
@@ -90,11 +90,11 @@ func TestRefreshToken(t *testing.T) {
 	ts := SetupTestServer(t)
 	defer ts.Teardown()
 
-	// Create test space and user
+	
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 
-	// Login to get tokens
+	
 	loginBody := map[string]interface{}{
 		"email":    user.Email,
 		"password": "Test123!@#",
@@ -156,11 +156,11 @@ func TestLogout(t *testing.T) {
 	ts := SetupTestServer(t)
 	defer ts.Teardown()
 
-	// Create test space and user
+	
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 
-	// Create auth token
+	
 	token := ts.CreateAuthToken(t, user.ID)
 
 	testCases := []struct {

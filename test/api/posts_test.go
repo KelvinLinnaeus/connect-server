@@ -6,15 +6,15 @@ import (
 	"net/http"
 	"testing"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
-// =============================================================================
-// POST /api/posts - Create Post
-// =============================================================================
+
+
+
 
 func TestCreatePost(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -100,9 +100,9 @@ func TestCreatePost(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/posts/:id - Get Post by ID
-// =============================================================================
+
+
+
 
 func TestGetPost(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -111,7 +111,7 @@ func TestGetPost(t *testing.T) {
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 
-	// Create a test post
+	
 	post, err := ts.TestDB.Store.CreatePost(context.Background(), db.CreatePostParams{
 		SpaceID:  spaceID,
 		AuthorID: user.ID,
@@ -156,9 +156,9 @@ func TestGetPost(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// DELETE /api/posts/:id - Delete Post
-// =============================================================================
+
+
+
 
 func TestDeletePost(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -168,7 +168,7 @@ func TestDeletePost(t *testing.T) {
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	token := ts.CreateAuthToken(t, user.ID)
 
-	// Create a test post
+	
 	post, err := ts.TestDB.Store.CreatePost(context.Background(), db.CreatePostParams{
 		SpaceID:  spaceID,
 		AuthorID: user.ID,
@@ -211,9 +211,9 @@ func TestDeletePost(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/posts/feed - Get User Feed (Authenticated)
-// =============================================================================
+
+
+
 
 func TestGetUserFeed(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -258,9 +258,9 @@ func TestGetUserFeed(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/posts/search - Search Posts
-// =============================================================================
+
+
+
 
 func TestSearchPosts(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -299,9 +299,9 @@ func TestSearchPosts(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/posts/advanced-search - Advanced Search Posts
-// =============================================================================
+
+
+
 
 func TestAdvancedSearchPosts(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -335,9 +335,9 @@ func TestAdvancedSearchPosts(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/posts/trending - Get Trending Posts
-// =============================================================================
+
+
+
 
 func TestGetTrendingPosts(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -371,9 +371,9 @@ func TestGetTrendingPosts(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/posts/:id/comments - Get Post Comments
-// =============================================================================
+
+
+
 
 func TestGetPostComments(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -420,9 +420,9 @@ func TestGetPostComments(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// POST /api/posts/:id/comments - Create Comment
-// =============================================================================
+
+
+
 
 func TestCreateComment(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -482,9 +482,9 @@ func TestCreateComment(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/posts/:id/likes - Get Post Likes
-// =============================================================================
+
+
+
 
 func TestGetPostLikes(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -526,9 +526,9 @@ func TestGetPostLikes(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// POST /api/posts/:id/like - Toggle Post Like
-// =============================================================================
+
+
+
 
 func TestTogglePostLike(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -580,9 +580,9 @@ func TestTogglePostLike(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/posts/liked - Get User Liked Posts
-// =============================================================================
+
+
+
 
 func TestGetUserLikedPosts(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -617,9 +617,9 @@ func TestGetUserLikedPosts(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// POST /api/posts/:id/repost - Create Repost
-// =============================================================================
+
+
+
 
 func TestCreateRepost(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -672,9 +672,9 @@ func TestCreateRepost(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// PUT /api/posts/:id/pin - Pin Post
-// =============================================================================
+
+
+
 
 func TestPinPost(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -721,9 +721,9 @@ func TestPinPost(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/posts/user/:user_id - Get User Posts
-// =============================================================================
+
+
+
 
 func TestGetUserPosts(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -763,9 +763,9 @@ func TestGetUserPosts(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/posts/community/:community_id - Get Community Posts
-// =============================================================================
+
+
+
 
 func TestGetCommunityPosts(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -811,9 +811,9 @@ func TestGetCommunityPosts(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/posts/group/:group_id - Get Group Posts
-// =============================================================================
+
+
+
 
 func TestGetGroupPosts(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -860,9 +860,9 @@ func TestGetGroupPosts(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// POST /api/comments/:id/like - Toggle Comment Like
-// =============================================================================
+
+
+
 
 func TestToggleCommentLike(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -872,7 +872,7 @@ func TestToggleCommentLike(t *testing.T) {
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	token := ts.CreateAuthToken(t, user.ID)
 
-	// Create post and comment first
+	
 	post, err := ts.TestDB.Store.CreatePost(context.Background(), db.CreatePostParams{
 		SpaceID:  spaceID,
 		AuthorID: user.ID,

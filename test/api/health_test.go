@@ -16,7 +16,7 @@ func TestHealthCheck(t *testing.T) {
 
 	CheckResponseCode(t, recorder, http.StatusOK)
 
-	// Parse response
+	
 	var response map[string]interface{}
 	err := json.Unmarshal(recorder.Body.Bytes(), &response)
 	require.NoError(t, err)

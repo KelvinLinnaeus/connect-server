@@ -8,18 +8,18 @@ import (
 	"testing"
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 )
 
-// =============================================================================
-// Helper Functions
-// =============================================================================
 
-// createAdminUser creates a user with admin role
+
+
+
+
 func createAdminUser(t *testing.T, store db.Store, spaceID uuid.UUID) db.User {
 	user, err := store.CreateUser(context.Background(), db.CreateUserParams{
 		SpaceID:     spaceID,
@@ -28,18 +28,18 @@ func createAdminUser(t *testing.T, store db.Store, spaceID uuid.UUID) db.User {
 		Password:    "hashed_password",
 		FullName:    "Admin User",
 		Roles:       pq.StringArray{"admin"},
-		PhoneNumber: "5551234567", // 10-digit phone number (VARCHAR(10) constraint)
+		PhoneNumber: "5551234567", 
 	})
 	require.NoError(t, err)
 	return user
 }
 
-// createRegularUser creates a regular user without admin privileges
+
 func createRegularUser(t *testing.T, store db.Store, spaceID uuid.UUID) db.User {
 	return testhelpers.CreateRandomUser(t, store, spaceID)
 }
 
-// createContentReport creates a test content report
+
 func createContentReport(t *testing.T, store db.Store, spaceID uuid.UUID, reportedBy uuid.UUID, contentID uuid.UUID) db.Report {
 	report, err := store.CreateContentReport(context.Background(), db.CreateContentReportParams{
 		SpaceID:     spaceID,
@@ -53,7 +53,7 @@ func createContentReport(t *testing.T, store db.Store, spaceID uuid.UUID, report
 	return report
 }
 
-// createSpaceActivity creates a test space activity
+
 func createSpaceActivity(t *testing.T, dbConn *sql.DB, spaceID uuid.UUID, actorID uuid.UUID, activityType string) uuid.UUID {
 	var activityID uuid.UUID
 	err := dbConn.QueryRow(`
@@ -65,9 +65,9 @@ func createSpaceActivity(t *testing.T, dbConn *sql.DB, spaceID uuid.UUID, actorI
 	return activityID
 }
 
-// =============================================================================
-// PUT /api/admin/users/:id/suspend - Suspend User
-// =============================================================================
+
+
+
 
 func TestSuspendUser(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -148,7 +148,7 @@ func TestSuspendUser(t *testing.T) {
 				"duration_days": 7,
 			},
 			token:        regularToken,
-			expectedCode: http.StatusOK, // Auth passes, but business logic may prevent this
+			expectedCode: http.StatusOK, 
 		},
 	}
 
@@ -166,9 +166,9 @@ func TestSuspendUser(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// PUT /api/admin/users/:id/unsuspend - Unsuspend User
-// =============================================================================
+
+
+
 
 func TestUnsuspendUser(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -178,7 +178,7 @@ func TestUnsuspendUser(t *testing.T) {
 	adminUser := createAdminUser(t, ts.TestDB.Store, spaceID)
 	targetUser := createRegularUser(t, ts.TestDB.Store, spaceID)
 
-	// First suspend the user
+	
 	_, err := ts.TestDB.Store.CreateUserSuspension(context.Background(), db.CreateUserSuspensionParams{
 		UserID:      targetUser.ID,
 		SuspendedBy: adminUser.ID,
@@ -235,9 +235,9 @@ func TestUnsuspendUser(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// PUT /api/admin/users/:id/ban - Ban User
-// =============================================================================
+
+
+
 
 func TestBanUser(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -306,9 +306,9 @@ func TestBanUser(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/admin/reports - Get Content Reports
-// =============================================================================
+
+
+
 
 func TestGetReports(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -319,7 +319,7 @@ func TestGetReports(t *testing.T) {
 	reporterUser := createRegularUser(t, ts.TestDB.Store, spaceID)
 	contentID := uuid.New()
 
-	// Create some test reports
+	
 	createContentReport(t, ts.TestDB.Store, spaceID, reporterUser.ID, contentID)
 	createContentReport(t, ts.TestDB.Store, spaceID, reporterUser.ID, uuid.New())
 
@@ -391,9 +391,9 @@ func TestGetReports(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/admin/spaces/:id/activities - Get Space Activities
-// =============================================================================
+
+
+
 
 func TestGetSpaceActivities(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -403,7 +403,7 @@ func TestGetSpaceActivities(t *testing.T) {
 	adminUser := createAdminUser(t, ts.TestDB.Store, spaceID)
 	user := createRegularUser(t, ts.TestDB.Store, spaceID)
 
-	// Create some test activities
+	
 	createSpaceActivity(t, ts.TestDB.DB, spaceID, user.ID, "user_joined")
 	createSpaceActivity(t, ts.TestDB.DB, spaceID, user.ID, "post_created")
 	createSpaceActivity(t, ts.TestDB.DB, spaceID, adminUser.ID, "user_suspended")
@@ -480,9 +480,9 @@ func TestGetSpaceActivities(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/admin/dashboard/stats - Get Dashboard Statistics
-// =============================================================================
+
+
+
 
 func TestGetDashboardStats(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -491,7 +491,7 @@ func TestGetDashboardStats(t *testing.T) {
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	adminUser := createAdminUser(t, ts.TestDB.Store, spaceID)
 
-	// Create some test data for statistics
+	
 	createRegularUser(t, ts.TestDB.Store, spaceID)
 	createRegularUser(t, ts.TestDB.Store, spaceID)
 
@@ -549,28 +549,28 @@ func TestGetDashboardStats(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// Integration Test - Full Admin Workflow
-// =============================================================================
+
+
+
 
 func TestAdminWorkflow(t *testing.T) {
 	ts := SetupTestServer(t)
 	defer ts.Teardown()
 
-	// Setup
+	
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	adminUser := createAdminUser(t, ts.TestDB.Store, spaceID)
 	violatingUser := createRegularUser(t, ts.TestDB.Store, spaceID)
 
 	adminToken := ts.CreateAuthToken(t, adminUser.ID)
 
-	// 1. Get initial dashboard stats
+	
 	statsURL := fmt.Sprintf("/api/admin/dashboard/stats?space_id=%s", spaceID.String())
 	recorder := ts.MakeRequest(t, http.MethodGet, statsURL, nil, adminToken)
 	CheckResponseCode(t, recorder, http.StatusOK)
 	initialStats := ParseSuccessResponse(t, recorder)
 
-	// 2. Suspend a user
+	
 	suspendURL := fmt.Sprintf("/api/admin/users/%s/suspend", violatingUser.ID.String())
 	suspendBody := map[string]interface{}{
 		"reason":        "policy_violation",
@@ -580,25 +580,25 @@ func TestAdminWorkflow(t *testing.T) {
 	recorder = ts.MakeRequest(t, http.MethodPut, suspendURL, suspendBody, adminToken)
 	CheckResponseCode(t, recorder, http.StatusOK)
 
-	// 3. Verify user is suspended by querying directly from DB
-	// Note: GetUserByID filters by status='active' so we can't use it for suspended users
+	
+	
 	var userStatus sql.NullString
 	err := ts.TestDB.DB.QueryRow("SELECT status FROM users WHERE id = $1", violatingUser.ID).Scan(&userStatus)
 	require.NoError(t, err)
 	require.True(t, userStatus.Valid)
 	require.Equal(t, "suspended", userStatus.String)
 
-	// 4. Check activities
+	
 	activitiesURL := fmt.Sprintf("/api/admin/spaces/%s/activities", spaceID.String())
 	recorder = ts.MakeRequest(t, http.MethodGet, activitiesURL, nil, adminToken)
 	CheckResponseCode(t, recorder, http.StatusOK)
 
-	// 5. Unsuspend the user
+	
 	unsuspendURL := fmt.Sprintf("/api/admin/users/%s/unsuspend", violatingUser.ID.String())
 	recorder = ts.MakeRequest(t, http.MethodPut, unsuspendURL, nil, adminToken)
 	CheckResponseCode(t, recorder, http.StatusOK)
 
-	// 6. Verify user is active again
+	
 	err = ts.TestDB.DB.QueryRow("SELECT status FROM users WHERE id = $1", violatingUser.ID).Scan(&userStatus)
 	require.NoError(t, err)
 	require.True(t, userStatus.Valid)

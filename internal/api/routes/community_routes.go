@@ -1,18 +1,18 @@
 package routes
 
 import (
-	"github.com/connect-univyn/connect_server/internal/api/handlers"
-	"github.com/connect-univyn/connect_server/internal/api/middleware"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/api/handlers"
+	"github.com/connect-univyn/connect-server/internal/api/middleware"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/gin-gonic/gin"
 )
 
-// SetupCommunityRoutes sets up all community-related routes
+
 func SetupCommunityRoutes(r *gin.RouterGroup, communityHandler *handlers.CommunityHandler, tokenMaker auth.Maker, rateLimitDefault int) {
 	communities := r.Group("/communities")
 	communities.Use(middleware.RateLimitMiddleware(rateLimitDefault))
 	{
-		// Public routes (no auth required or optional auth)
+		
 		communities.GET("/search", communityHandler.SearchCommunities)
 		communities.GET("/categories", communityHandler.GetCommunityCategories)
 		communities.GET("", communityHandler.ListCommunities)
@@ -22,7 +22,7 @@ func SetupCommunityRoutes(r *gin.RouterGroup, communityHandler *handlers.Communi
 		communities.GET("/:id/moderators", communityHandler.GetCommunityModerators)
 		communities.GET("/:id/admins", communityHandler.GetCommunityAdmins)
 		
-		// Protected routes (auth required)
+		
 		communitiesAuth := communities.Group("")
 		communitiesAuth.Use(middleware.AuthMiddleware(tokenMaker))
 		{
@@ -35,7 +35,7 @@ func SetupCommunityRoutes(r *gin.RouterGroup, communityHandler *handlers.Communi
 		}
 	}
 	
-	// User-specific community routes
+	
 	users := r.Group("/users")
 	users.Use(middleware.RateLimitMiddleware(rateLimitDefault))
 	users.Use(middleware.AuthMiddleware(tokenMaker))

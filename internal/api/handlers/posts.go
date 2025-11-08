@@ -4,28 +4,28 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/connect-univyn/connect_server/internal/service/posts"
-	"github.com/connect-univyn/connect_server/internal/util"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/service/posts"
+	"github.com/connect-univyn/connect-server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-// PostHandler handles post-related HTTP requests
+
 type PostHandler struct {
 	postService *posts.Service
 }
 
-// NewPostHandler creates a new post handler
+
 func NewPostHandler(postService *posts.Service) *PostHandler {
 	return &PostHandler{
 		postService: postService,
 	}
 }
 
-// CreatePost handles POST /api/posts
+
 func (h *PostHandler) CreatePost(c *gin.Context) {
-	// Get authenticated user from context
+	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
@@ -39,7 +39,7 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 		return
 	}
 
-	// Set author ID from authenticated user
+	
 	authorID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user", "Invalid user ID"))
@@ -56,7 +56,7 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(post))
 }
 
-// GetPost handles GET /api/posts/:id
+
 func (h *PostHandler) GetPost(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -64,7 +64,7 @@ func (h *PostHandler) GetPost(c *gin.Context) {
 		return
 	}
 
-	// Get user ID from auth context (if authenticated)
+	
 	var userID uuid.UUID
 	if payload, exists := c.Get("authorization_payload"); exists {
 		authPayload := payload.(*auth.Payload)
@@ -77,13 +77,13 @@ func (h *PostHandler) GetPost(c *gin.Context) {
 		return
 	}
 
-	// Increment view count asynchronously
+	
 	go h.postService.IncrementPostViews(c.Request.Context(), postID)
 
 	c.JSON(http.StatusOK, util.NewSuccessResponse(post))
 }
 
-// DeletePost handles DELETE /api/posts/:id
+
 func (h *PostHandler) DeletePost(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -91,7 +91,7 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 		return
 	}
 
-	// Get authenticated user
+	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
@@ -109,7 +109,7 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Post deleted successfully"}))
 }
 
-// GetUserPosts handles GET /api/posts/user/:user_id
+
 func (h *PostHandler) GetUserPosts(c *gin.Context) {
 	userID, err := uuid.Parse(c.Param("user_id"))
 	if err != nil {
@@ -117,7 +117,7 @@ func (h *PostHandler) GetUserPosts(c *gin.Context) {
 		return
 	}
 
-	// Parse pagination parameters
+	
 	limit, offset := parsePagination(c)
 
 	posts, err := h.postService.GetUserPosts(c.Request.Context(), userID, int32(limit), int32(offset))
@@ -129,9 +129,9 @@ func (h *PostHandler) GetUserPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(posts))
 }
 
-// GetUserFeed handles GET /api/posts/feed
+
 func (h *PostHandler) GetUserFeed(c *gin.Context) {
-	// Get authenticated user
+	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
@@ -141,7 +141,7 @@ func (h *PostHandler) GetUserFeed(c *gin.Context) {
 	userID, _ := uuid.Parse(authPayload.UserID)
 	spaceID, _ := uuid.Parse(authPayload.SpaceID)
 
-	// Parse pagination parameters
+	
 	limit, offset := parsePagination(c)
 
 	posts, err := h.postService.GetUserFeed(c.Request.Context(), userID, spaceID, int32(limit), int32(offset))
@@ -153,7 +153,7 @@ func (h *PostHandler) GetUserFeed(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(posts))
 }
 
-// GetCommunityPosts handles GET /api/posts/community/:community_id
+
 func (h *PostHandler) GetCommunityPosts(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("community_id"))
 	if err != nil {
@@ -161,14 +161,14 @@ func (h *PostHandler) GetCommunityPosts(c *gin.Context) {
 		return
 	}
 
-	// Get user ID from auth context
+	
 	var userID uuid.UUID
 	if payload, exists := c.Get("authorization_payload"); exists {
 		authPayload := payload.(*auth.Payload)
 		userID, _ = uuid.Parse(authPayload.UserID)
 	}
 
-	// Parse pagination parameters
+	
 	limit, offset := parsePagination(c)
 
 	posts, err := h.postService.GetCommunityPosts(c.Request.Context(), userID, communityID, int32(limit), int32(offset))
@@ -180,7 +180,7 @@ func (h *PostHandler) GetCommunityPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(posts))
 }
 
-// GetGroupPosts handles GET /api/posts/group/:group_id
+
 func (h *PostHandler) GetGroupPosts(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("group_id"))
 	if err != nil {
@@ -188,14 +188,14 @@ func (h *PostHandler) GetGroupPosts(c *gin.Context) {
 		return
 	}
 
-	// Get user ID from auth context
+	
 	var userID uuid.UUID
 	if payload, exists := c.Get("authorization_payload"); exists {
 		authPayload := payload.(*auth.Payload)
 		userID, _ = uuid.Parse(authPayload.UserID)
 	}
 
-	// Parse pagination parameters
+	
 	limit, offset := parsePagination(c)
 
 	posts, err := h.postService.GetGroupPosts(c.Request.Context(), userID, groupID, int32(limit), int32(offset))
@@ -207,7 +207,7 @@ func (h *PostHandler) GetGroupPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(posts))
 }
 
-// GetTrendingPosts handles GET /api/posts/trending
+
 func (h *PostHandler) GetTrendingPosts(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	if spaceIDStr == "" {
@@ -230,7 +230,7 @@ func (h *PostHandler) GetTrendingPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(posts))
 }
 
-// GetTrendingTopics handles GET /api/topics/trending
+
 func (h *PostHandler) GetTrendingTopics(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	if spaceIDStr == "" {
@@ -244,7 +244,7 @@ func (h *PostHandler) GetTrendingTopics(c *gin.Context) {
 		return
 	}
 
-	// Get pagination parameters
+	
 	page := int32(1)
 	if pageStr := c.Query("page"); pageStr != "" {
 		pageInt, err := strconv.ParseInt(pageStr, 10, 32)
@@ -265,7 +265,7 @@ func (h *PostHandler) GetTrendingTopics(c *gin.Context) {
 		limit = int32(limitInt)
 	}
 
-	// Calculate offset
+	
 	offset := (page - 1) * limit
 
 	topics, err := h.postService.GetTrendingTopics(c.Request.Context(), spaceID, limit, offset)
@@ -277,7 +277,7 @@ func (h *PostHandler) GetTrendingTopics(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(topics))
 }
 
-// SearchPosts handles GET /api/posts/search
+
 func (h *PostHandler) SearchPosts(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -297,7 +297,7 @@ func (h *PostHandler) SearchPosts(c *gin.Context) {
 		return
 	}
 
-	// Parse pagination parameters
+	
 	limit, offset := parsePagination(c)
 
 	posts, err := h.postService.SearchPosts(c.Request.Context(), query, spaceID, int32(limit), int32(offset))
@@ -309,7 +309,7 @@ func (h *PostHandler) SearchPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(posts))
 }
 
-// AdvancedSearchPosts handles GET /api/posts/advanced-search
+
 func (h *PostHandler) AdvancedSearchPosts(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -329,7 +329,7 @@ func (h *PostHandler) AdvancedSearchPosts(c *gin.Context) {
 		return
 	}
 
-	// Parse pagination parameters
+	
 	limit, offset := parsePagination(c)
 
 	posts, err := h.postService.AdvancedSearchPosts(c.Request.Context(), query, spaceID, int32(limit), int32(offset))
@@ -341,9 +341,9 @@ func (h *PostHandler) AdvancedSearchPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(posts))
 }
 
-// GetUserLikedPosts handles GET /api/posts/liked
+
 func (h *PostHandler) GetUserLikedPosts(c *gin.Context) {
-	// Get authenticated user
+	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
@@ -352,7 +352,7 @@ func (h *PostHandler) GetUserLikedPosts(c *gin.Context) {
 	authPayload := payload.(*auth.Payload)
 	userID, _ := uuid.Parse(authPayload.UserID)
 
-	// Parse pagination parameters
+	
 	limit, offset := parsePagination(c)
 
 	posts, err := h.postService.GetUserLikedPosts(c.Request.Context(), userID, int32(limit), int32(offset))
@@ -364,7 +364,7 @@ func (h *PostHandler) GetUserLikedPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(posts))
 }
 
-// GetPostComments handles GET /api/posts/:id/comments
+
 func (h *PostHandler) GetPostComments(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -381,7 +381,7 @@ func (h *PostHandler) GetPostComments(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(comments))
 }
 
-// GetPostLikes handles GET /api/posts/:id/likes
+
 func (h *PostHandler) GetPostLikes(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -398,7 +398,7 @@ func (h *PostHandler) GetPostLikes(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(likes))
 }
 
-// CreateComment handles POST /api/posts/:id/comments
+
 func (h *PostHandler) CreateComment(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -406,7 +406,7 @@ func (h *PostHandler) CreateComment(c *gin.Context) {
 		return
 	}
 
-	// Get authenticated user
+	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
@@ -433,7 +433,7 @@ func (h *PostHandler) CreateComment(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(comment))
 }
 
-// CreateRepost handles POST /api/posts/:id/repost
+
 func (h *PostHandler) CreateRepost(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -441,7 +441,7 @@ func (h *PostHandler) CreateRepost(c *gin.Context) {
 		return
 	}
 
-	// Get authenticated user
+	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
@@ -470,7 +470,7 @@ func (h *PostHandler) CreateRepost(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(repost))
 }
 
-// TogglePostLike handles POST /api/posts/:id/like
+
 func (h *PostHandler) TogglePostLike(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -478,7 +478,7 @@ func (h *PostHandler) TogglePostLike(c *gin.Context) {
 		return
 	}
 
-	// Get authenticated user
+	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
@@ -498,7 +498,7 @@ func (h *PostHandler) TogglePostLike(c *gin.Context) {
 	}))
 }
 
-// ToggleCommentLike handles POST /api/comments/:id/like
+
 func (h *PostHandler) ToggleCommentLike(c *gin.Context) {
 	commentID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -506,7 +506,7 @@ func (h *PostHandler) ToggleCommentLike(c *gin.Context) {
 		return
 	}
 
-	// Get authenticated user
+	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
@@ -526,7 +526,7 @@ func (h *PostHandler) ToggleCommentLike(c *gin.Context) {
 	}))
 }
 
-// PinPost handles PUT /api/posts/:id/pin
+
 func (h *PostHandler) PinPost(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -542,7 +542,7 @@ func (h *PostHandler) PinPost(c *gin.Context) {
 		return
 	}
 
-	// TODO: Verify user has permission to pin posts (admin/moderator)
+	
 
 	err = h.postService.PinPost(c.Request.Context(), postID, req.IsPinned)
 	if err != nil {
@@ -556,9 +556,9 @@ func (h *PostHandler) PinPost(c *gin.Context) {
 	}))
 }
 
-// Helper function to parse pagination parameters
+
 func parsePagination(c *gin.Context) (int, int) {
-	limit := 20 // default
+	limit := 20 
 	offset := 0
 
 	if limitStr := c.Query("limit"); limitStr != "" {

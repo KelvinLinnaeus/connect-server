@@ -6,15 +6,15 @@ import (
 	"net/http"
 	"testing"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
-// =============================================================================
-// POST /api/communities - Create Community
-// =============================================================================
+
+
+
 
 func TestCreateCommunity(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -106,9 +106,9 @@ func TestCreateCommunity(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/communities - List Communities
-// =============================================================================
+
+
+
 
 func TestListCommunities(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -147,9 +147,9 @@ func TestListCommunities(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/communities/:id - Get Community by ID
-// =============================================================================
+
+
+
 
 func TestGetCommunity(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -206,9 +206,9 @@ func TestGetCommunity(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/communities/slug/:slug - Get Community by Slug
-// =============================================================================
+
+
+
 
 func TestGetCommunityBySlug(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -217,7 +217,7 @@ func TestGetCommunityBySlug(t *testing.T) {
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 
-	// Create a community with a known name (slug uses lowercase name)
+	
 	_, err := ts.TestDB.Store.CreateCommunity(context.Background(), db.CreateCommunityParams{
 		SpaceID:  spaceID,
 		Name:     "test-community-slug",
@@ -255,9 +255,9 @@ func TestGetCommunityBySlug(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// PUT /api/communities/:id - Update Community
-// =============================================================================
+
+
+
 
 func TestUpdateCommunity(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -321,9 +321,9 @@ func TestUpdateCommunity(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// POST /api/communities/:id/join - Join Community
-// =============================================================================
+
+
+
 
 func TestJoinCommunity(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -379,9 +379,9 @@ func TestJoinCommunity(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// POST /api/communities/:id/leave - Leave Community
-// =============================================================================
+
+
+
 
 func TestLeaveCommunity(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -431,9 +431,9 @@ func TestLeaveCommunity(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/communities/search - Search Communities
-// =============================================================================
+
+
+
 
 func TestSearchCommunities(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -472,9 +472,9 @@ func TestSearchCommunities(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/communities/categories - Get Categories
-// =============================================================================
+
+
+
 
 func TestGetCommunityCategories(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -486,9 +486,9 @@ func TestGetCommunityCategories(t *testing.T) {
 	CheckResponseCode(t, recorder, http.StatusOK)
 }
 
-// =============================================================================
-// GET /api/communities/:id/members - Get Community Members
-// =============================================================================
+
+
+
 
 func TestGetCommunityMembers(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -534,9 +534,9 @@ func TestGetCommunityMembers(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/communities/:id/moderators - Get Community Moderators
-// =============================================================================
+
+
+
 
 func TestGetCommunityModerators(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -582,9 +582,9 @@ func TestGetCommunityModerators(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/communities/:id/admins - Get Community Admins
-// =============================================================================
+
+
+
 
 func TestGetCommunityAdmins(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -630,9 +630,9 @@ func TestGetCommunityAdmins(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// POST /api/communities/:id/moderators - Add Moderator
-// =============================================================================
+
+
+
 
 func TestAddCommunityModerator(t *testing.T) {
 	ts := SetupTestServer(t)
@@ -688,9 +688,9 @@ func TestAddCommunityModerator(t *testing.T) {
 	}
 }
 
-// =============================================================================
-// GET /api/users/communities - Get User Communities
-// =============================================================================
+
+
+
 
 func TestGetUserCommunities(t *testing.T) {
 	ts := SetupTestServer(t)

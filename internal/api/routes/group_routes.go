@@ -1,24 +1,24 @@
 package routes
 
 import (
-	"github.com/connect-univyn/connect_server/internal/api/handlers"
-	"github.com/connect-univyn/connect_server/internal/api/middleware"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/api/handlers"
+	"github.com/connect-univyn/connect-server/internal/api/middleware"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/gin-gonic/gin"
 )
 
-// SetupGroupRoutes sets up all group-related routes
+
 func SetupGroupRoutes(r *gin.RouterGroup, groupHandler *handlers.GroupHandler, tokenMaker auth.Maker, rateLimitDefault int) {
 	groups := r.Group("/groups")
 	groups.Use(middleware.RateLimitMiddleware(rateLimitDefault))
 	{
-		// Public routes (no auth required or optional auth)
+		
 		groups.GET("/search", groupHandler.SearchGroups)
 		groups.GET("", groupHandler.ListGroups)
 		groups.GET("/:id", groupHandler.GetGroup)
 		groups.GET("/:id/roles", groupHandler.GetProjectRoles)
 		
-		// Protected routes (auth required)
+		
 		groupsAuth := groups.Group("")
 		groupsAuth.Use(middleware.AuthMiddleware(tokenMaker))
 		{
@@ -37,7 +37,7 @@ func SetupGroupRoutes(r *gin.RouterGroup, groupHandler *handlers.GroupHandler, t
 		}
 	}
 	
-	// User-specific group routes
+	
 	users := r.Group("/users")
 	users.Use(middleware.RateLimitMiddleware(rateLimitDefault))
 	users.Use(middleware.AuthMiddleware(tokenMaker))
@@ -45,7 +45,7 @@ func SetupGroupRoutes(r *gin.RouterGroup, groupHandler *handlers.GroupHandler, t
 		users.GET("/groups", groupHandler.GetUserGroups)
 	}
 	
-	// Project role application routes
+	
 	roles := r.Group("/roles")
 	roles.Use(middleware.RateLimitMiddleware(rateLimitDefault))
 	roles.Use(middleware.AuthMiddleware(tokenMaker))

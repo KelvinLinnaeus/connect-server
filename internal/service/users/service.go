@@ -8,25 +8,25 @@ import (
 	"strings"
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	"github.com/connect-univyn/connect_server/internal/util"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	"github.com/connect-univyn/connect-server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/google/uuid"
 )
 
-// Service handles user business logic
+
 type Service struct {
 	store db.Store
 }
 
-// NewService creates a new user service
+
 func NewService(store db.Store) *Service {
 	return &Service{
 		store: store,
 	}
 }
 
-// Helper function to convert interface{} from COALESCE to string
+
 func interfaceToString(val interface{}, fallback string) string {
 	if val == nil {
 		return fallback
@@ -37,9 +37,9 @@ func interfaceToString(val interface{}, fallback string) string {
 	return fallback
 }
 
-// CreateUser creates a new user with validation
+
 func (s *Service) CreateUser(ctx context.Context, req CreateUserRequest) (*UserResponse, error) {
-	// Validate input
+	
 	if err := ValidateEmail(req.Email); err != nil {
 		return nil, fmt.Errorf("%w: %v", util.ErrBadRequest, err)
 	}
@@ -53,25 +53,25 @@ func (s *Service) CreateUser(ctx context.Context, req CreateUserRequest) (*UserR
 		return nil, fmt.Errorf("%w: %v", util.ErrBadRequest, err)
 	}
 
-	// Check if user already exists
+	
 	existingUser, err := s.store.GetUserByEmail(ctx, req.Email)
 	if err == nil && existingUser.ID != uuid.Nil {
 		return nil, fmt.Errorf("%w: user with this email already exists", util.ErrConflict)
 	}
 
-	// Check username uniqueness
+	
 	existingByUsername, err := s.store.GetUserByUsername(ctx, req.Username)
 	if err == nil && existingByUsername.ID != uuid.Nil {
 		return nil, fmt.Errorf("%w: username already taken", util.ErrConflict)
 	}
 
-	// Hash password
+	
 	hashedPassword, err := auth.HashPassword(req.Password)
 	if err != nil {
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	// Create user
+	
 	roles := []string{"user"}
 	var levelSQL sql.NullString
 	if req.Level != nil {
@@ -118,7 +118,7 @@ func (s *Service) CreateUser(ctx context.Context, req CreateUserRequest) (*UserR
 	return s.toUserResponse(user), nil
 }
 
-// GetUserByID retrieves a user by ID
+
 func (s *Service) GetUserByID(ctx context.Context, userID uuid.UUID) (*UserResponse, error) {
 	user, err := s.store.GetUserByID(ctx, userID)
 	if err != nil {
@@ -155,7 +155,7 @@ func (s *Service) GetUserByID(ctx context.Context, userID uuid.UUID) (*UserRespo
 	}, nil
 }
 
-// GetUserByUsername retrieves a user by username
+
 func (s *Service) GetUserByUsername(ctx context.Context, username string) (*UserResponse, error) {
 	user, err := s.store.GetUserByUsername(ctx, username)
 	if err != nil {
@@ -168,9 +168,9 @@ func (s *Service) GetUserByUsername(ctx context.Context, username string) (*User
 	return s.toUserResponse(user), nil
 }
 
-// UpdateUser updates user profile
+
 func (s *Service) UpdateUser(ctx context.Context, userID uuid.UUID, req UpdateUserRequest) (*UserResponse, error) {
-	// Validate
+	
 	if err := ValidateFullName(req.FullName); err != nil {
 		return nil, fmt.Errorf("%w: %v", util.ErrBadRequest, err)
 	}
@@ -226,9 +226,9 @@ func (s *Service) UpdateUser(ctx context.Context, userID uuid.UUID, req UpdateUs
 	return s.toUserResponse(user), nil
 }
 
-// UpdatePassword updates user password
+
 func (s *Service) UpdatePassword(ctx context.Context, userID uuid.UUID, req UpdatePasswordRequest) error {
-	// Get user to verify old password
+	
 	user, err := s.store.GetUserByID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -237,23 +237,23 @@ func (s *Service) UpdatePassword(ctx context.Context, userID uuid.UUID, req Upda
 		return fmt.Errorf("failed to get user: %w", err)
 	}
 
-	// Verify old password
+	
 	if err := auth.CheckPassword(req.OldPassword, user.Password); err != nil {
 		return fmt.Errorf("%w: incorrect password", util.ErrUnauthorized)
 	}
 
-	// Validate new password
+	
 	if err := ValidatePassword(req.NewPassword); err != nil {
 		return fmt.Errorf("%w: %v", util.ErrBadRequest, err)
 	}
 
-	// Hash new password
+	
 	hashedPassword, err := auth.HashPassword(req.NewPassword)
 	if err != nil {
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	// Update password
+	
 	err = s.store.UpdateUserPassword(ctx, db.UpdateUserPasswordParams{
 		Password: hashedPassword,
 		ID:       userID,
@@ -265,7 +265,7 @@ func (s *Service) UpdatePassword(ctx context.Context, userID uuid.UUID, req Upda
 	return nil
 }
 
-// DeactivateUser soft-deletes a user
+
 func (s *Service) DeactivateUser(ctx context.Context, userID uuid.UUID) error {
 	err := s.store.DeactivateUser(ctx, userID)
 	if err != nil {
@@ -274,10 +274,10 @@ func (s *Service) DeactivateUser(ctx context.Context, userID uuid.UUID) error {
 	return nil
 }
 
-// SearchUsers searches for users
+
 func (s *Service) SearchUsers(ctx context.Context, query string, spaceID uuid.UUID) ([]UserResponse, error) {
 	users, err := s.store.SearchUsers(ctx, db.SearchUsersParams{
-		// Column2: sql.NullString{String: "%" + query + "%", Valid: true},
+		
 		SpaceID: spaceID,
 	})
 	if err != nil {
@@ -304,9 +304,9 @@ func (s *Service) SearchUsers(ctx context.Context, query string, spaceID uuid.UU
 	return result, nil
 }
 
-// GetSuggestedUsers retrieves suggested users for the authenticated user
+
 func (s *Service) GetSuggestedUsers(ctx context.Context, userID uuid.UUID, spaceID uuid.UUID, limit, offset int32) ([]UserResponse, error) {
-	// Default pagination if not provided
+	
 	if limit <= 0 {
 		limit = 10
 	}
@@ -340,15 +340,15 @@ func (s *Service) GetSuggestedUsers(ctx context.Context, userID uuid.UUID, space
 			Verified:       nullBoolToPtr(user.Verified),
 			FollowersCount: nullInt32ToPtr(user.FollowersCount),
 			FollowingCount: nullInt32ToPtr(user.FollowingCount),
-			// is_following field would require a separate query to the follows table
-			// For now, this can be enhanced when the follows endpoints are implemented
+			
+			
 		}
 	}
 
 	return result, nil
 }
 
-// Authenticate verifies user credentials and returns user
+
 func (s *Service) Authenticate(ctx context.Context, email, password string) (*UserResponse, error) {
 	user, err := s.store.GetUserByEmail(ctx, email)
 	if err != nil {
@@ -358,7 +358,7 @@ func (s *Service) Authenticate(ctx context.Context, email, password string) (*Us
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	// Verify password
+	
 	if err := auth.CheckPassword(password, user.Password); err != nil {
 		return nil, fmt.Errorf("%w: invalid credentials", util.ErrInvalidCredentials)
 	}
@@ -366,14 +366,14 @@ func (s *Service) Authenticate(ctx context.Context, email, password string) (*Us
 	return s.toUserResponse(user), nil
 }
 
-// FollowUser allows a user to follow another user
+
 func (s *Service) FollowUser(ctx context.Context, followerID, followingID, spaceID uuid.UUID) error {
-	// Check if trying to follow self
+	
 	if followerID == followingID {
 		return fmt.Errorf("%w: cannot follow yourself", util.ErrBadRequest)
 	}
 
-	// Check if the user to follow exists
+	
 	_, err := s.store.GetUserByID(ctx, followingID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -382,21 +382,21 @@ func (s *Service) FollowUser(ctx context.Context, followerID, followingID, space
 		return fmt.Errorf("failed to get user: %w", err)
 	}
 
-	// Create follow relationship
+	
 	_, err = s.store.FollowUser(ctx, db.FollowUserParams{
 		FollowerID:  followerID,
 		FollowingID: followingID,
 		SpaceID:     spaceID,
 	})
 	if err != nil {
-		// Ignore duplicate follow attempts (ON CONFLICT DO NOTHING)
+		
 		if strings.Contains(err.Error(), "no rows") {
-			return nil // Already following
+			return nil 
 		}
 		return fmt.Errorf("failed to follow user: %w", err)
 	}
 
-	// Update follower counts
+	
 	if err := s.store.IncrementFollowingCount(ctx, followerID); err != nil {
 		return fmt.Errorf("failed to update following count: %w", err)
 	}
@@ -407,14 +407,14 @@ func (s *Service) FollowUser(ctx context.Context, followerID, followingID, space
 	return nil
 }
 
-// UnfollowUser allows a user to unfollow another user
+
 func (s *Service) UnfollowUser(ctx context.Context, followerID, followingID uuid.UUID) error {
-	// Check if trying to unfollow self
+	
 	if followerID == followingID {
 		return fmt.Errorf("%w: cannot unfollow yourself", util.ErrBadRequest)
 	}
 
-	// Remove follow relationship
+	
 	err := s.store.UnfollowUser(ctx, db.UnfollowUserParams{
 		FollowerID:  followerID,
 		FollowingID: followingID,
@@ -423,7 +423,7 @@ func (s *Service) UnfollowUser(ctx context.Context, followerID, followingID uuid
 		return fmt.Errorf("failed to unfollow user: %w", err)
 	}
 
-	// Update follower counts
+	
 	if err := s.store.DecrementFollowingCount(ctx, followerID); err != nil {
 		return fmt.Errorf("failed to update following count: %w", err)
 	}
@@ -434,7 +434,7 @@ func (s *Service) UnfollowUser(ctx context.Context, followerID, followingID uuid
 	return nil
 }
 
-// CheckIfFollowing checks if one user follows another
+
 func (s *Service) CheckIfFollowing(ctx context.Context, followerID, followingID uuid.UUID) (bool, error) {
 	isFollowing, err := s.store.CheckIfFollowing(ctx, db.CheckIfFollowingParams{
 		FollowerID:  followerID,
@@ -446,7 +446,7 @@ func (s *Service) CheckIfFollowing(ctx context.Context, followerID, followingID 
 	return isFollowing, nil
 }
 
-// GetFollowers gets a list of users who follow a specific user
+
 func (s *Service) GetFollowers(ctx context.Context, userID uuid.UUID, page, limit int32) ([]UserFollowResponse, error) {
 	offset := (page - 1) * limit
 
@@ -477,7 +477,7 @@ func (s *Service) GetFollowers(ctx context.Context, userID uuid.UUID, page, limi
 	return response, nil
 }
 
-// GetFollowing gets a list of users that a specific user follows
+
 func (s *Service) GetFollowing(ctx context.Context, userID uuid.UUID, page, limit int32) ([]UserFollowResponse, error) {
 	offset := (page - 1) * limit
 
@@ -508,7 +508,7 @@ func (s *Service) GetFollowing(ctx context.Context, userID uuid.UUID, page, limi
 	return response, nil
 }
 
-// Helper functions
+
 func (s *Service) toUserResponse(user db.User) *UserResponse {
 	return &UserResponse{
 		ID:             user.ID,

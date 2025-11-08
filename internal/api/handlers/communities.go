@@ -3,26 +3,26 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/connect-univyn/connect_server/internal/util/auth"
-	"github.com/connect-univyn/connect_server/internal/service/communities"
-	"github.com/connect-univyn/connect_server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/service/communities"
+	"github.com/connect-univyn/connect-server/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-// CommunityHandler handles community-related HTTP requests
+
 type CommunityHandler struct {
 	communityService *communities.Service
 }
 
-// NewCommunityHandler creates a new community handler
+
 func NewCommunityHandler(communityService *communities.Service) *CommunityHandler {
 	return &CommunityHandler{
 		communityService: communityService,
 	}
 }
 
-// CreateCommunity handles POST /api/communities
+
 func (h *CommunityHandler) CreateCommunity(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -37,7 +37,7 @@ func (h *CommunityHandler) CreateCommunity(c *gin.Context) {
 		return
 	}
 	
-	// Set the creator from the auth payload
+	
 	creatorID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user", "Invalid user ID"))
@@ -54,7 +54,7 @@ func (h *CommunityHandler) CreateCommunity(c *gin.Context) {
 	c.JSON(http.StatusCreated, util.NewSuccessResponse(community))
 }
 
-// GetCommunity handles GET /api/communities/:id
+
 func (h *CommunityHandler) GetCommunity(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -62,7 +62,7 @@ func (h *CommunityHandler) GetCommunity(c *gin.Context) {
 		return
 	}
 	
-	// Try to get user ID from auth payload (optional for public communities)
+	
 	var userID uuid.UUID
 	if payload, exists := c.Get("authorization_payload"); exists {
 		authPayload := payload.(*auth.Payload)
@@ -78,7 +78,7 @@ func (h *CommunityHandler) GetCommunity(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(community))
 }
 
-// GetCommunityBySlug handles GET /api/communities/slug/:slug
+
 func (h *CommunityHandler) GetCommunityBySlug(c *gin.Context) {
 	slug := c.Param("slug")
 	spaceIDStr := c.Query("space_id")
@@ -89,7 +89,7 @@ func (h *CommunityHandler) GetCommunityBySlug(c *gin.Context) {
 		return
 	}
 	
-	// Try to get user ID from auth payload (optional for public communities)
+	
 	var userID uuid.UUID
 	if payload, exists := c.Get("authorization_payload"); exists {
 		authPayload := payload.(*auth.Payload)
@@ -105,7 +105,7 @@ func (h *CommunityHandler) GetCommunityBySlug(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(community))
 }
 
-// ListCommunities handles GET /api/communities
+
 func (h *CommunityHandler) ListCommunities(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
@@ -114,7 +114,7 @@ func (h *CommunityHandler) ListCommunities(c *gin.Context) {
 		return
 	}
 	
-	// Try to get user ID from auth payload (optional)
+	
 	var userID uuid.UUID
 	if payload, exists := c.Get("authorization_payload"); exists {
 		authPayload := payload.(*auth.Payload)
@@ -123,7 +123,7 @@ func (h *CommunityHandler) ListCommunities(c *gin.Context) {
 	}
 	
 	page, limit := parsePagination(c)
-	sortBy := c.DefaultQuery("sort", "recent") // members, posts, recent
+	sortBy := c.DefaultQuery("sort", "recent") 
 	
 	params := communities.ListCommunitiesParams{
 		UserID:  userID,
@@ -142,7 +142,7 @@ func (h *CommunityHandler) ListCommunities(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(communityList))
 }
 
-// SearchCommunities handles GET /api/communities/search
+
 func (h *CommunityHandler) SearchCommunities(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -157,7 +157,7 @@ func (h *CommunityHandler) SearchCommunities(c *gin.Context) {
 		return
 	}
 	
-	// Try to get user ID from auth payload (optional)
+	
 	var userID uuid.UUID
 	if payload, exists := c.Get("authorization_payload"); exists {
 		authPayload := payload.(*auth.Payload)
@@ -179,7 +179,7 @@ func (h *CommunityHandler) SearchCommunities(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(results))
 }
 
-// UpdateCommunity handles PUT /api/communities/:id
+
 func (h *CommunityHandler) UpdateCommunity(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -202,7 +202,7 @@ func (h *CommunityHandler) UpdateCommunity(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(community))
 }
 
-// GetCommunityMembers handles GET /api/communities/:id/members
+
 func (h *CommunityHandler) GetCommunityMembers(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -219,7 +219,7 @@ func (h *CommunityHandler) GetCommunityMembers(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(members))
 }
 
-// GetCommunityModerators handles GET /api/communities/:id/moderators
+
 func (h *CommunityHandler) GetCommunityModerators(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -236,7 +236,7 @@ func (h *CommunityHandler) GetCommunityModerators(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(moderators))
 }
 
-// GetCommunityAdmins handles GET /api/communities/:id/admins
+
 func (h *CommunityHandler) GetCommunityAdmins(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -253,7 +253,7 @@ func (h *CommunityHandler) GetCommunityAdmins(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(admins))
 }
 
-// JoinCommunity handles POST /api/communities/:id/join
+
 func (h *CommunityHandler) JoinCommunity(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -283,7 +283,7 @@ func (h *CommunityHandler) JoinCommunity(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(membership))
 }
 
-// LeaveCommunity handles POST /api/communities/:id/leave
+
 func (h *CommunityHandler) LeaveCommunity(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -313,7 +313,7 @@ func (h *CommunityHandler) LeaveCommunity(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Successfully left community"}))
 }
 
-// AddCommunityModerator handles POST /api/communities/:id/moderators
+
 func (h *CommunityHandler) AddCommunityModerator(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -336,7 +336,7 @@ func (h *CommunityHandler) AddCommunityModerator(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(membership))
 }
 
-// RemoveCommunityModerator handles DELETE /api/communities/:id/moderators/:userId
+
 func (h *CommunityHandler) RemoveCommunityModerator(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -359,7 +359,7 @@ func (h *CommunityHandler) RemoveCommunityModerator(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(gin.H{"message": "Moderator removed successfully"}))
 }
 
-// GetUserCommunities handles GET /api/users/communities
+
 func (h *CommunityHandler) GetUserCommunities(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
@@ -390,7 +390,7 @@ func (h *CommunityHandler) GetUserCommunities(c *gin.Context) {
 	c.JSON(http.StatusOK, util.NewSuccessResponse(userCommunities))
 }
 
-// GetCommunityCategories handles GET /api/communities/categories
+
 func (h *CommunityHandler) GetCommunityCategories(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)

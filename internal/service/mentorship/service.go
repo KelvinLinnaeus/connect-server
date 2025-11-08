@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
@@ -17,7 +17,7 @@ type Service struct {
 }
 
 func NewService(store db.Store) *Service {
-	// Try to get DB from store if it's a SQLStore
+	
 	var database *sql.DB
 	if sqlStore, ok := store.(*db.SQLStore); ok {
 		database = sqlStore.DB()
@@ -28,7 +28,7 @@ func NewService(store db.Store) *Service {
 	}
 }
 
-// ===== Mentor Profile Operations =====
+
 
 func (s *Service) CreateMentorProfile(ctx context.Context, req CreateMentorProfileRequest) (*MentorProfileResponse, error) {
 	params := db.CreateMentorProfileParams{
@@ -60,7 +60,7 @@ func (s *Service) GetMentorProfile(ctx context.Context, profileID uuid.UUID) (*M
 		return nil, fmt.Errorf("failed to get mentor profile: %w", err)
 	}
 
-	// Convert GetMentorProfileRow to MentorProfile
+	
 	profile := db.MentorProfile{
 		ID:            profileRow.ID,
 		UserID:        profileRow.UserID,
@@ -172,13 +172,13 @@ func (s *Service) GetMentorReviews(ctx context.Context, mentorID uuid.UUID) ([]M
 		}
 
 		result[i] = MentorReviewResponse{
-			ID:           uuid.Nil, // Not available in query result
+			ID:           uuid.Nil, 
 			MentorID:     mentorID,
-			MenteeID:     uuid.Nil, // Not available in query result
+			MenteeID:     uuid.Nil, 
 			MenteeName:   review.MenteeFullName,
 			MenteeAvatar: nullStringToPtr(review.MenteeAvatar),
-			SessionID:    uuid.Nil, // Not available in query result
-			Topic:        "",       // Not available in query result
+			SessionID:    uuid.Nil, 
+			Topic:        "",       
 			Rating:       rating,
 			Review:       nullStringToPtr(review.Review),
 			CreatedAt:    nullTimeToPtr(review.CreatedAt),
@@ -188,7 +188,7 @@ func (s *Service) GetMentorReviews(ctx context.Context, mentorID uuid.UUID) ([]M
 	return result, nil
 }
 
-// ===== Tutor Profile Operations =====
+
 
 func (s *Service) CreateTutorProfile(ctx context.Context, req CreateTutorProfileRequest) (*TutorProfileResponse, error) {
 	params := db.CreateTutorProfileParams{
@@ -219,7 +219,7 @@ func (s *Service) GetTutorProfile(ctx context.Context, profileID uuid.UUID) (*Tu
 		return nil, fmt.Errorf("failed to get tutor profile: %w", err)
 	}
 
-	// Convert GetTutorProfileRow to TutorProfile
+	
 	profile := db.TutorProfile{
 		ID:             profileRow.ID,
 		UserID:         profileRow.UserID,
@@ -334,13 +334,13 @@ func (s *Service) GetTutorReviews(ctx context.Context, tutorID uuid.UUID) ([]Tut
 		}
 
 		result[i] = TutorReviewResponse{
-			ID:            uuid.Nil, // Not available in query result
+			ID:            uuid.Nil, 
 			TutorID:       tutorID,
-			StudentID:     uuid.Nil, // Not available in query result
+			StudentID:     uuid.Nil, 
 			StudentName:   review.StudentFullName,
 			StudentAvatar: nullStringToPtr(review.StudentAvatar),
-			SessionID:     uuid.Nil, // Not available in query result
-			Subject:       "",       // Not available in query result
+			SessionID:     uuid.Nil, 
+			Subject:       "",       
 			Rating:        rating,
 			Review:        nullStringToPtr(review.Review),
 			CreatedAt:     nullTimeToPtr(review.CreatedAt),
@@ -350,7 +350,7 @@ func (s *Service) GetTutorReviews(ctx context.Context, tutorID uuid.UUID) ([]Tut
 	return result, nil
 }
 
-// ===== Mentoring Session Operations =====
+
 
 func (s *Service) CreateMentoringSession(ctx context.Context, req CreateMentoringSessionRequest) (*MentoringSessionResponse, error) {
 	params := db.CreateMentoringSessionParams{
@@ -479,7 +479,7 @@ func (s *Service) RateMentoringSession(ctx context.Context, sessionID uuid.UUID,
 	return nil
 }
 
-// ===== Tutoring Session Operations =====
+
 
 func (s *Service) CreateTutoringSession(ctx context.Context, req CreateTutoringSessionRequest) (*TutoringSessionResponse, error) {
 	params := db.CreateTutoringSessionParams{
@@ -613,7 +613,7 @@ func (s *Service) RateTutoringSession(ctx context.Context, sessionID uuid.UUID, 
 	return nil
 }
 
-// ===== Mentor Application Operations =====
+
 
 func (s *Service) CreateMentorApplication(ctx context.Context, req CreateMentorApplicationRequest) (*MentorApplicationResponse, error) {
 	params := db.CreateMentorApplicationParams{
@@ -650,7 +650,7 @@ func (s *Service) GetMentorApplication(ctx context.Context, applicationID uuid.U
 		return nil, fmt.Errorf("failed to get mentor application: %w", err)
 	}
 
-	// Convert Row to Application type
+	
 	application := db.MentorApplication{
 		ID:                   appRow.ID,
 		ApplicantID:          appRow.ApplicantID,
@@ -701,7 +701,7 @@ func (s *Service) GetPendingMentorApplications(ctx context.Context, spaceID uuid
 
 	result := make([]MentorApplicationResponse, len(appRows))
 	for i, appRow := range appRows {
-		// Convert Row to Application type
+		
 		app := db.MentorApplication{
 			ID:                   appRow.ID,
 			ApplicantID:          appRow.ApplicantID,
@@ -730,7 +730,7 @@ func (s *Service) GetPendingMentorApplications(ctx context.Context, spaceID uuid
 	return result, nil
 }
 
-// ===== Tutor Application Operations =====
+
 
 func (s *Service) CreateTutorApplication(ctx context.Context, req CreateTutorApplicationRequest) (*TutorApplicationResponse, error) {
 	params := db.CreateTutorApplicationParams{
@@ -763,7 +763,7 @@ func (s *Service) GetTutorApplication(ctx context.Context, applicationID uuid.UU
 		return nil, fmt.Errorf("failed to get tutor application: %w", err)
 	}
 
-	// Convert Row to Application type
+	
 	application := db.TutorApplication{
 		ID:               appRow.ID,
 		ApplicantID:      appRow.ApplicantID,
@@ -810,7 +810,7 @@ func (s *Service) GetPendingTutorApplications(ctx context.Context, spaceID uuid.
 
 	result := make([]TutorApplicationResponse, len(applications))
 	for i, appRow := range applications {
-		// Convert Row to Application type
+		
 		app := db.TutorApplication{
 			ID:               appRow.ID,
 			ApplicantID:      appRow.ApplicantID,
@@ -835,7 +835,7 @@ func (s *Service) GetPendingTutorApplications(ctx context.Context, spaceID uuid.
 	return result, nil
 }
 
-// ===== Helper Functions =====
+
 
 func mentorProfileToResponse(profile db.MentorProfile) *MentorProfileResponse {
 	return &MentorProfileResponse{
@@ -1026,7 +1026,7 @@ func nullStringToStringValue(ns sql.NullString) string {
 	return ns.String
 }
 
-// GetMentorProfileByUserID gets a mentor profile by user ID
+
 func (s *Service) GetMentorProfileByUserID(ctx context.Context, userID uuid.UUID) (*MentorProfileResponse, error) {
 	profile, err := s.store.GetMentorProfile(ctx, userID)
 	if err != nil {
@@ -1057,7 +1057,7 @@ func (s *Service) GetMentorProfileByUserID(ctx context.Context, userID uuid.UUID
 	}, nil
 }
 
-// GetTutorProfileByUserID gets a tutor profile by user ID
+
 func (s *Service) GetTutorProfileByUserID(ctx context.Context, userID uuid.UUID) (*TutorProfileResponse, error) {
 	profile, err := s.store.GetTutorProfile(ctx, userID)
 	if err != nil {
@@ -1087,7 +1087,7 @@ func (s *Service) GetTutorProfileByUserID(ctx context.Context, userID uuid.UUID)
 	}, nil
 }
 
-// GetMentorApplicationByUserID gets a mentor application by user ID
+
 func (s *Service) GetMentorApplicationByUserID(ctx context.Context, userID uuid.UUID, spaceId uuid.UUID) (*MentorApplicationResponse, error) {
 	application, err := s.store.GetUserMentorApplicationStatus(ctx, db.GetUserMentorApplicationStatusParams{
 		ApplicantID: userID,
@@ -1107,7 +1107,7 @@ func (s *Service) GetMentorApplicationByUserID(ctx context.Context, userID uuid.
 	return resp, nil
 }
 
-// GetTutorApplicationByUserID gets a tutor application by user ID
+
 func (s *Service) GetTutorApplicationByUserID(ctx context.Context, userID uuid.UUID, spaceID uuid.UUID) (*TutorApplicationResponse, error) {
 	application, err := s.store.GetUserTutorApplicationStatus(ctx, db.GetUserTutorApplicationStatusParams{
 		ApplicantID: userID,
@@ -1130,9 +1130,9 @@ func (s *Service) GetTutorApplicationByUserID(ctx context.Context, userID uuid.U
 	return resp, nil
 }
 
-// ===== Recommendation Operations =====
 
-// GetRecommendedTutors returns recommended tutors for a user based on matching criteria
+
+
 func (s *Service) GetRecommendedTutors(ctx context.Context, spaceID, userID uuid.UUID, limit int32) ([]TutorSearchResponse, error) {
 	if limit == 0 {
 		limit = 5
@@ -1168,7 +1168,7 @@ func (s *Service) GetRecommendedTutors(ctx context.Context, spaceID, userID uuid
 	return result, nil
 }
 
-// GetRecommendedMentors returns recommended mentors for a user based on matching criteria
+
 func (s *Service) GetRecommendedMentors(ctx context.Context, spaceID, userID uuid.UUID, limit int32) ([]MentorSearchResponse, error) {
 	if limit == 0 {
 		limit = 5

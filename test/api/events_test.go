@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
@@ -77,7 +77,7 @@ func TestListEvents(t *testing.T) {
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 
-	// Create test event
+	
 	_, err := ts.TestDB.Store.CreateEvent(context.Background(), db.CreateEventParams{
 		SpaceID:     spaceID,
 		Title:       "Test Event",

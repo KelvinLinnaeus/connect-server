@@ -3,8 +3,8 @@ package websocket
 import (
 	"net/http"
 
-	"github.com/connect-univyn/connect_server/internal/util"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/google/uuid"
@@ -15,19 +15,19 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
-		// TODO: Implement proper origin checking based on CORS configuration
-		// For now, allow all origins (to be secured in production)
+		
+		
 		return true
 	},
 }
 
-// Handler handles WebSocket upgrade requests
+
 type Handler struct {
 	manager    *Manager
 	tokenMaker auth.Maker
 }
 
-// NewHandler creates a new WebSocket handler
+
 func NewHandler(manager *Manager, tokenMaker auth.Maker) *Handler {
 	return &Handler{
 		manager:    manager,
@@ -35,13 +35,13 @@ func NewHandler(manager *Manager, tokenMaker auth.Maker) *Handler {
 	}
 }
 
-// HandleWebSocket handles WebSocket connection requests
+
 func (h *Handler) HandleWebSocket(c *gin.Context) {
-	// Get token from query parameter or header
+	
 	token := c.Query("token")
 	if token == "" {
 		token = c.GetHeader("Authorization")
-		// Remove "Bearer " prefix if present
+		
 		if len(token) > 7 && token[:7] == "Bearer " {
 			token = token[7:]
 		}
@@ -52,41 +52,41 @@ func (h *Handler) HandleWebSocket(c *gin.Context) {
 		return
 	}
 
-	// Verify token
+	
 	payload, err := h.tokenMaker.VerifyToken(token)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("invalid_token", "Invalid or expired token"))
 		return
 	}
 
-	// Parse user ID
+	
 	userID, err := uuid.Parse(payload.UserID)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("invalid_token", "Invalid user ID in token"))
 		return
 	}
 
-	// Upgrade connection
+	
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to upgrade WebSocket connection")
 		return
 	}
 
-	// Get client IP address (handles X-Forwarded-For properly)
+	
 	ipAddress := c.ClientIP()
 
-	// Create client
+	
 	client := NewClient(conn, userID, ipAddress, h.manager)
 
-	// Add space ID from context if available
+	
 	if spaceIDStr := c.Query("space_id"); spaceIDStr != "" {
 		if spaceID, err := uuid.Parse(spaceIDStr); err == nil {
 			client.SpaceID = &spaceID
 		}
 	}
 
-	// Register client
+	
 	h.manager.Register(client)
 
 	log.Info().
@@ -95,17 +95,17 @@ func (h *Handler) HandleWebSocket(c *gin.Context) {
 		Str("remote_addr", c.Request.RemoteAddr).
 		Msg("WebSocket connection established")
 
-	// Start client pumps
+	
 	go client.WritePump()
 	go client.ReadPump()
 
-	// Auto-subscribe to user's personal channel
+	
 	client.SubscriptionsMu.Lock()
 	userChannel := Channel.User(userID)
 	client.Subscriptions[userChannel] = true
 	client.SubscriptionsMu.Unlock()
 
-	// Send welcome message
+	
 	client.sendMessage(ServerMessage{
 		Type:    MessageTypeAck,
 		Channel: "",
@@ -117,7 +117,7 @@ func (h *Handler) HandleWebSocket(c *gin.Context) {
 	})
 }
 
-// HandleMetrics handles metrics endpoint
+
 func (h *Handler) HandleMetrics(c *gin.Context) {
 	metrics := h.manager.GetMetrics()
 
@@ -135,7 +135,7 @@ func (h *Handler) HandleMetrics(c *gin.Context) {
 	})
 }
 
-// HandlePresence handles presence check endpoint
+
 func (h *Handler) HandlePresence(c *gin.Context) {
 	userIDStr := c.Param("user_id")
 	if userIDStr == "" {
@@ -159,7 +159,7 @@ func (h *Handler) HandlePresence(c *gin.Context) {
 	})
 }
 
-// HandleBulkPresence handles bulk presence check endpoint
+
 func (h *Handler) HandleBulkPresence(c *gin.Context) {
 	var req struct {
 		UserIDs []string `json:"user_ids" binding:"required"`

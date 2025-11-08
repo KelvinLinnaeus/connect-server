@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Event Request Types
+
 
 type CreateEventRequest struct {
 	SpaceID              uuid.UUID  `json:"space_id" binding:"required"`
@@ -24,7 +24,7 @@ type CreateEventRequest struct {
 	RegistrationRequired *bool      `json:"registration_required,omitempty"`
 	RegistrationDeadline *time.Time `json:"registration_deadline,omitempty"`
 	IsPublic             *bool      `json:"is_public,omitempty"`
-	OrganizerID          uuid.UUID  // Set from auth context, not from request body
+	OrganizerID          uuid.UUID  
 }
 
 type UpdateEventRequest struct {
@@ -53,7 +53,7 @@ type ListEventsParams struct {
 	UserID    uuid.UUID
 	Category  *string
 	StartDate *time.Time
-	Sort      *string // "upcoming", "popular", or empty for recent
+	Sort      *string 
 	Page      int32
 	Limit     int32
 }
@@ -68,7 +68,7 @@ type AddCoOrganizerRequest struct {
 	UserID uuid.UUID `json:"user_id" binding:"required"`
 }
 
-// Event Response Types
+
 
 type EventResponse struct {
 	ID                   uuid.UUID  `json:"id"`
@@ -115,13 +115,13 @@ type EventDetailResponse struct {
 	CreatedAt            *time.Time `json:"created_at,omitempty"`
 	UpdatedAt            *time.Time `json:"updated_at,omitempty"`
 
-	// Organizer info
+	
 	OrganizerID       *uuid.UUID `json:"organizer_id,omitempty"`
 	OrganizerUsername string     `json:"organizer_username"`
 	OrganizerFullName string     `json:"organizer_full_name"`
 	OrganizerAvatar   *string    `json:"organizer_avatar,omitempty"`
 
-	// Attendee info
+	
 	CurrentAttendeesCount int64   `json:"current_attendees_count"`
 	IsRegistered          bool    `json:"is_registered"`
 	UserAttendanceStatus  *string `json:"user_attendance_status,omitempty"`
@@ -142,11 +142,11 @@ type EventListResponse struct {
 	RegistrationRequired  *bool      `json:"registration_required,omitempty"`
 	IsPublic              *bool      `json:"is_public,omitempty"`
 
-	// Organizer
+	
 	OrganizerUsername string `json:"organizer_username"`
 	OrganizerFullName string `json:"organizer_full_name"`
 
-	// Attendance
+	
 	CurrentAttendeesCount int64 `json:"current_attendees_count"`
 	IsRegistered          bool  `json:"is_registered"`
 }
@@ -164,7 +164,7 @@ type UserEventResponse struct {
 	ImageURL          *string    `json:"image_url,omitempty"`
 	OrganizerUsername string     `json:"organizer_username"`
 	OrganizerFullName string     `json:"organizer_full_name"`
-	AttendanceStatus  *string    `json:"attendance_status,omitempty"` // registered, attended, cancelled
+	AttendanceStatus  *string    `json:"attendance_status,omitempty"` 
 }
 
 type AttendeeResponse struct {
@@ -176,8 +176,8 @@ type AttendeeResponse struct {
 	Avatar       *string    `json:"avatar,omitempty"`
 	Department   *string    `json:"department,omitempty"`
 	Level        *string    `json:"level,omitempty"`
-	Status       *string    `json:"status,omitempty"` // registered, attended, cancelled
-	Role         *string    `json:"role,omitempty"`   // organizer, attendee
+	Status       *string    `json:"status,omitempty"` 
+	Role         *string    `json:"role,omitempty"`   
 	RegisteredAt *time.Time `json:"registered_at,omitempty"`
 	AttendedAt   *time.Time `json:"attended_at,omitempty"`
 	Notes        *string    `json:"notes,omitempty"`

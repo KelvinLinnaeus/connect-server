@@ -5,22 +5,22 @@ import (
 	"database/sql"
 	"fmt"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
 
-// Service handles community business logic
+
 type Service struct {
 	store db.Store
 }
 
-// NewService creates a new community service
+
 func NewService(store db.Store) *Service {
 	return &Service{store: store}
 }
 
-// CreateCommunity creates a new community
+
 func (s *Service) CreateCommunity(ctx context.Context, req CreateCommunityRequest) (*CommunityResponse, error) {
 	var description, coverImage sql.NullString
 	var isPublic sql.NullBool
@@ -58,7 +58,7 @@ func (s *Service) CreateCommunity(ctx context.Context, req CreateCommunityReques
 	return s.toCommunityResponse(community), nil
 }
 
-// GetCommunityByID gets a community by ID
+
 func (s *Service) GetCommunityByID(ctx context.Context, userID, communityID uuid.UUID) (*CommunityDetailResponse, error) {
 	community, err := s.store.GetCommunityByID(ctx, db.GetCommunityByIDParams{
 		UserID: userID,
@@ -74,7 +74,7 @@ func (s *Service) GetCommunityByID(ctx context.Context, userID, communityID uuid
 	return s.toCommunityDetailResponse(community), nil
 }
 
-// GetCommunityBySlug gets a community by slug (name)
+
 func (s *Service) GetCommunityBySlug(ctx context.Context, userID, spaceID uuid.UUID, slug string) (*CommunityDetailResponse, error) {
 	community, err := s.store.GetCommunityBySlug(ctx, db.GetCommunityBySlugParams{
 		UserID:  userID,
@@ -91,7 +91,7 @@ func (s *Service) GetCommunityBySlug(ctx context.Context, userID, spaceID uuid.U
 	return s.toCommunityDetailFromSlugResponse(community), nil
 }
 
-// ListCommunities lists communities with pagination and sorting
+
 func (s *Service) ListCommunities(ctx context.Context, params ListCommunitiesParams) ([]CommunityListResponse, error) {
 	offset := (params.Page - 1) * params.Limit
 
@@ -109,7 +109,7 @@ func (s *Service) ListCommunities(ctx context.Context, params ListCommunitiesPar
 	return s.toCommunityListResponses(communities), nil
 }
 
-// SearchCommunities searches communities by name, description, or category
+
 func (s *Service) SearchCommunities(ctx context.Context, params SearchCommunitiesParams) ([]CommunityListResponse, error) {
 	communities, err := s.store.SearchCommunities(ctx, db.SearchCommunitiesParams{
 		UserID:  params.UserID,
@@ -123,7 +123,7 @@ func (s *Service) SearchCommunities(ctx context.Context, params SearchCommunitie
 	return s.toSearchCommunityListResponses(communities), nil
 }
 
-// UpdateCommunity updates a community
+
 func (s *Service) UpdateCommunity(ctx context.Context, communityID uuid.UUID, req UpdateCommunityRequest) (*CommunityResponse, error) {
 	var description, coverImage sql.NullString
 	var isPublic sql.NullBool
@@ -158,7 +158,7 @@ func (s *Service) UpdateCommunity(ctx context.Context, communityID uuid.UUID, re
 	return s.toCommunityResponse(community), nil
 }
 
-// GetCommunityMembers gets all members of a community
+
 func (s *Service) GetCommunityMembers(ctx context.Context, communityID uuid.UUID) ([]CommunityMemberResponse, error) {
 	members, err := s.store.GetCommunityMembers(ctx, communityID)
 	if err != nil {
@@ -168,7 +168,7 @@ func (s *Service) GetCommunityMembers(ctx context.Context, communityID uuid.UUID
 	return s.toCommunityMemberResponses(members), nil
 }
 
-// GetCommunityModerators gets all moderators of a community
+
 func (s *Service) GetCommunityModerators(ctx context.Context, communityID uuid.UUID) ([]CommunityModeratorResponse, error) {
 	moderators, err := s.store.GetCommunityModerators(ctx, communityID)
 	if err != nil {
@@ -178,7 +178,7 @@ func (s *Service) GetCommunityModerators(ctx context.Context, communityID uuid.U
 	return s.toCommunityModeratorResponses(moderators), nil
 }
 
-// GetCommunityAdmins gets all admins of a community
+
 func (s *Service) GetCommunityAdmins(ctx context.Context, communityID uuid.UUID) ([]CommunityAdminResponse, error) {
 	admins, err := s.store.GetCommunityAdmins(ctx, communityID)
 	if err != nil {
@@ -188,7 +188,7 @@ func (s *Service) GetCommunityAdmins(ctx context.Context, communityID uuid.UUID)
 	return s.toCommunityAdminResponses(admins), nil
 }
 
-// JoinCommunity allows a user to join a community
+
 func (s *Service) JoinCommunity(ctx context.Context, communityID, userID uuid.UUID) (*CommunityMembershipResponse, error) {
 	membership, err := s.store.JoinCommunity(ctx, db.JoinCommunityParams{
 		CommunityID: communityID,
@@ -198,13 +198,13 @@ func (s *Service) JoinCommunity(ctx context.Context, communityID, userID uuid.UU
 		return nil, fmt.Errorf("failed to join community: %w", err)
 	}
 
-	// Update community stats asynchronously
+	
 	go s.store.UpdateCommunityStats(context.Background(), communityID)
 
 	return s.toCommunityMembershipResponse(membership), nil
 }
 
-// LeaveCommunity allows a user to leave a community
+
 func (s *Service) LeaveCommunity(ctx context.Context, communityID, userID uuid.UUID) error {
 	err := s.store.LeaveCommunity(ctx, db.LeaveCommunityParams{
 		CommunityID: communityID,
@@ -214,13 +214,13 @@ func (s *Service) LeaveCommunity(ctx context.Context, communityID, userID uuid.U
 		return fmt.Errorf("failed to leave community: %w", err)
 	}
 
-	// Update community stats asynchronously
+	
 	go s.store.UpdateCommunityStats(context.Background(), communityID)
 
 	return nil
 }
 
-// AddCommunityModerator adds a moderator to a community
+
 func (s *Service) AddCommunityModerator(ctx context.Context, communityID uuid.UUID, req AddModeratorRequest) (*CommunityMembershipResponse, error) {
 	permissions := req.Permissions
 	if permissions == nil {
@@ -239,7 +239,7 @@ func (s *Service) AddCommunityModerator(ctx context.Context, communityID uuid.UU
 	return s.toCommunityMembershipResponse(membership), nil
 }
 
-// RemoveCommunityModerator removes a moderator from a community
+
 func (s *Service) RemoveCommunityModerator(ctx context.Context, communityID, userID uuid.UUID) error {
 	err := s.store.RemoveCommunityModerator(ctx, db.RemoveCommunityModeratorParams{
 		CommunityID: communityID,
@@ -252,7 +252,7 @@ func (s *Service) RemoveCommunityModerator(ctx context.Context, communityID, use
 	return nil
 }
 
-// IsCommunityAdmin checks if a user is a community admin
+
 func (s *Service) IsCommunityAdmin(ctx context.Context, communityID, userID uuid.UUID) (bool, error) {
 	isAdmin, err := s.store.IsCommunityAdmin(ctx, db.IsCommunityAdminParams{
 		CommunityID: communityID,
@@ -265,7 +265,7 @@ func (s *Service) IsCommunityAdmin(ctx context.Context, communityID, userID uuid
 	return isAdmin, nil
 }
 
-// IsCommunityModerator checks if a user is a community moderator
+
 func (s *Service) IsCommunityModerator(ctx context.Context, communityID, userID uuid.UUID) (bool, error) {
 	isModerator, err := s.store.IsCommunityModerator(ctx, db.IsCommunityModeratorParams{
 		CommunityID: communityID,
@@ -278,7 +278,7 @@ func (s *Service) IsCommunityModerator(ctx context.Context, communityID, userID 
 	return isModerator, nil
 }
 
-// GetUserCommunities gets all communities a user is a member of
+
 func (s *Service) GetUserCommunities(ctx context.Context, userID, spaceID uuid.UUID) ([]UserCommunityResponse, error) {
 	communities, err := s.store.GetUserCommunities(ctx, db.GetUserCommunitiesParams{
 		UserID:  userID,
@@ -291,7 +291,7 @@ func (s *Service) GetUserCommunities(ctx context.Context, userID, spaceID uuid.U
 	return s.toUserCommunityResponses(communities), nil
 }
 
-// GetCommunityCategories gets all available community categories
+
 func (s *Service) GetCommunityCategories(ctx context.Context, spaceID uuid.UUID) ([]string, error) {
 	categories, err := s.store.GetCommunityCategories(ctx, spaceID)
 	if err != nil {
@@ -301,7 +301,7 @@ func (s *Service) GetCommunityCategories(ctx context.Context, spaceID uuid.UUID)
 	return categories, nil
 }
 
-// Helper conversion functions
+
 
 func (s *Service) toCommunityResponse(c db.Community) *CommunityResponse {
 	resp := &CommunityResponse{

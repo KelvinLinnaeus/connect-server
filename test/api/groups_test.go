@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"testing"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 	"github.com/stretchr/testify/require"
 )
 
@@ -78,7 +78,7 @@ func TestJoinGroup(t *testing.T) {
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	token := ts.CreateAuthToken(t, user.ID)
 
-	// Create a group
+	
 	group, err := ts.TestDB.Store.CreateGroup(context.Background(), db.CreateGroupParams{
 		SpaceID:   spaceID,
 		Name:      "Test Group",

@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"testing"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
@@ -71,7 +71,7 @@ func TestListAnnouncements(t *testing.T) {
 	spaceID := testhelpers.CreateTestSpace(t, ts.TestDB.DB)
 	user := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 
-	// Create test announcement
+	
 	_, err := ts.TestDB.Store.CreateAnnouncement(context.Background(), db.CreateAnnouncementParams{
 		SpaceID: spaceID,
 		Title:   "Test Announcement",

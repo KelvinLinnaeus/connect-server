@@ -12,7 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// RedisBroker implements EventBus using Redis Pub/Sub with auto-reconnect
+
 type RedisBroker struct {
 	client        *redis.Client
 	subscriptions map[string]*redis.PubSub
@@ -22,15 +22,15 @@ type RedisBroker struct {
 	ctx           context.Context
 	cancel        context.CancelFunc
 
-	// Reconnection state
+	
 	reconnecting  atomic.Bool
 	reconnectChan chan struct{}
 
-	// Metrics
+	
 	metrics       *BrokerMetrics
 }
 
-// BrokerMetrics tracks Redis broker statistics
+
 type BrokerMetrics struct {
 	EventsPublished   atomic.Int64
 	EventsReceived    atomic.Int64
@@ -40,27 +40,27 @@ type BrokerMetrics struct {
 	mu                sync.RWMutex
 }
 
-// GetEventsPublished returns the total events published
+
 func (m *BrokerMetrics) GetEventsPublished() int64 {
 	return m.EventsPublished.Load()
 }
 
-// GetEventsReceived returns the total events received
+
 func (m *BrokerMetrics) GetEventsReceived() int64 {
 	return m.EventsReceived.Load()
 }
 
-// GetPublishErrors returns the total publish errors
+
 func (m *BrokerMetrics) GetPublishErrors() int64 {
 	return m.PublishErrors.Load()
 }
 
-// GetReconnectCount returns the total reconnection count
+
 func (m *BrokerMetrics) GetReconnectCount() int64 {
 	return m.ReconnectCount.Load()
 }
 
-// NewRedisBroker creates a new Redis-based event bus with auto-reconnect
+
 func NewRedisBroker(redisURL string) (*RedisBroker, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -78,7 +78,7 @@ func NewRedisBroker(redisURL string) (*RedisBroker, error) {
 		return nil, err
 	}
 
-	// Start health check and reconnection monitor
+	
 	go broker.monitorConnection()
 
 	log.Info().Str("redis_url", redisURL).Msg("Redis live broker active (multi-instance ready)")
@@ -86,14 +86,14 @@ func NewRedisBroker(redisURL string) (*RedisBroker, error) {
 	return broker, nil
 }
 
-// connect establishes connection to Redis
+
 func (b *RedisBroker) connect() error {
 	opts, err := redis.ParseURL(b.redisURL)
 	if err != nil {
 		return fmt.Errorf("failed to parse Redis URL: %w", err)
 	}
 
-	// Configure connection pool
+	
 	opts.PoolSize = 10
 	opts.MinIdleConns = 5
 	opts.MaxRetries = 3
@@ -103,7 +103,7 @@ func (b *RedisBroker) connect() error {
 
 	client := redis.NewClient(opts)
 
-	// Test connection
+	
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -115,7 +115,7 @@ func (b *RedisBroker) connect() error {
 	return nil
 }
 
-// monitorConnection monitors Redis connection health and reconnects if needed
+
 func (b *RedisBroker) monitorConnection() {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -138,17 +138,17 @@ func (b *RedisBroker) monitorConnection() {
 	}
 }
 
-// reconnect attempts to reconnect to Redis with exponential backoff
+
 func (b *RedisBroker) reconnect() {
 	if !b.reconnecting.CompareAndSwap(false, true) {
-		// Already reconnecting
+		
 		return
 	}
 	defer b.reconnecting.Store(false)
 
 	log.Warn().Msg("Redis connection lost, attempting to reconnect")
 
-	// Exponential backoff: 1s, 2s, 4s, 8s, 16s, 30s (max)
+	
 	backoff := time.Second
 	maxBackoff := 30 * time.Second
 	attempt := 1
@@ -170,7 +170,7 @@ func (b *RedisBroker) reconnect() {
 				Int("attempt", attempt).
 				Msg("Redis reconnect failed")
 
-			// Wait with exponential backoff
+			
 			time.Sleep(backoff)
 			backoff *= 2
 			if backoff > maxBackoff {
@@ -180,7 +180,7 @@ func (b *RedisBroker) reconnect() {
 			continue
 		}
 
-		// Reconnect successful
+		
 		b.metrics.ReconnectCount.Add(1)
 		b.metrics.mu.Lock()
 		b.metrics.LastReconnectTime = time.Now()
@@ -191,13 +191,13 @@ func (b *RedisBroker) reconnect() {
 			Int64("total_reconnects", b.metrics.ReconnectCount.Load()).
 			Msg("Redis reconnected successfully")
 
-		// Resubscribe to all channels
+		
 		b.resubscribeAll()
 		return
 	}
 }
 
-// resubscribeAll resubscribes to all previously subscribed channels
+
 func (b *RedisBroker) resubscribeAll() {
 	b.mu.RLock()
 	channels := make([]string, 0, len(b.subscriptions))
@@ -208,11 +208,11 @@ func (b *RedisBroker) resubscribeAll() {
 
 	for _, channel := range channels {
 		log.Info().Str("channel", channel).Msg("Resubscribing to channel")
-		// The subscription will be recreated by the next Subscribe call
+		
 	}
 }
 
-// Publish publishes an event to a Redis channel
+
 func (b *RedisBroker) Publish(ctx context.Context, event *Event) error {
 	b.mu.RLock()
 	if b.closed {
@@ -222,14 +222,14 @@ func (b *RedisBroker) Publish(ctx context.Context, event *Event) error {
 	client := b.client
 	b.mu.RUnlock()
 
-	// Serialize event to JSON
+	
 	data, err := json.Marshal(event)
 	if err != nil {
 		b.metrics.PublishErrors.Add(1)
 		return fmt.Errorf("failed to marshal event: %w", err)
 	}
 
-	// Publish to Redis channel with retry
+	
 	maxRetries := 3
 	var publishErr error
 	for i := 0; i < maxRetries; i++ {
@@ -238,7 +238,7 @@ func (b *RedisBroker) Publish(ctx context.Context, event *Event) error {
 			break
 		}
 
-		// Trigger reconnect on connection error
+		
 		if i < maxRetries-1 {
 			log.Warn().Err(publishErr).
 				Int("retry", i+1).
@@ -249,7 +249,7 @@ func (b *RedisBroker) Publish(ctx context.Context, event *Event) error {
 
 	if publishErr != nil {
 		b.metrics.PublishErrors.Add(1)
-		// Trigger reconnect
+		
 		select {
 		case b.reconnectChan <- struct{}{}:
 		default:
@@ -268,7 +268,7 @@ func (b *RedisBroker) Publish(ctx context.Context, event *Event) error {
 	return nil
 }
 
-// Subscribe subscribes to a specific channel
+
 func (b *RedisBroker) Subscribe(ctx context.Context, channel string) (<-chan *Event, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -277,19 +277,19 @@ func (b *RedisBroker) Subscribe(ctx context.Context, channel string) (<-chan *Ev
 		return nil, fmt.Errorf("event bus is closed")
 	}
 
-	// Check if already subscribed
+	
 	if _, exists := b.subscriptions[channel]; exists {
 		return nil, fmt.Errorf("already subscribed to channel: %s", channel)
 	}
 
-	// Subscribe to Redis channel
+	
 	pubsub := b.client.Subscribe(ctx, channel)
 	b.subscriptions[channel] = pubsub
 
-	// Create event channel
-	eventChan := make(chan *Event, 100) // Buffered to prevent blocking
+	
+	eventChan := make(chan *Event, 100) 
 
-	// Start goroutine to receive messages
+	
 	go b.receiveMessages(ctx, pubsub, eventChan, channel)
 
 	log.Info().Str("channel", channel).Msg("Subscribed to channel")
@@ -297,7 +297,7 @@ func (b *RedisBroker) Subscribe(ctx context.Context, channel string) (<-chan *Ev
 	return eventChan, nil
 }
 
-// SubscribePattern subscribes to channels matching a pattern
+
 func (b *RedisBroker) SubscribePattern(ctx context.Context, pattern string) (<-chan *Event, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -306,14 +306,14 @@ func (b *RedisBroker) SubscribePattern(ctx context.Context, pattern string) (<-c
 		return nil, fmt.Errorf("event bus is closed")
 	}
 
-	// Subscribe to Redis pattern
+	
 	pubsub := b.client.PSubscribe(ctx, pattern)
 	b.subscriptions[pattern] = pubsub
 
-	// Create event channel
+	
 	eventChan := make(chan *Event, 100)
 
-	// Start goroutine to receive messages
+	
 	go b.receiveMessages(ctx, pubsub, eventChan, pattern)
 
 	log.Info().Str("pattern", pattern).Msg("Subscribed to pattern")
@@ -321,7 +321,7 @@ func (b *RedisBroker) SubscribePattern(ctx context.Context, pattern string) (<-c
 	return eventChan, nil
 }
 
-// receiveMessages receives messages from Redis and sends them to the event channel
+
 func (b *RedisBroker) receiveMessages(ctx context.Context, pubsub *redis.PubSub, eventChan chan<- *Event, identifier string) {
 	defer close(eventChan)
 
@@ -338,7 +338,7 @@ func (b *RedisBroker) receiveMessages(ctx context.Context, pubsub *redis.PubSub,
 		case msg, ok := <-ch:
 			if !ok {
 				log.Debug().Str("identifier", identifier).Msg("Redis channel closed")
-				// Try to trigger reconnect
+				
 				select {
 				case b.reconnectChan <- struct{}{}:
 				default:
@@ -346,7 +346,7 @@ func (b *RedisBroker) receiveMessages(ctx context.Context, pubsub *redis.PubSub,
 				return
 			}
 
-			// Parse event
+			
 			var event Event
 			if err := json.Unmarshal([]byte(msg.Payload), &event); err != nil {
 				log.Error().Err(err).Str("payload", msg.Payload).Msg("Failed to unmarshal event")
@@ -355,7 +355,7 @@ func (b *RedisBroker) receiveMessages(ctx context.Context, pubsub *redis.PubSub,
 
 			b.metrics.EventsReceived.Add(1)
 
-			// Send to event channel (non-blocking)
+			
 			select {
 			case eventChan <- &event:
 				log.Debug().
@@ -373,7 +373,7 @@ func (b *RedisBroker) receiveMessages(ctx context.Context, pubsub *redis.PubSub,
 	}
 }
 
-// Unsubscribe unsubscribes from a channel
+
 func (b *RedisBroker) Unsubscribe(ctx context.Context, channel string) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -387,12 +387,12 @@ func (b *RedisBroker) Unsubscribe(ctx context.Context, channel string) error {
 		return fmt.Errorf("not subscribed to channel: %s", channel)
 	}
 
-	// Unsubscribe from Redis
+	
 	if err := pubsub.Unsubscribe(ctx, channel); err != nil {
 		return fmt.Errorf("failed to unsubscribe: %w", err)
 	}
 
-	// Close pubsub
+	
 	if err := pubsub.Close(); err != nil {
 		log.Warn().Err(err).Str("channel", channel).Msg("Error closing pubsub")
 	}
@@ -404,7 +404,7 @@ func (b *RedisBroker) Unsubscribe(ctx context.Context, channel string) error {
 	return nil
 }
 
-// Close closes the event bus and all subscriptions
+
 func (b *RedisBroker) Close() error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -415,17 +415,17 @@ func (b *RedisBroker) Close() error {
 
 	b.closed = true
 
-	// Cancel context to stop monitoring goroutine
+	
 	b.cancel()
 
-	// Close all subscriptions
+	
 	for channel, pubsub := range b.subscriptions {
 		if err := pubsub.Close(); err != nil {
 			log.Warn().Err(err).Str("channel", channel).Msg("Error closing subscription")
 		}
 	}
 
-	// Close Redis client
+	
 	if err := b.client.Close(); err != nil {
 		return fmt.Errorf("failed to close Redis client: %w", err)
 	}
@@ -435,7 +435,7 @@ func (b *RedisBroker) Close() error {
 	return nil
 }
 
-// HealthCheck checks if Redis connection is healthy
+
 func (b *RedisBroker) HealthCheck(ctx context.Context) error {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -451,7 +451,7 @@ func (b *RedisBroker) HealthCheck(ctx context.Context) error {
 	return nil
 }
 
-// GetMetrics returns a copy of the broker metrics
+
 func (b *RedisBroker) GetMetrics() BrokerMetrics {
 	b.metrics.mu.RLock()
 	defer b.metrics.mu.RUnlock()
@@ -459,7 +459,7 @@ func (b *RedisBroker) GetMetrics() BrokerMetrics {
 	metrics := BrokerMetrics{
 		LastReconnectTime: b.metrics.LastReconnectTime,
 	}
-	// Copy atomic values
+	
 	metrics.EventsPublished.Store(b.metrics.EventsPublished.Load())
 	metrics.EventsReceived.Store(b.metrics.EventsReceived.Load())
 	metrics.PublishErrors.Store(b.metrics.PublishErrors.Load())

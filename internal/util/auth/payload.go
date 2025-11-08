@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Payload contains the payload data of the token
+
 type Payload struct {
 	ID        uuid.UUID `json:"id"`
 	UserID    string    `json:"user_id"`
@@ -17,7 +17,7 @@ type Payload struct {
 	ExpiredAt time.Time `json:"expired_at"`
 }
 
-// NewPayload creates a new token payload
+
 func NewPayload(userID, username, spaceID string, duration time.Duration) (*Payload, error) {
 	tokenID, err := uuid.NewRandom()
 	if err != nil {
@@ -35,7 +35,7 @@ func NewPayload(userID, username, spaceID string, duration time.Duration) (*Payl
 	return payload, nil
 }
 
-// Valid checks if the token payload is valid
+
 func (payload *Payload) Valid() error {
 	if time.Now().After(payload.ExpiredAt) {
 		return errors.New("token has expired")

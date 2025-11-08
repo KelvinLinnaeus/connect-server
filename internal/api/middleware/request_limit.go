@@ -4,27 +4,27 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/connect-univyn/connect_server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 )
 
 const (
-	// DefaultMaxBodySize is 1MB - suitable for most API requests
-	DefaultMaxBodySize int64 = 1 << 20 // 1 MB
+	
+	DefaultMaxBodySize int64 = 1 << 20 
 
-	// LargeMaxBodySize is 10MB - for endpoints that may need larger payloads (e.g., file uploads)
-	LargeMaxBodySize int64 = 10 << 20 // 10 MB
+	
+	LargeMaxBodySize int64 = 10 << 20 
 
-	// MaxHeaderSize limits the size of request headers
-	MaxHeaderSize int64 = 8 << 10 // 8 KB
+	
+	MaxHeaderSize int64 = 8 << 10 
 )
 
-// RequestSizeLimitMiddleware limits the size of incoming request bodies
-// This prevents memory exhaustion attacks and resource abuse
+
+
 func RequestSizeLimitMiddleware(maxSize int64) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Skip size check for GET, HEAD, and OPTIONS requests (they typically have no body)
+		
 		if c.Request.Method == http.MethodGet ||
 			c.Request.Method == http.MethodHead ||
 			c.Request.Method == http.MethodOptions {
@@ -32,7 +32,7 @@ func RequestSizeLimitMiddleware(maxSize int64) gin.HandlerFunc {
 			return
 		}
 
-		// Check Content-Length header first (if present)
+		
 		contentLength := c.Request.ContentLength
 		if contentLength > maxSize {
 			log.Warn().
@@ -49,13 +49,13 @@ func RequestSizeLimitMiddleware(maxSize int64) gin.HandlerFunc {
 			return
 		}
 
-		// Limit the request body reader to prevent reading more than maxSize
-		// This protects against clients that don't set Content-Length or set it incorrectly
+		
+		
 		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxSize)
 
 		c.Next()
 
-		// Check if MaxBytesReader triggered an error
+		
 		if c.Errors.Last() != nil {
 			err := c.Errors.Last().Err
 			if err.Error() == "http: request body too large" {
@@ -75,12 +75,12 @@ func RequestSizeLimitMiddleware(maxSize int64) gin.HandlerFunc {
 	}
 }
 
-// DefaultRequestSizeLimitMiddleware applies the default 1MB size limit
+
 func DefaultRequestSizeLimitMiddleware() gin.HandlerFunc {
 	return RequestSizeLimitMiddleware(DefaultMaxBodySize)
 }
 
-// LargeRequestSizeLimitMiddleware applies a larger 10MB size limit for special endpoints
+
 func LargeRequestSizeLimitMiddleware() gin.HandlerFunc {
 	return RequestSizeLimitMiddleware(LargeMaxBodySize)
 }

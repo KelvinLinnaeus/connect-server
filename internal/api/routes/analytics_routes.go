@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"github.com/connect-univyn/connect_server/internal/api/handlers"
-	"github.com/connect-univyn/connect_server/internal/api/middleware"
-	"github.com/connect-univyn/connect_server/internal/util/auth"
+	"github.com/connect-univyn/connect-server/internal/api/handlers"
+	"github.com/connect-univyn/connect-server/internal/api/middleware"
+	"github.com/connect-univyn/connect-server/internal/util/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,17 +16,17 @@ func SetupAnalyticsRoutes(
 	analytics := r.Group("/analytics")
 	analytics.Use(middleware.RateLimitMiddleware(rateLimitDefault))
 	{
-		// ========================================================================
-		// Content Moderation & Reporting Routes
-		// ========================================================================
+		
+		
+		
 		reports := analytics.Group("/reports")
 		{
-			// Public routes
+			
 			reports.GET("/:id", analyticsHandler.GetReport)
 			reports.GET("/by-content", analyticsHandler.GetReportsByContent)
 			reports.GET("/pending", analyticsHandler.GetPendingReports)
 
-			// Protected routes
+			
 			reportsAuth := reports.Group("")
 			reportsAuth.Use(middleware.AuthMiddleware(tokenMaker))
 			{
@@ -41,18 +41,18 @@ func SetupAnalyticsRoutes(
 			moderation.GET("/stats", analyticsHandler.GetContentModerationStats)
 		}
 
-		// ========================================================================
-		// System & Space Metrics Routes
-		// ========================================================================
+		
+		
+		
 		metrics := analytics.Group("/metrics")
 		{
 			metrics.GET("/system", analyticsHandler.GetSystemMetrics)
 			metrics.GET("/space", analyticsHandler.GetSpaceStats)
 		}
 
-		// ========================================================================
-		// Engagement & Activity Routes
-		// ========================================================================
+		
+		
+		
 		engagement := analytics.Group("/engagement")
 		{
 			engagement.GET("/metrics", analyticsHandler.GetEngagementMetrics)
@@ -69,9 +69,9 @@ func SetupAnalyticsRoutes(
 			users.GET("/ranking", analyticsHandler.GetUserEngagementRanking)
 		}
 
-		// ========================================================================
-		// Top Content Routes
-		// ========================================================================
+		
+		
+		
 		top := analytics.Group("/top")
 		{
 			top.GET("/posts", analyticsHandler.GetTopPosts)
@@ -79,9 +79,9 @@ func SetupAnalyticsRoutes(
 			top.GET("/groups", analyticsHandler.GetTopGroups)
 		}
 
-		// ========================================================================
-		// Mentorship Analytics Routes
-		// ========================================================================
+		
+		
+		
 		mentorshipAnalytics := analytics.Group("/mentorship")
 		{
 			mentorshipAnalytics.GET("/mentoring", analyticsHandler.GetMentoringStats)

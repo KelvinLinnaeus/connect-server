@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	testhelpers "github.com/connect-univyn/connect_server/test/db"
+	testhelpers "github.com/connect-univyn/connect-server/test/db"
 	"github.com/google/uuid"
 )
 
@@ -75,7 +75,7 @@ func TestCreateUser(t *testing.T) {
 				RequireFieldExists(t, data, "id")
 				RequireFieldExists(t, data, "username")
 				RequireFieldExists(t, data, "email")
-				RequireFieldNotExists(t, data, "password") // Password should not be returned
+				RequireFieldNotExists(t, data, "password") 
 			}
 		})
 	}
@@ -440,7 +440,7 @@ func TestUnfollowUser(t *testing.T) {
 	following := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	token := ts.CreateAuthToken(t, follower.ID)
 
-	// First, follow the user
+	
 	testhelpers.CreateTestFollow(t, ts.TestDB.Store, follower.ID, following.ID, spaceID)
 
 	testCases := []struct {
@@ -493,7 +493,7 @@ func TestCheckIfFollowing(t *testing.T) {
 	notFollowing := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	token := ts.CreateAuthToken(t, follower.ID)
 
-	// Create a follow relationship
+	
 	testhelpers.CreateTestFollow(t, ts.TestDB.Store, follower.ID, following.ID, spaceID)
 
 	testCases := []struct {
@@ -565,7 +565,7 @@ func TestGetFollowers(t *testing.T) {
 	follower1 := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	follower2 := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 
-	// Create followers
+	
 	testhelpers.CreateTestFollow(t, ts.TestDB.Store, follower1.ID, user.ID, spaceID)
 	testhelpers.CreateTestFollow(t, ts.TestDB.Store, follower2.ID, user.ID, spaceID)
 
@@ -599,7 +599,7 @@ func TestGetFollowers(t *testing.T) {
 				data := ParseSuccessResponse(t, recorder)
 				followers, ok := data["data"].([]interface{})
 				if !ok {
-					// If data is not directly an array, it might be wrapped
+					
 					dataMap, ok := data["data"].(map[string]interface{})
 					if ok {
 						followers, _ = dataMap["followers"].([]interface{})
@@ -623,7 +623,7 @@ func TestGetFollowing(t *testing.T) {
 	following1 := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 	following2 := testhelpers.CreateRandomUser(t, ts.TestDB.Store, spaceID)
 
-	// Create following relationships
+	
 	testhelpers.CreateTestFollow(t, ts.TestDB.Store, user.ID, following1.ID, spaceID)
 	testhelpers.CreateTestFollow(t, ts.TestDB.Store, user.ID, following2.ID, spaceID)
 
@@ -657,7 +657,7 @@ func TestGetFollowing(t *testing.T) {
 				data := ParseSuccessResponse(t, recorder)
 				following, ok := data["data"].([]interface{})
 				if !ok {
-					// If data is not directly an array, it might be wrapped
+					
 					dataMap, ok := data["data"].(map[string]interface{})
 					if ok {
 						following, _ = dataMap["following"].([]interface{})

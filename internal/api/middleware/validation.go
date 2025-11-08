@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/connect-univyn/connect_server/internal/util"
+	"github.com/connect-univyn/connect-server/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
@@ -14,7 +14,7 @@ func init() {
 	validate = validator.New()
 }
 
-// ValidateRequest validates the request body against the provided struct
+
 func ValidateRequest(obj interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if err := c.ShouldBindJSON(obj); err != nil {
@@ -33,7 +33,7 @@ func ValidateRequest(obj interface{}) gin.HandlerFunc {
 	}
 }
 
-// ValidateQueryParams validates query parameters
+
 func ValidateQueryParams(requiredParams ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		for _, param := range requiredParams {

@@ -8,7 +8,7 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
-// ===== Mentor Profile Types =====
+
 
 type CreateMentorProfileRequest struct {
 	SpaceID      uuid.UUID       `json:"space_id" binding:"required"`
@@ -19,7 +19,7 @@ type CreateMentorProfileRequest struct {
 	Specialties  []string        `json:"specialties" binding:"required,min=1"`
 	Description  *string         `json:"description,omitempty"`
 	Availability json.RawMessage `json:"availability,omitempty"`
-	UserID       uuid.UUID       // Set from auth context
+	UserID       uuid.UUID       
 }
 
 type UpdateMentorAvailabilityRequest struct {
@@ -72,7 +72,7 @@ type MentorSearchResponse struct {
 	IsAvailable *bool     `json:"is_available,omitempty"`
 }
 
-// ===== Tutor Profile Types =====
+
 
 type CreateTutorProfileRequest struct {
 	SpaceID        uuid.UUID       `json:"space_id" binding:"required"`
@@ -82,7 +82,7 @@ type CreateTutorProfileRequest struct {
 	Experience     *string         `json:"experience,omitempty"`
 	Qualifications *string         `json:"qualifications,omitempty"`
 	Availability   json.RawMessage `json:"availability,omitempty"`
-	UserID         uuid.UUID       // Set from auth context
+	UserID         uuid.UUID       
 }
 
 type UpdateTutorAvailabilityRequest struct {
@@ -133,7 +133,7 @@ type TutorSearchResponse struct {
 	IsAvailable    *bool     `json:"is_available,omitempty"`
 }
 
-// ===== Mentoring Session Types =====
+
 
 type CreateMentoringSessionRequest struct {
 	MentorID    uuid.UUID `json:"mentor_id" binding:"required"`
@@ -142,7 +142,7 @@ type CreateMentoringSessionRequest struct {
 	ScheduledAt time.Time `json:"scheduled_at" binding:"required"`
 	Duration    int32     `json:"duration" binding:"required,min=15"`
 	MenteeNotes *string   `json:"mentee_notes,omitempty"`
-	MenteeID    uuid.UUID // Set from auth context
+	MenteeID    uuid.UUID 
 }
 
 type UpdateMentoringSessionStatusRequest struct {
@@ -196,7 +196,7 @@ type MentoringSessionDetailResponse struct {
 	CreatedAt    *time.Time `json:"created_at,omitempty"`
 }
 
-// ===== Tutoring Session Types =====
+
 
 type CreateTutoringSessionRequest struct {
 	TutorID      uuid.UUID `json:"tutor_id" binding:"required"`
@@ -206,7 +206,7 @@ type CreateTutoringSessionRequest struct {
 	Duration     int32     `json:"duration" binding:"required,min=15"`
 	HourlyRate   *string   `json:"hourly_rate,omitempty"`
 	StudentNotes *string   `json:"student_notes,omitempty"`
-	StudentID    uuid.UUID // Set from auth context
+	StudentID    uuid.UUID 
 }
 
 type UpdateTutoringSessionStatusRequest struct {
@@ -260,7 +260,7 @@ type TutoringSessionDetailResponse struct {
 	CreatedAt     *time.Time `json:"created_at,omitempty"`
 }
 
-// ===== Application Types =====
+
 
 type CreateMentorApplicationRequest struct {
 	SpaceID     uuid.UUID `json:"space_id" binding:"required"`
@@ -270,7 +270,7 @@ type CreateMentorApplicationRequest struct {
 	Experience  int32     `json:"experience" binding:"required,min=0"`
 	Specialties []string  `json:"specialties" binding:"required,min=1"`
 	Motivation  string    `json:"motivation" binding:"required,min=50"`
-	UserID      uuid.UUID // Set from auth context
+	UserID      uuid.UUID 
 }
 
 type UpdateMentorApplicationRequest struct {
@@ -301,7 +301,7 @@ type CreateTutorApplicationRequest struct {
 	Experience     string    `json:"experience" binding:"required"`
 	Qualifications string    `json:"qualifications" binding:"required"`
 	Motivation     string    `json:"motivation" binding:"required,min=50"`
-	UserID         uuid.UUID // Set from auth context
+	UserID         uuid.UUID 
 }
 
 type UpdateTutorApplicationRequest struct {
@@ -324,7 +324,7 @@ type TutorApplicationResponse struct {
 	ReviewedAt     *time.Time `json:"reviewed_at,omitempty"`
 }
 
-// ===== Review Types =====
+
 
 type MentorReviewResponse struct {
 	ID           uuid.UUID  `json:"id"`

@@ -5,13 +5,13 @@ import (
 	"database/sql"
 	"fmt"
 
-	db "github.com/connect-univyn/connect_server/db/sqlc"
-	"github.com/connect-univyn/connect_server/internal/util"
+	db "github.com/connect-univyn/connect-server/db/sqlc"
+	"github.com/connect-univyn/connect-server/internal/util"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
 
-// stringToNullString converts *string to sql.NullString
+
 func stringToNullString(s *string) sql.NullString {
 	if s == nil {
 		return sql.NullString{Valid: false}
@@ -19,21 +19,21 @@ func stringToNullString(s *string) sql.NullString {
 	return sql.NullString{String: *s, Valid: true}
 }
 
-// Service handles space business logic
+
 type Service struct {
 	store db.Store
 }
 
-// NewService creates a new space service
+
 func NewService(store db.Store) *Service {
 	return &Service{
 		store: store,
 	}
 }
 
-// CreateSpace creates a new space with validation
+
 func (s *Service) CreateSpace(ctx context.Context, req CreateSpaceRequest) (*SpaceResponse, error) {
-	// Validate input
+	
 	if err := ValidateName(req.Name); err != nil {
 		return nil, fmt.Errorf("%w: %v", util.ErrBadRequest, err)
 	}
@@ -41,13 +41,13 @@ func (s *Service) CreateSpace(ctx context.Context, req CreateSpaceRequest) (*Spa
 		return nil, fmt.Errorf("%w: %v", util.ErrBadRequest, err)
 	}
 
-	// Check if space with same slug already exists
+	
 	existingSpace, err := s.store.GetSpaceBySlug(ctx, req.Slug)
 	if err == nil && existingSpace.ID != uuid.Nil {
 		return nil, fmt.Errorf("%w: space with this slug already exists", util.ErrConflict)
 	}
 
-	// Create space
+	
 	space, err := s.store.CreateSpace(ctx, db.CreateSpaceParams{
 		Name:         req.Name,
 		Slug:         req.Slug,
@@ -66,7 +66,7 @@ func (s *Service) CreateSpace(ctx context.Context, req CreateSpaceRequest) (*Spa
 	return ToSpaceResponse(&space), nil
 }
 
-// GetSpace retrieves a space by ID
+
 func (s *Service) GetSpace(ctx context.Context, id uuid.UUID) (*SpaceResponse, error) {
 	space, err := s.store.GetSpace(ctx, id)
 	if err != nil {
@@ -76,7 +76,7 @@ func (s *Service) GetSpace(ctx context.Context, id uuid.UUID) (*SpaceResponse, e
 	return ToSpaceResponse(&space), nil
 }
 
-// GetSpaceBySlug retrieves a space by slug
+
 func (s *Service) GetSpaceBySlug(ctx context.Context, slug string) (*SpaceResponse, error) {
 	space, err := s.store.GetSpaceBySlug(ctx, slug)
 	if err != nil {
@@ -86,9 +86,9 @@ func (s *Service) GetSpaceBySlug(ctx context.Context, slug string) (*SpaceRespon
 	return ToSpaceResponse(&space), nil
 }
 
-// ListSpaces retrieves all spaces with pagination
+
 func (s *Service) ListSpaces(ctx context.Context, page, limit int32) (*PaginatedSpacesResponse, error) {
-	// Validate and set defaults
+	
 	if page < 1 {
 		page = 1
 	}
@@ -109,7 +109,7 @@ func (s *Service) ListSpaces(ctx context.Context, page, limit int32) (*Paginated
 		return nil, fmt.Errorf("failed to list spaces: %w", err)
 	}
 
-	// Convert to response format
+	
 	var spaceResponses []*SpaceResponse
 	for i := range spaces {
 		spaceResponses = append(spaceResponses, ToSpaceResponse(&spaces[i]))
@@ -117,21 +117,21 @@ func (s *Service) ListSpaces(ctx context.Context, page, limit int32) (*Paginated
 
 	return &PaginatedSpacesResponse{
 		Spaces: spaceResponses,
-		Total:  int64(len(spaceResponses)), // In production, you'd want a count query
+		Total:  int64(len(spaceResponses)), 
 		Page:   page,
 		Limit:  limit,
 	}, nil
 }
 
-// UpdateSpace updates a space
+
 func (s *Service) UpdateSpace(ctx context.Context, id uuid.UUID, req UpdateSpaceRequest) (*SpaceResponse, error) {
-	// Verify space exists
+	
 	_, err := s.store.GetSpace(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("%w: space not found", util.ErrNotFound)
 	}
 
-	// If slug is being updated, check uniqueness
+	
 	if req.Slug != nil {
 		existingSpace, err := s.store.GetSpaceBySlug(ctx, *req.Slug)
 		if err == nil && existingSpace.ID != id {
@@ -139,13 +139,13 @@ func (s *Service) UpdateSpace(ctx context.Context, id uuid.UUID, req UpdateSpace
 		}
 	}
 
-	// Handle Settings field (it's already a pointer to NullRawMessage)
+	
 	var settings pqtype.NullRawMessage
 	if req.Settings != nil {
 		settings = *req.Settings
 	}
 
-	// Update space
+	
 	space, err := s.store.UpdateSpace(ctx, db.UpdateSpaceParams{
 		ID:           id,
 		Name:         stringToNullString(req.Name),
@@ -168,15 +168,15 @@ func (s *Service) UpdateSpace(ctx context.Context, id uuid.UUID, req UpdateSpace
 	return ToSpaceResponse(&space), nil
 }
 
-// DeleteSpace deletes a space
+
 func (s *Service) DeleteSpace(ctx context.Context, id uuid.UUID) error {
-	// Verify space exists
+	
 	_, err := s.store.GetSpace(ctx, id)
 	if err != nil {
 		return fmt.Errorf("%w: space not found", util.ErrNotFound)
 	}
 
-	// Delete space
+	
 	if err := s.store.DeleteSpace(ctx, id); err != nil {
 		return fmt.Errorf("failed to delete space: %w", err)
 	}
