@@ -92,7 +92,7 @@ server:
 
 run-dev:
 	@echo "Starting $(APP_NAME) in dev mode with hot reload..."
-	@air -c .air.toml || (echo "Air not installed. Run 'go install github.com/cosmtrek/air@latest'" && exit 1)
+	@export PATH="$$PATH:$(shell go env GOPATH)/bin" && air -c .air.toml || (echo "Air not installed. Run 'make install-tools' or 'go install github.com/cosmtrek/air@v1.49.0'" && exit 1)
 
 test:
 	@echo "Running all integration tests against PostgreSQL database..."
@@ -153,6 +153,7 @@ install-tools:
 	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	go install github.com/cosmtrek/air@v1.49.0
 
 help:
 	@echo "Available Makefile Commands:"
