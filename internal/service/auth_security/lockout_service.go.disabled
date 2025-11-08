@@ -1,0 +1,320 @@
+package auth_security
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"time"
+
+	db "github.com/connect-univyn/connect_server/db/sqlc"
+	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
+)
+
+const (
+	// MaxFailedAttempts is the number of failed login attempts before account lockout
+	MaxFailedAttempts = 5
+
+	// LockoutDuration is how long an account remains locked after exceeding failed attempts
+	LockoutDuration = 30 * time.Minute
+
+	// FailedAttemptWindow is the time window for counting failed attempts
+	FailedAttemptWindow = 15 * time.Minute
+
+	// MaxFailedAttemptsPerIP is the number of failed attempts from a single IP before blocking
+	MaxFailedAttemptsPerIP = 20
+
+	// IPBlockDuration is how long to block an IP after exceeding failed attempts
+	IPBlockDuration = 1 * time.Hour
+)
+
+// Service handles account lockout and brute-force protection
+type Service struct {
+	store db.Store
+}
+
+// NewService creates a new account lockout service
+func NewService(store db.Store) *Service {
+	return &Service{
+		store: store,
+	}
+}
+
+// RecordLoginAttempt records a login attempt (successful or failed)
+func (s *Service) RecordLoginAttempt(
+	ctx context.Context,
+	username string,
+	ipAddress string,
+	userAgent string,
+	result string, // 'success', 'failed_password', 'failed_user_not_found', 'account_locked'
+	userID *uuid.UUID,
+	spaceID *uuid.UUID,
+) error {
+	var userIDParam, spaceIDParam sql.NullString
+	if userID != nil {
+		userIDParam = sql.NullString{String: userID.String(), Valid: true}
+	}
+	if spaceID != nil {
+		spaceIDParam = sql.NullString{String: spaceID.String(), Valid: true}
+	}
+
+	_, err := s.store.CreateLoginAttempt(ctx, db.CreateLoginAttemptParams{
+		Username:      username,
+		IpAddress:     ipAddress,
+		UserAgent:     sql.NullString{String: userAgent, Valid: userAgent != ""},
+		AttemptResult: result,
+		UserID:        userIDParam,
+		SpaceID:       spaceIDParam,
+	})
+
+	if err != nil {
+		log.Error().Err(err).
+			Str("username", username).
+			Str("ip", ipAddress).
+			Str("result", result).
+			Msg("Failed to record login attempt")
+		return err
+	}
+
+	log.Debug().
+		Str("username", username).
+		Str("ip", ipAddress).
+		Str("result", result).
+		Msg("Login attempt recorded")
+
+	return nil
+}
+
+// CheckAndHandleFailedLogin checks if account should be locked after failed login
+// Returns true if account was locked, false otherwise
+func (s *Service) CheckAndHandleFailedLogin(
+	ctx context.Context,
+	userID uuid.UUID,
+	username string,
+	ipAddress string,
+) (bool, error) {
+	// Increment failed login attempts counter
+	user, err := s.store.IncrementFailedLoginAttempts(ctx, userID)
+	if err != nil {
+		log.Error().Err(err).Str("user_id", userID.String()).Msg("Failed to increment login attempts")
+		return false, err
+	}
+
+	log.Debug().
+		Str("user_id", userID.String()).
+		Str("username", username).
+		Int32("failed_attempts", user.FailedLoginAttempts).
+		Msg("Failed login attempt recorded")
+
+	// Check if we've exceeded the maximum failed attempts
+	if user.FailedLoginAttempts >= MaxFailedAttempts {
+		// Lock the account
+		lockedUntil := time.Now().Add(LockoutDuration)
+		_, err := s.store.UpdateUserLockStatus(ctx, db.UpdateUserLockStatusParams{
+			ID:                   userID,
+			IsLocked:             true,
+			LockedUntil:          sql.NullTime{Time: lockedUntil, Valid: true},
+			FailedLoginAttempts:  user.FailedLoginAttempts,
+			LastFailedLogin:      user.LastFailedLogin,
+		})
+		if err != nil {
+			log.Error().Err(err).Str("user_id", userID.String()).Msg("Failed to lock account")
+			return false, err
+		}
+
+		// Create lockout record
+		_, err = s.store.CreateAccountLockout(ctx, db.CreateAccountLockoutParams{
+			UserID:         userID,
+			Username:       username,
+			LockedUntil:    lockedUntil,
+			LockReason:     "brute_force",
+			LockedByAdmin:  uuid.NullUUID{Valid: false},
+			IpAddresses:    []string{ipAddress},
+		})
+		if err != nil {
+			log.Error().Err(err).Str("user_id", userID.String()).Msg("Failed to create lockout record")
+			// Don't return error here - account is still locked in users table
+		}
+
+		log.Warn().
+			Str("user_id", userID.String()).
+			Str("username", username).
+			Str("ip", ipAddress).
+			Int32("failed_attempts", user.FailedLoginAttempts).
+			Time("locked_until", lockedUntil).
+			Msg("SECURITY ALERT: Account locked due to excessive failed login attempts")
+
+		return true, nil
+	}
+
+	return false, nil
+}
+
+// HandleSuccessfulLogin resets failed login attempt counters
+func (s *Service) HandleSuccessfulLogin(ctx context.Context, userID uuid.UUID) error {
+	_, err := s.store.ResetFailedLoginAttempts(ctx, userID)
+	if err != nil {
+		log.Error().Err(err).Str("user_id", userID.String()).Msg("Failed to reset login attempts")
+		return err
+	}
+
+	log.Debug().Str("user_id", userID.String()).Msg("Failed login attempts reset after successful login")
+	return nil
+}
+
+// IsAccountLocked checks if a user account is currently locked
+func (s *Service) IsAccountLocked(ctx context.Context, userID uuid.UUID) (bool, *time.Time, error) {
+	// First, unlock any expired lockouts
+	err := s.store.UnlockExpiredAccounts(ctx)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to unlock expired accounts")
+		// Don't return error - continue with lock check
+	}
+
+	// Get user's lock status
+	user, err := s.store.GetUserByID(ctx, userID)
+	if err != nil {
+		return false, nil, err
+	}
+
+	if user.IsLocked {
+		if user.LockedUntil.Valid {
+			return true, &user.LockedUntil.Time, nil
+		}
+		return true, nil, nil // Permanently locked
+	}
+
+	return false, nil, nil
+}
+
+// CheckIPRateLimit checks if an IP has exceeded the maximum failed attempts
+func (s *Service) CheckIPRateLimit(ctx context.Context, ipAddress string) (bool, error) {
+	cutoffTime := time.Now().Add(-FailedAttemptWindow)
+
+	count, err := s.store.CountRecentFailedLoginAttemptsByIP(ctx, db.CountRecentFailedLoginAttemptsByIPParams{
+		IpAddress:   ipAddress,
+		AttemptedAt: cutoffTime,
+	})
+	if err != nil {
+		log.Error().Err(err).Str("ip", ipAddress).Msg("Failed to count failed login attempts by IP")
+		return false, err
+	}
+
+	if count >= MaxFailedAttemptsPerIP {
+		log.Warn().
+			Str("ip", ipAddress).
+			Int64("failed_attempts", count).
+			Msg("SECURITY ALERT: IP exceeded maximum failed login attempts")
+		return true, nil
+	}
+
+	return false, nil
+}
+
+// UnlockAccount manually unlocks an account (e.g., by admin or via unlock token)
+func (s *Service) UnlockAccount(ctx context.Context, userID uuid.UUID, unlockedBy uuid.UUID) error {
+	// Update user lock status
+	_, err := s.store.UpdateUserLockStatus(ctx, db.UpdateUserLockStatusParams{
+		ID:                   userID,
+		IsLocked:             false,
+		LockedUntil:          sql.NullTime{Valid: false},
+		FailedLoginAttempts:  0,
+		LastFailedLogin:      sql.NullTime{Valid: false},
+	})
+	if err != nil {
+		log.Error().Err(err).Str("user_id", userID.String()).Msg("Failed to unlock account")
+		return err
+	}
+
+	// Update lockout records
+	err = s.store.UnlockAccountByUserID(ctx, db.UnlockAccountByUserIDParams{
+		UserID:     userID,
+		UnlockedBy: uuid.NullUUID{UUID: unlockedBy, Valid: true},
+	})
+	if err != nil {
+		log.Error().Err(err).Str("user_id", userID.String()).Msg("Failed to update lockout records")
+		// Don't return error - account is unlocked in users table
+	}
+
+	log.Info().
+		Str("user_id", userID.String()).
+		Str("unlocked_by", unlockedBy.String()).
+		Msg("Account unlocked")
+
+	return nil
+}
+
+// GetRecentLoginAttempts retrieves recent login attempts for a user
+func (s *Service) GetRecentLoginAttempts(
+	ctx context.Context,
+	username string,
+	since time.Duration,
+) ([]db.LoginAttempt, error) {
+	cutoffTime := time.Now().Add(-since)
+
+	attempts, err := s.store.GetRecentLoginAttemptsByUsername(ctx, db.GetRecentLoginAttemptsByUsernameParams{
+		Username:    username,
+		AttemptedAt: cutoffTime,
+	})
+	if err != nil {
+		log.Error().Err(err).Str("username", username).Msg("Failed to get recent login attempts")
+		return nil, err
+	}
+
+	return attempts, nil
+}
+
+// CleanupOldLoginAttempts removes login attempts older than the specified duration
+func (s *Service) CleanupOldLoginAttempts(ctx context.Context, olderThan time.Duration) error {
+	cutoffTime := time.Now().Add(-olderThan)
+
+	err := s.store.CleanupOldLoginAttempts(ctx, cutoffTime)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to cleanup old login attempts")
+		return err
+	}
+
+	log.Info().Time("cutoff_time", cutoffTime).Msg("Old login attempts cleaned up")
+	return nil
+}
+
+// GetAccountLockoutInfo retrieves detailed lockout information for a user
+func (s *Service) GetAccountLockoutInfo(ctx context.Context, userID uuid.UUID) (*db.AccountLockout, error) {
+	lockout, err := s.store.GetActiveAccountLockout(ctx, userID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // No active lockout
+		}
+		log.Error().Err(err).Str("user_id", userID.String()).Msg("Failed to get account lockout info")
+		return nil, err
+	}
+
+	return &lockout, nil
+}
+
+// FormatLockoutMessage returns a user-friendly lockout message
+func FormatLockoutMessage(lockedUntil *time.Time) string {
+	if lockedUntil == nil {
+		return "Your account has been locked. Please contact support to unlock your account."
+	}
+
+	duration := time.Until(*lockedUntil)
+	if duration <= 0 {
+		return "Your account was temporarily locked but the lockout has expired. Please try again."
+	}
+
+	minutes := int(duration.Minutes())
+	if minutes < 1 {
+		return "Your account is temporarily locked. Please try again in less than a minute."
+	} else if minutes == 1 {
+		return "Your account is temporarily locked. Please try again in 1 minute."
+	} else if minutes < 60 {
+		return fmt.Sprintf("Your account is temporarily locked. Please try again in %d minutes.", minutes)
+	} else {
+		hours := minutes / 60
+		if hours == 1 {
+			return "Your account is temporarily locked. Please try again in 1 hour."
+		}
+		return fmt.Sprintf("Your account is temporarily locked. Please try again in %d hours.", hours)
+	}
+}

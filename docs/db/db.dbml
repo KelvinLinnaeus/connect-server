@@ -1,0 +1,938 @@
+// ---------------------- CORE STRUCTURE ----------------------
+
+Table spaces {
+  id uuid [pk]
+  name varchar(150) [unique, not null]
+  slug varchar(100) [unique, not null]
+  description text
+  type varchar(50)
+  logo text
+  cover_image text
+  location varchar(150)
+  website varchar(150)
+  contact_email varchar(100)
+  phone varchar(20)
+  is_active boolean [default: true]
+  settings jsonb
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (slug) [unique]
+    (type)
+    (is_active)
+  }
+}
+
+Table users {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  username varchar(50) [unique, not null]
+  email varchar(100) [unique, not null]
+  password_hash text [not null]
+  full_name varchar(100) [not null]
+  avatar text
+  bio text
+  verified boolean [default: false]
+  roles text[] [default: '{}']
+  level varchar(50)
+  department varchar(100)
+  major varchar(100)
+  year int
+  interests text[] [default: '{}']
+  followers_count int [default: 0]
+  following_count int [default: 0]
+  mentor_status varchar(20) [default: 'pending']
+  tutor_status varchar(20) [default: 'pending']
+  last_active timestamptz
+  is_active boolean [default: true]
+  settings jsonb
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (space_id)
+    (email) [unique]
+    (username) [unique]
+    (space_id, email) [unique]
+    (mentor_status)
+    (tutor_status)
+    (last_active)
+  }
+}
+
+// ---------------------- COMMUNITIES & GROUPS ----------------------
+
+Table communities {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  name varchar(150) [not null]
+  description text
+  category varchar(50) [not null]
+  cover_image text
+  member_count int [default: 0]
+  post_count int [default: 0]
+  is_public boolean [default: true]
+  created_by uuid [ref: > users.id]
+  settings jsonb
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (space_id)
+    (category)
+    (created_by)
+    (is_public)
+  }
+}
+
+Table community_admins {
+  id uuid [pk]
+  community_id uuid [ref: > communities.id, not null]
+  user_id uuid [ref: > users.id, not null]
+  assigned_at timestamptz [default: `now()`]
+  assigned_by uuid [ref: > users.id]
+  permissions text[] [default: '{}']
+  
+  indexes {
+    (community_id)
+    (user_id)
+    (community_id, user_id) [unique]
+  }
+}
+
+Table community_moderators {
+  id uuid [pk]
+  community_id uuid [ref: > communities.id, not null]
+  user_id uuid [ref: > users.id, not null]
+  assigned_at timestamptz [default: `now()`]
+  assigned_by uuid [ref: > users.id]
+  permissions text[] [default: '{}']
+  
+  indexes {
+    (community_id)
+    (user_id)
+    (community_id, user_id) [unique]
+  }
+}
+
+Table community_members {
+  id uuid [pk]
+  community_id uuid [ref: > communities.id, not null]
+  user_id uuid [ref: > users.id, not null]
+  role varchar(20) [not null]
+  joined_at timestamptz [default: `now()`]
+  
+  indexes {
+    (community_id)
+    (user_id)
+    (community_id, user_id) [unique]
+  }
+}
+
+Table groups {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  community_id uuid [ref: > communities.id]
+  name varchar(150) [not null]
+  description text
+  category varchar(50) [not null]
+  group_type varchar(20) [not null]
+  avatar text
+  banner text
+  member_count int [default: 0]
+  post_count int [default: 0]
+  status varchar(20) [default: 'active']
+  visibility varchar(20) [default: 'public']
+  project_deadline timestamptz
+  is_accepting_applications boolean [default: true]
+  require_approval boolean [default: false]
+  allow_invites boolean [default: true]
+  allow_member_posts boolean [default: true]
+  created_by uuid [ref: > users.id]
+  tags text[] [default: '{}']
+  settings jsonb
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (space_id)
+    (community_id)
+    (category)
+    (group_type)
+    (status)
+    (created_by)
+  }
+}
+
+Table group_admins {
+  id uuid [pk]
+  group_id uuid [ref: > groups.id, not null]
+  user_id uuid [ref: > users.id, not null]
+  assigned_at timestamptz [default: `now()`]
+  assigned_by uuid [ref: > users.id]
+  permissions text[] [default: '{}']
+  
+  indexes {
+    (group_id)
+    (user_id)
+    (group_id, user_id) [unique]
+  }
+}
+
+Table group_moderators {
+  id uuid [pk]
+  group_id uuid [ref: > groups.id, not null]
+  user_id uuid [ref: > users.id, not null]
+  assigned_at timestamptz [default: `now()`]
+  assigned_by uuid [ref: > users.id]
+  permissions text[] [default: '{}']
+  
+  indexes {
+    (group_id)
+    (user_id)
+    (group_id, user_id) [unique]
+  }
+}
+
+Table group_members {
+  id uuid [pk]
+  group_id uuid [ref: > groups.id, not null]
+  user_id uuid [ref: > users.id, not null]
+  role varchar(20) [not null]
+  joined_at timestamptz [default: `now()`]
+  invited_by uuid [ref: > users.id]
+  permissions jsonb
+  
+  indexes {
+    (group_id)
+    (user_id)
+    (group_id, user_id) [unique]
+    (role)
+  }
+}
+
+Table group_join_requests {
+  id uuid [pk]
+  group_id uuid [ref: > groups.id, not null]
+  user_id uuid [ref: > users.id, not null]
+  message text
+  status varchar(20) [default: 'pending']
+  requested_at timestamptz [default: `now()`]
+  reviewed_at timestamptz
+  reviewed_by uuid [ref: > users.id]
+  
+  indexes {
+    (group_id)
+    (user_id)
+    (status)
+    (group_id, user_id) [unique]
+  }
+}
+
+Table group_roles {
+  id uuid [pk]
+  group_id uuid [ref: > groups.id, not null]
+  name varchar(100) [not null]
+  description text
+  slots_total int [not null]
+  slots_filled int [default: 0]
+  requirements text
+  skills_required text[] [default: '{}']
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (group_id)
+    (name)
+  }
+}
+
+Table group_applications {
+  id uuid [pk]
+  role_id uuid [ref: > group_roles.id, not null]
+  user_id uuid [ref: > users.id, not null]
+  message text
+  status varchar(20) [default: 'pending']
+  applied_at timestamptz [default: `now()`]
+  reviewed_at timestamptz
+  reviewed_by uuid [ref: > users.id]
+  review_notes text
+  
+  indexes {
+    (role_id)
+    (user_id)
+    (status)
+    (role_id, user_id) [unique]
+  }
+}
+
+// ---------------------- SOCIAL LAYER ----------------------
+
+Table posts {
+  id uuid [pk]
+  author_id uuid [ref: > users.id, not null]
+  space_id uuid [ref: > spaces.id, not null]
+  community_id uuid [ref: > communities.id]
+  group_id uuid [ref: > groups.id]
+  parent_post_id uuid [ref: > posts.id]
+  quoted_post_id uuid [ref: > posts.id]
+  content text [not null]
+  media jsonb
+  tags text[] [default: '{}']
+  likes_count int [default: 0]
+  comments_count int [default: 0]
+  reposts_count int [default: 0]
+  quotes_count int [default: 0]
+  views_count int [default: 0]
+  is_pinned boolean [default: false]
+  visibility varchar(20) [default: 'public']
+  status varchar(20) [default: 'active']
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (author_id)
+    (space_id)
+    (community_id)
+    (group_id)
+    (parent_post_id)
+    (quoted_post_id)
+    (created_at)
+    (space_id, created_at)
+    (status)
+    (is_pinned)
+  }
+}
+
+Table comments {
+  id uuid [pk]
+  post_id uuid [ref: > posts.id, not null]
+  author_id uuid [ref: > users.id, not null]
+  parent_comment_id uuid [ref: > comments.id]
+  content text [not null]
+  likes_count int [default: 0]
+  status varchar(20) [default: 'active']
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (post_id)
+    (author_id)
+    (parent_comment_id)
+    (created_at)
+  }
+}
+
+Table likes {
+  id uuid [pk]
+  user_id uuid [ref: > users.id, not null]
+  post_id uuid [ref: > posts.id]
+  comment_id uuid [ref: > comments.id]
+  created_at timestamptz [default: `now()`]
+  
+  indexes {
+    (user_id)
+    (post_id)
+    (comment_id)
+    (user_id, post_id) [unique]
+    (user_id, comment_id) [unique]
+  }
+}
+
+Table follows {
+  id uuid [pk]
+  follower_id uuid [ref: > users.id, not null]
+  following_id uuid [ref: > users.id, not null]
+  space_id uuid [ref: > spaces.id, not null]
+  created_at timestamptz [default: `now()`]
+  
+  indexes {
+    (follower_id)
+    (following_id)
+    (space_id)
+    (follower_id, following_id) [unique]
+  }
+}
+
+Table notifications {
+  id uuid [pk]
+  to_user_id uuid [ref: > users.id, not null]
+  from_user_id uuid [ref: > users.id]
+  type varchar(50) [not null]
+  title varchar(200)
+  message text
+  related_id uuid
+  metadata jsonb
+  is_read boolean [default: false]
+  priority varchar(20) [default: 'medium']
+  action_required boolean [default: false]
+  created_at timestamptz [default: `now()`]
+  
+  indexes {
+    (to_user_id)
+    (from_user_id)
+    (type)
+    (is_read)
+    (created_at)
+    (priority)
+  }
+}
+
+// ---------------------- MENTORSHIP & TUTORING ----------------------
+
+Table tutor_applications {
+  id uuid [pk]
+  applicant_id uuid [ref: > users.id, not null]
+  space_id uuid [ref: > spaces.id, not null]
+  subjects text[] [default: '{}']
+  hourly_rate numeric(10,2)
+  availability jsonb [not null]
+  experience text
+  qualifications text
+  teaching_style text
+  motivation text
+  references text
+  status varchar(20) [default: 'pending']
+  submitted_at timestamptz [default: `now()`]
+  reviewed_at timestamptz
+  reviewed_by uuid [ref: > users.id]
+  reviewer_notes text
+  
+  indexes {
+    (applicant_id)
+    (space_id)
+    (status)
+    (submitted_at)
+  }
+}
+
+Table mentor_applications {
+  id uuid [pk]
+  applicant_id uuid [ref: > users.id, not null]
+  space_id uuid [ref: > spaces.id, not null]
+  industry varchar(100) [not null]
+  company varchar(100)
+  position varchar(100)
+  experience int [not null]
+  specialties text[] [default: '{}']
+  achievements text
+  mentorship_experience text
+  availability jsonb [not null]
+  motivation text
+  approach_description text
+  linkedin_profile varchar(200)
+  portfolio varchar(200)
+  status varchar(20) [default: 'pending']
+  submitted_at timestamptz [default: `now()`]
+  reviewed_at timestamptz
+  reviewed_by uuid [ref: > users.id]
+  reviewer_notes text
+  
+  indexes {
+    (applicant_id)
+    (space_id)
+    (status)
+    (industry)
+    (submitted_at)
+  }
+}
+
+Table tutor_profiles {
+  id uuid [pk]
+  user_id uuid [ref: > users.id, not null]
+  space_id uuid [ref: > spaces.id, not null]
+  subjects text[] [default: '{}']
+  hourly_rate numeric(10,2)
+  rating float [default: 0]
+  review_count int [default: 0]
+  total_sessions int [default: 0]
+  description text
+  availability jsonb
+  experience text
+  qualifications text
+  verified boolean [default: false]
+  is_available boolean [default: true]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (user_id) [unique]
+    (space_id)
+    (subjects)
+    (rating)
+    (is_available)
+  }
+}
+
+Table mentor_profiles {
+  id uuid [pk]
+  user_id uuid [ref: > users.id, not null]
+  space_id uuid [ref: > spaces.id, not null]
+  industry varchar(100) [not null]
+  company varchar(100)
+  position varchar(100)
+  experience int [not null]
+  specialties text[] [default: '{}']
+  rating float [default: 0]
+  review_count int [default: 0]
+  total_sessions int [default: 0]
+  availability jsonb
+  description text
+  verified boolean [default: false]
+  is_available boolean [default: true]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (user_id) [unique]
+    (space_id)
+    (industry)
+    (rating)
+    (is_available)
+  }
+}
+
+Table tutoring_sessions {
+  id uuid [pk]
+  tutor_id uuid [ref: > users.id, not null]
+  student_id uuid [ref: > users.id, not null]
+  space_id uuid [ref: > spaces.id, not null]
+  subject varchar(100) [not null]
+  status varchar(20) [default: 'pending']
+  scheduled_at timestamptz [not null]
+  duration int [not null]
+  hourly_rate numeric(10,2)
+  total_amount numeric(10,2)
+  student_notes text
+  tutor_notes text
+  meeting_link text
+  rating int
+  review text
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (tutor_id)
+    (student_id)
+    (space_id)
+    (status)
+    (scheduled_at)
+    (subject)
+  }
+}
+
+Table mentoring_sessions {
+  id uuid [pk]
+  mentor_id uuid [ref: > users.id, not null]
+  mentee_id uuid [ref: > users.id, not null]
+  space_id uuid [ref: > spaces.id, not null]
+  topic varchar(150) [not null]
+  status varchar(20) [default: 'pending']
+  scheduled_at timestamptz [not null]
+  duration int [not null]
+  mentee_notes text
+  mentor_notes text
+  meeting_link text
+  rating int
+  review text
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (mentor_id)
+    (mentee_id)
+    (space_id)
+    (status)
+    (scheduled_at)
+    (topic)
+  }
+}
+
+// ---------------------- MESSAGING ----------------------
+
+Table conversations {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  name varchar(150)
+  avatar text
+  description text
+  conversation_type varchar(20) [default: 'direct']
+  last_message_id uuid [ref: > messages.id]
+  last_message_at timestamptz
+  is_active boolean [default: true]
+  settings jsonb
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (space_id)
+    (last_message_at)
+    (conversation_type)
+    (is_active)
+  }
+}
+
+Table conversation_participants {
+  id uuid [pk]
+  conversation_id uuid [ref: > conversations.id, not null]
+  user_id uuid [ref: > users.id, not null]
+  role varchar(20) [default: 'member']
+  joined_at timestamptz [default: `now()`]
+  left_at timestamptz
+  is_active boolean [default: true]
+  notifications_enabled boolean [default: true]
+  custom_settings jsonb
+  
+  indexes {
+    (conversation_id)
+    (user_id)
+    (conversation_id, user_id) [unique]
+    (role)
+    (is_active)
+    (user_id, is_active)
+  }
+}
+
+Table messages {
+  id uuid [pk]
+  conversation_id uuid [ref: > conversations.id, not null]
+  sender_id uuid [ref: > users.id, not null]
+  recipient_id uuid [ref: > users.id]
+  content text
+  attachments jsonb
+  message_type varchar(20) [default: 'text']
+  is_read boolean [default: false]
+  read_at timestamptz
+  reactions jsonb
+  reply_to_id uuid [ref: > messages.id]
+  status varchar(20) [default: 'sent']
+  created_at timestamptz [default: `now()`]
+  
+  indexes {
+    (conversation_id)
+    (sender_id)
+    (recipient_id)
+    (created_at)
+    (conversation_id, created_at)
+    (is_read)
+  }
+}
+
+// ---------------------- EVENTS & ANNOUNCEMENTS ----------------------
+
+Table events {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  title varchar(150) [not null]
+  description text
+  category varchar(50) [not null]
+  location varchar(100)
+  venue_details text
+  start_date timestamptz [not null]
+  end_date timestamptz [not null]
+  timezone varchar(50)
+  organizer uuid [ref: > users.id]
+  tags text[] [default: '{}']
+  image_url text
+  max_attendees int
+  current_attendees int [default: 0]
+  registration_required boolean [default: false]
+  registration_deadline timestamptz
+  status varchar(20) [default: 'published']
+  is_public boolean [default: true]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (space_id)
+    (organizer)
+    (category)
+    (start_date)
+    (status)
+    (is_public)
+  }
+}
+
+Table event_co_organizers {
+  id uuid [pk]
+  event_id uuid [ref: > events.id, not null]
+  user_id uuid [ref: > users.id, not null]
+  assigned_at timestamptz [default: `now()`]
+  assigned_by uuid [ref: > users.id]
+  
+  indexes {
+    (event_id)
+    (user_id)
+    (event_id, user_id) [unique]
+  }
+}
+
+Table event_attendees {
+  id uuid [pk]
+  event_id uuid [ref: > events.id, not null]
+  user_id uuid [ref: > users.id, not null]
+  status varchar(20) [default: 'registered']
+  registered_at timestamptz [default: `now()`]
+  attended_at timestamptz
+  notes text
+  
+  indexes {
+    (event_id)
+    (user_id)
+    (status)
+    (event_id, user_id) [unique]
+  }
+}
+
+Table announcements {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  title varchar(150) [not null]
+  content text [not null]
+  type varchar(50) [not null]
+  target_audience text[] [default: '{}']
+  priority varchar(20) [default: 'medium']
+  status varchar(20) [default: 'published']
+  author_id uuid [ref: > users.id]
+  scheduled_for timestamptz
+  expires_at timestamptz
+  attachments jsonb
+  is_pinned boolean [default: false]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (space_id)
+    (type)
+    (priority)
+    (status)
+    (scheduled_for)
+    (author_id)
+    (is_pinned)
+  }
+}
+
+Table past_questions {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  course_code varchar(50) [not null]
+  course_title varchar(150) [not null]
+  department varchar(100)
+  academic_year varchar(20) [not null]
+  semester varchar(20)
+  instructor varchar(100)
+  exam_type varchar(50)
+  file_url text [not null]
+  file_name varchar(200)
+  file_size int
+  uploaded_by uuid [ref: > users.id, not null]
+  verified boolean [default: false]
+  verified_by uuid [ref: > users.id]
+  verified_at timestamptz
+  download_count int [default: 0]
+  created_at timestamptz [default: `now()`]
+  
+  indexes {
+    (space_id)
+    (course_code)
+    (department)
+    (academic_year)
+    (uploaded_by)
+    (verified)
+  }
+}
+
+// ---------------------- CONTENT MODERATION ----------------------
+
+Table reports {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  reporter_id uuid [ref: > users.id, not null]
+  content_type varchar(50) [not null]
+  content_id uuid [not null]
+  reason varchar(100) [not null]
+  description text
+  status varchar(20) [default: 'pending']
+  priority varchar(20) [default: 'medium']
+  reviewed_by uuid [ref: > users.id]
+  reviewed_at timestamptz
+  moderation_notes text
+  actions_taken jsonb
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (space_id)
+    (reporter_id)
+    (content_type)
+    (content_id)
+    (status)
+    (priority)
+    (created_at)
+  }
+}
+
+// ---------------------- ADMIN & ANALYTICS ----------------------
+
+Table admin_users {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  name varchar(100) [not null]
+  email varchar(100) [not null]
+  role varchar(50) [not null]
+  permissions text[] [default: '{}']
+  avatar text
+  last_login timestamptz
+  is_active boolean [default: true]
+  created_by uuid [ref: > admin_users.id]
+  settings jsonb
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (space_id)
+    (email) [unique]
+    (role)
+    (is_active)
+  }
+}
+
+Table user_activities {
+  id uuid [pk]
+  user_id uuid [ref: > users.id, not null]
+  space_id uuid [ref: > spaces.id, not null]
+  action varchar(100) [not null]
+  details text
+  ip_address varchar(50)
+  user_agent text
+  location_data jsonb
+  timestamp timestamptz [default: `now()`]
+  
+  indexes {
+    (user_id)
+    (space_id)
+    (action)
+    (timestamp)
+  }
+}
+
+Table system_metrics {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  total_users int [default: 0]
+  active_users int [default: 0]
+  new_users_today int [default: 0]
+  total_posts int [default: 0]
+  total_groups int [default: 0]
+  total_communities int [default: 0]
+  total_events int [default: 0]
+  total_reports int [default: 0]
+  pending_applications int [default: 0]
+  system_health varchar(20) [default: 'good']
+  metrics_data jsonb
+  recorded_at timestamptz [default: `now()`]
+  
+  indexes {
+    (space_id)
+    (recorded_at)
+    (system_health)
+  }
+}
+
+// ---------------------- ADDITIONAL ENHANCEMENTS ----------------------
+
+Table sessions {
+  id uuid [pk]
+  user_id uuid [ref: > users.id, not null]
+  space_id uuid [ref: > spaces.id, not null]
+  refresh_token text [not null]
+  device_info jsonb
+  ip_address varchar(50)
+  last_activity timestamptz [default: `now()`]
+  expires_at timestamptz [not null]
+  created_at timestamptz [default: `now()`]
+  
+  indexes {
+    (user_id)
+    (refresh_token)
+    (expires_at)
+  }
+}
+
+Table files {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  user_id uuid [ref: > users.id, not null]
+  filename varchar(255) [not null]
+  original_name varchar(255)
+  mime_type varchar(100)
+  size bigint
+  path text [not null]
+  bucket varchar(100)
+  is_public boolean [default: false]
+  metadata jsonb
+  uploaded_at timestamptz [default: `now()`]
+  
+  indexes {
+    (space_id)
+    (user_id)
+    (mime_type)
+    (uploaded_at)
+  }
+}
+
+Table trending_topics {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  name varchar(100) [not null]
+  category varchar(50)
+  post_count int [default: 0]
+  trend_score float [default: 0]
+  period varchar(20) [default: 'daily']
+  recorded_at timestamptz [default: `now()`]
+  
+  indexes {
+    (space_id)
+    (name)
+    (trend_score)
+    (recorded_at)
+  }
+}
+
+Table user_preferences {
+  id uuid [pk]
+  user_id uuid [ref: > users.id, not null]
+  space_id uuid [ref: > spaces.id, not null]
+  preference_type varchar(50) [not null]
+  preference_value jsonb [not null]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz
+  
+  indexes {
+    (user_id)
+    (space_id)
+    (preference_type)
+    (user_id, preference_type) [unique]
+  }
+}
+
+Table email_queue {
+  id uuid [pk]
+  space_id uuid [ref: > spaces.id, not null]
+  recipient_email varchar(100) [not null]
+  subject varchar(200) [not null]
+  template_name varchar(100)
+  template_data jsonb
+  status varchar(20) [default: 'pending']
+  sent_at timestamptz
+  error_message text
+  retry_count int [default: 0]
+  created_at timestamptz [default: `now()`]
+  
+  indexes {
+    (space_id)
+    (status)
+    (created_at)
+  }
+}
