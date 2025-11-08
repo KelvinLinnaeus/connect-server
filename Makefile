@@ -1,7 +1,4 @@
 include .env
-
-
-
 APP_NAME=connect
 MAIN_PATH=cmd/api/server.go
 BINARY_PATH=bin/$(APP_NAME).exe
