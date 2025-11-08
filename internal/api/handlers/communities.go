@@ -26,21 +26,21 @@ func NewCommunityHandler(communityService *communities.Service) *CommunityHandle
 func (h *CommunityHandler) CreateCommunity(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	var req communities.CreateCommunityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 	
 	
 	creatorID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	req.CreatedBy = creatorID
@@ -58,7 +58,7 @@ func (h *CommunityHandler) CreateCommunity(c *gin.Context) {
 func (h *CommunityHandler) GetCommunity(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID format"))
 		return
 	}
 	
@@ -85,7 +85,7 @@ func (h *CommunityHandler) GetCommunityBySlug(c *gin.Context) {
 	
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 	
@@ -110,7 +110,7 @@ func (h *CommunityHandler) ListCommunities(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 	
@@ -146,14 +146,14 @@ func (h *CommunityHandler) ListCommunities(c *gin.Context) {
 func (h *CommunityHandler) SearchCommunities(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_query", "Search query is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Search query is required"))
 		return
 	}
 	
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 	
@@ -183,13 +183,13 @@ func (h *CommunityHandler) SearchCommunities(c *gin.Context) {
 func (h *CommunityHandler) UpdateCommunity(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID format"))
 		return
 	}
 	
 	var req communities.UpdateCommunityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 	
@@ -206,7 +206,7 @@ func (h *CommunityHandler) UpdateCommunity(c *gin.Context) {
 func (h *CommunityHandler) GetCommunityMembers(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID format"))
 		return
 	}
 	
@@ -223,7 +223,7 @@ func (h *CommunityHandler) GetCommunityMembers(c *gin.Context) {
 func (h *CommunityHandler) GetCommunityModerators(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID format"))
 		return
 	}
 	
@@ -240,7 +240,7 @@ func (h *CommunityHandler) GetCommunityModerators(c *gin.Context) {
 func (h *CommunityHandler) GetCommunityAdmins(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID format"))
 		return
 	}
 	
@@ -257,20 +257,20 @@ func (h *CommunityHandler) GetCommunityAdmins(c *gin.Context) {
 func (h *CommunityHandler) JoinCommunity(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID format"))
 		return
 	}
 	
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	
@@ -287,20 +287,20 @@ func (h *CommunityHandler) JoinCommunity(c *gin.Context) {
 func (h *CommunityHandler) LeaveCommunity(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID format"))
 		return
 	}
 	
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	
@@ -317,13 +317,13 @@ func (h *CommunityHandler) LeaveCommunity(c *gin.Context) {
 func (h *CommunityHandler) AddCommunityModerator(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID format"))
 		return
 	}
 	
 	var req communities.AddModeratorRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 	
@@ -340,13 +340,13 @@ func (h *CommunityHandler) AddCommunityModerator(c *gin.Context) {
 func (h *CommunityHandler) RemoveCommunityModerator(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID format"))
 		return
 	}
 	
 	userID, err := uuid.Parse(c.Param("userId"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user_id", "Invalid user ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID format"))
 		return
 	}
 	
@@ -363,21 +363,21 @@ func (h *CommunityHandler) RemoveCommunityModerator(c *gin.Context) {
 func (h *CommunityHandler) GetUserCommunities(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 	
@@ -395,7 +395,7 @@ func (h *CommunityHandler) GetCommunityCategories(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 	

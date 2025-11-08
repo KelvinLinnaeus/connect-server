@@ -32,20 +32,20 @@ func NewEventHandler(eventService *events.Service) *EventHandler {
 func (h *EventHandler) CreateEvent(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	var req events.CreateEventRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	req.OrganizerID = userID
@@ -68,7 +68,7 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 func (h *EventHandler) GetEvent(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
@@ -104,7 +104,7 @@ func (h *EventHandler) GetEvent(c *gin.Context) {
 func (h *EventHandler) ListEvents(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -163,7 +163,7 @@ func (h *EventHandler) ListEvents(c *gin.Context) {
 func (h *EventHandler) GetUpcomingEvents(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -188,20 +188,20 @@ func (h *EventHandler) GetUpcomingEvents(c *gin.Context) {
 func (h *EventHandler) GetUserEvents(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -234,13 +234,13 @@ func (h *EventHandler) GetUserEvents(c *gin.Context) {
 func (h *EventHandler) SearchEvents(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
 	query := c.Query("q")
 	if query == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Search query required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Search query required"))
 		return
 	}
 
@@ -276,7 +276,7 @@ func (h *EventHandler) SearchEvents(c *gin.Context) {
 func (h *EventHandler) GetEventCategories(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -299,20 +299,20 @@ func (h *EventHandler) GetEventCategories(c *gin.Context) {
 func (h *EventHandler) RegisterForEvent(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
@@ -335,20 +335,20 @@ func (h *EventHandler) RegisterForEvent(c *gin.Context) {
 func (h *EventHandler) UnregisterFromEvent(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
@@ -370,7 +370,7 @@ func (h *EventHandler) UnregisterFromEvent(c *gin.Context) {
 func (h *EventHandler) GetEventAttendees(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
@@ -394,13 +394,13 @@ func (h *EventHandler) GetEventAttendees(c *gin.Context) {
 func (h *EventHandler) MarkEventAttendance(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
 	userID, err := uuid.Parse(c.Param("user_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -424,13 +424,13 @@ func (h *EventHandler) MarkEventAttendance(c *gin.Context) {
 func (h *EventHandler) AddEventCoOrganizer(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
 	var req events.AddCoOrganizerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -452,7 +452,7 @@ func (h *EventHandler) AddEventCoOrganizer(c *gin.Context) {
 func (h *EventHandler) GetEventCoOrganizers(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
@@ -476,13 +476,13 @@ func (h *EventHandler) GetEventCoOrganizers(c *gin.Context) {
 func (h *EventHandler) RemoveEventCoOrganizer(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
 	userID, err := uuid.Parse(c.Param("user_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -506,13 +506,13 @@ func (h *EventHandler) RemoveEventCoOrganizer(c *gin.Context) {
 func (h *EventHandler) UpdateEvent(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
 	var req events.UpdateEventRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -536,13 +536,13 @@ func (h *EventHandler) UpdateEvent(c *gin.Context) {
 func (h *EventHandler) UpdateEventStatus(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
 	var req events.UpdateEventStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 

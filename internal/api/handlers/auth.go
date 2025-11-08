@@ -59,7 +59,7 @@ type LoginResponse struct {
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 	req.Email = strings.ToLower(req.Email)
@@ -79,7 +79,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		h.accessTokenDuration,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse("token_error", "Failed to create access token"))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(http.StatusInternalServerError, "Failed to create access token"))
 		return
 	}
 
@@ -91,7 +91,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		h.refreshTokenDuration,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse("token_error", "Failed to create refresh token"))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(http.StatusInternalServerError, "Failed to create refresh token"))
 		return
 	}
 
@@ -114,7 +114,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		ExpiresAt:    refreshPayload.ExpiredAt,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse("session_error", "Failed to create session"))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(http.StatusInternalServerError, "Failed to create session"))
 		return
 	}
 
@@ -144,7 +144,7 @@ type RefreshTokenResponse struct {
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	var req RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -159,34 +159,34 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	session, err := h.store.GetSession(c.Request.Context(), refreshPayload.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusUnauthorized, util.NewErrorResponse("invalid_session", "Session not found"))
+			c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Session not found"))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse("session_error", "Failed to get session"))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(http.StatusInternalServerError, "Failed to get session"))
 		return
 	}
 
 	
 	if session.IsBlocked {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("blocked_session", "Session is blocked"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Session is blocked"))
 		return
 	}
 
 	
 	if session.UserID.String() != refreshPayload.UserID {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("invalid_session", "Session user mismatch"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Session user mismatch"))
 		return
 	}
 
 	
 	if session.RefreshToken != req.RefreshToken {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("invalid_token", "Token mismatch"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Token mismatch"))
 		return
 	}
 
 	
 	if time.Now().After(session.ExpiresAt) {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("expired_session", "Session has expired"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Session has expired"))
 		return
 	}
 
@@ -198,7 +198,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		h.accessTokenDuration,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse("token_error", "Failed to create access token"))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(http.StatusInternalServerError, "Failed to create access token"))
 		return
 	}
 
@@ -215,7 +215,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 
@@ -238,7 +238,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 func (h *AuthHandler) GetSession(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid session ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid session ID format"))
 		return
 	}
 
@@ -247,7 +247,7 @@ func (h *AuthHandler) GetSession(c *gin.Context) {
 	session, err := h.store.GetSession(c.Request.Context(), sessionID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse("not_found", "Session not found"))
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(http.StatusNotFound, "Session not found"))
 			return
 		}
 		util.HandleError(c, err)

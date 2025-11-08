@@ -30,12 +30,12 @@ type ErrorResponse struct {
 
 
 type ErrorDetail struct {
-	Code    string `json:"code"`
+	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
 
-func NewErrorResponse(code, message string) ErrorResponse {
+func NewErrorResponse(code int, message string) ErrorResponse {
 	return ErrorResponse{
 		Error: ErrorDetail{
 			Code:    code,
@@ -52,36 +52,36 @@ func HandleError(c *gin.Context, err error) {
 
 	switch {
 	case errors.Is(err, ErrNotFound):
-		c.JSON(http.StatusNotFound, NewErrorResponse("not_found", err.Error()))
+		c.JSON(http.StatusNotFound, NewErrorResponse(http.StatusNotFound, err.Error()))
 	case errors.Is(err, sql.ErrNoRows):
-		c.JSON(http.StatusNotFound, NewErrorResponse("not_found", "Resource not found"))
+		c.JSON(http.StatusNotFound, NewErrorResponse(http.StatusNotFound, "Resource not found"))
 	case strings.Contains(errMsg, "not found"):
-		c.JSON(http.StatusNotFound, NewErrorResponse("not_found", err.Error()))
+		c.JSON(http.StatusNotFound, NewErrorResponse(http.StatusNotFound, err.Error()))
 	case errors.Is(err, ErrConflict):
-		c.JSON(http.StatusConflict, NewErrorResponse("conflict", err.Error()))
+		c.JSON(http.StatusConflict, NewErrorResponse(http.StatusConflict, err.Error()))
 	case errors.Is(err, ErrUnauthorized):
-		c.JSON(http.StatusUnauthorized, NewErrorResponse("unauthorized", err.Error()))
+		c.JSON(http.StatusUnauthorized, NewErrorResponse(http.StatusUnauthorized, err.Error()))
 	case errors.Is(err, ErrForbidden):
-		c.JSON(http.StatusForbidden, NewErrorResponse("forbidden", err.Error()))
+		c.JSON(http.StatusForbidden, NewErrorResponse(http.StatusForbidden, err.Error()))
 	case errors.Is(err, ErrBadRequest):
-		c.JSON(http.StatusBadRequest, NewErrorResponse("bad_request", err.Error()))
+		c.JSON(http.StatusBadRequest, NewErrorResponse(http.StatusBadRequest, err.Error()))
 	case errors.Is(err, ErrInvalidCredentials):
-		c.JSON(http.StatusUnauthorized, NewErrorResponse("invalid_credentials", "Invalid email or password"))
+		c.JSON(http.StatusUnauthorized, NewErrorResponse(http.StatusUnauthorized, "Invalid email or password"))
 	case errors.Is(err, ErrExpiredToken):
-		c.JSON(http.StatusUnauthorized, NewErrorResponse("token_expired", "Token has expired"))
+		c.JSON(http.StatusUnauthorized, NewErrorResponse(http.StatusUnauthorized, "Token has expired"))
 	case strings.Contains(errMsg, "token has expired") || strings.Contains(errMsg, "token expired"):
-		c.JSON(http.StatusUnauthorized, NewErrorResponse("token_expired", "Token has expired"))
+		c.JSON(http.StatusUnauthorized, NewErrorResponse(http.StatusUnauthorized, "Token has expired"))
 	case errors.Is(err, ErrInvalidToken):
-		c.JSON(http.StatusUnauthorized, NewErrorResponse("invalid_token", "Invalid token"))
+		c.JSON(http.StatusUnauthorized, NewErrorResponse(http.StatusUnauthorized, "Invalid token"))
 	case strings.Contains(errMsg, "invalid token"):
-		c.JSON(http.StatusUnauthorized, NewErrorResponse("invalid_token", "Invalid token"))
+		c.JSON(http.StatusUnauthorized, NewErrorResponse(http.StatusUnauthorized, "Invalid token"))
 	default:
-		
+
 		if IsDuplicateKeyError(err) {
-			c.JSON(http.StatusConflict, NewErrorResponse("duplicate_key", "Resource already exists"))
+			c.JSON(http.StatusConflict, NewErrorResponse(http.StatusConflict, "Resource already exists"))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, NewErrorResponse("internal_error", "Something went wrong"))
+		c.JSON(http.StatusInternalServerError, NewErrorResponse(http.StatusInternalServerError, "Something went wrong"))
 	}
 }
 

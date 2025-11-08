@@ -28,21 +28,21 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	var req posts.CreatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	
 	authorID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	req.AuthorID = authorID
@@ -60,7 +60,7 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 func (h *PostHandler) GetPost(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid post ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid post ID format"))
 		return
 	}
 
@@ -87,14 +87,14 @@ func (h *PostHandler) GetPost(c *gin.Context) {
 func (h *PostHandler) DeletePost(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid post ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid post ID format"))
 		return
 	}
 
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
@@ -113,7 +113,7 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 func (h *PostHandler) GetUserPosts(c *gin.Context) {
 	userID, err := uuid.Parse(c.Param("user_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID format"))
 		return
 	}
 
@@ -134,7 +134,7 @@ func (h *PostHandler) GetUserFeed(c *gin.Context) {
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
@@ -157,7 +157,7 @@ func (h *PostHandler) GetUserFeed(c *gin.Context) {
 func (h *PostHandler) GetCommunityPosts(c *gin.Context) {
 	communityID, err := uuid.Parse(c.Param("community_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID format"))
 		return
 	}
 
@@ -184,7 +184,7 @@ func (h *PostHandler) GetCommunityPosts(c *gin.Context) {
 func (h *PostHandler) GetGroupPosts(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("group_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid group ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid group ID format"))
 		return
 	}
 
@@ -211,13 +211,13 @@ func (h *PostHandler) GetGroupPosts(c *gin.Context) {
 func (h *PostHandler) GetTrendingPosts(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	if spaceIDStr == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_space_id", "space_id query parameter is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "space_id query parameter is required"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 
@@ -234,13 +234,13 @@ func (h *PostHandler) GetTrendingPosts(c *gin.Context) {
 func (h *PostHandler) GetTrendingTopics(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	if spaceIDStr == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_space_id", "space_id query parameter is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "space_id query parameter is required"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 
@@ -249,7 +249,7 @@ func (h *PostHandler) GetTrendingTopics(c *gin.Context) {
 	if pageStr := c.Query("page"); pageStr != "" {
 		pageInt, err := strconv.ParseInt(pageStr, 10, 32)
 		if err != nil || pageInt < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid page number"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid page number"))
 			return
 		}
 		page = int32(pageInt)
@@ -259,7 +259,7 @@ func (h *PostHandler) GetTrendingTopics(c *gin.Context) {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		limitInt, err := strconv.ParseInt(limitStr, 10, 32)
 		if err != nil || limitInt < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid limit"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid limit"))
 			return
 		}
 		limit = int32(limitInt)
@@ -281,19 +281,19 @@ func (h *PostHandler) GetTrendingTopics(c *gin.Context) {
 func (h *PostHandler) SearchPosts(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_query", "Search query (q) is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Search query (q) is required"))
 		return
 	}
 
 	spaceIDStr := c.Query("space_id")
 	if spaceIDStr == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_space_id", "space_id query parameter is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "space_id query parameter is required"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 
@@ -313,19 +313,19 @@ func (h *PostHandler) SearchPosts(c *gin.Context) {
 func (h *PostHandler) AdvancedSearchPosts(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_query", "Search query (q) is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Search query (q) is required"))
 		return
 	}
 
 	spaceIDStr := c.Query("space_id")
 	if spaceIDStr == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_space_id", "space_id query parameter is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "space_id query parameter is required"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 
@@ -346,7 +346,7 @@ func (h *PostHandler) GetUserLikedPosts(c *gin.Context) {
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
@@ -368,7 +368,7 @@ func (h *PostHandler) GetUserLikedPosts(c *gin.Context) {
 func (h *PostHandler) GetPostComments(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid post ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid post ID format"))
 		return
 	}
 
@@ -385,7 +385,7 @@ func (h *PostHandler) GetPostComments(c *gin.Context) {
 func (h *PostHandler) GetPostLikes(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid post ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid post ID format"))
 		return
 	}
 
@@ -402,14 +402,14 @@ func (h *PostHandler) GetPostLikes(c *gin.Context) {
 func (h *PostHandler) CreateComment(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid post ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid post ID format"))
 		return
 	}
 
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
@@ -417,7 +417,7 @@ func (h *PostHandler) CreateComment(c *gin.Context) {
 
 	var req posts.CreateCommentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -437,14 +437,14 @@ func (h *PostHandler) CreateComment(c *gin.Context) {
 func (h *PostHandler) CreateRepost(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid post ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid post ID format"))
 		return
 	}
 
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
@@ -453,7 +453,7 @@ func (h *PostHandler) CreateRepost(c *gin.Context) {
 
 	var req posts.CreateRepostParams
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -474,14 +474,14 @@ func (h *PostHandler) CreateRepost(c *gin.Context) {
 func (h *PostHandler) TogglePostLike(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid post ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid post ID format"))
 		return
 	}
 
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
@@ -502,14 +502,14 @@ func (h *PostHandler) TogglePostLike(c *gin.Context) {
 func (h *PostHandler) ToggleCommentLike(c *gin.Context) {
 	commentID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid comment ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid comment ID format"))
 		return
 	}
 
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
@@ -530,7 +530,7 @@ func (h *PostHandler) ToggleCommentLike(c *gin.Context) {
 func (h *PostHandler) PinPost(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid post ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid post ID format"))
 		return
 	}
 
@@ -538,7 +538,7 @@ func (h *PostHandler) PinPost(c *gin.Context) {
 		IsPinned bool `json:"is_pinned"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 

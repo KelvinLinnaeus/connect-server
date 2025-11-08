@@ -27,7 +27,7 @@ func NewUserHandler(userService *users.Service) *UserHandler {
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var req users.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -44,7 +44,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 func (h *UserHandler) GetUser(c *gin.Context) {
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID format"))
 		return
 	}
 
@@ -63,7 +63,7 @@ func (h *UserHandler) GetUserByUsername(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 
 	if spaceIDStr == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_space_id", "space_id query parameter is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "space_id query parameter is required"))
 		return
 	}
 
@@ -80,7 +80,7 @@ func (h *UserHandler) GetUserByUsername(c *gin.Context) {
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID format"))
 		return
 	}
 
@@ -89,7 +89,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 
 	var req users.UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -106,7 +106,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 func (h *UserHandler) UpdatePassword(c *gin.Context) {
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID format"))
 		return
 	}
 
@@ -115,7 +115,7 @@ func (h *UserHandler) UpdatePassword(c *gin.Context) {
 
 	var req users.UpdatePasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -132,7 +132,7 @@ func (h *UserHandler) UpdatePassword(c *gin.Context) {
 func (h *UserHandler) DeactivateUser(c *gin.Context) {
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID format"))
 		return
 	}
 
@@ -154,18 +154,18 @@ func (h *UserHandler) SearchUsers(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 
 	if query == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_query", "Search query (q) is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Search query (q) is required"))
 		return
 	}
 
 	if spaceIDStr == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_space_id", "space_id query parameter is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "space_id query parameter is required"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 
@@ -183,27 +183,27 @@ func (h *UserHandler) GetSuggestedUsers(c *gin.Context) {
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Authentication required"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Authentication required"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	parsedUserID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	
 	spaceIDStr := c.Query("space_id")
 	if spaceIDStr == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_space_id", "space_id query parameter is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "space_id query parameter is required"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 
@@ -212,7 +212,7 @@ func (h *UserHandler) GetSuggestedUsers(c *gin.Context) {
 	if pageStr := c.Query("page"); pageStr != "" {
 		pageInt, err := strconv.ParseInt(pageStr, 10, 32)
 		if err != nil || pageInt < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid page number"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid page number"))
 			return
 		}
 		page = int32(pageInt)
@@ -222,7 +222,7 @@ func (h *UserHandler) GetSuggestedUsers(c *gin.Context) {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		limitInt, err := strconv.ParseInt(limitStr, 10, 32)
 		if err != nil || limitInt < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid limit"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid limit"))
 			return
 		}
 		limit = int32(limitInt)
@@ -245,34 +245,34 @@ func (h *UserHandler) FollowUser(c *gin.Context) {
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Authentication required"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Authentication required"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	followerID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	
 	followingID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user_id", "Invalid user ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID format"))
 		return
 	}
 
 	
 	spaceIDStr := c.Query("space_id")
 	if spaceIDStr == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_space_id", "space_id query parameter is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "space_id query parameter is required"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 
@@ -290,21 +290,21 @@ func (h *UserHandler) UnfollowUser(c *gin.Context) {
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Authentication required"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Authentication required"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	followerID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	
 	followingID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user_id", "Invalid user ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID format"))
 		return
 	}
 
@@ -322,21 +322,21 @@ func (h *UserHandler) CheckIfFollowing(c *gin.Context) {
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Authentication required"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Authentication required"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	followerID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	
 	followingID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user_id", "Invalid user ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID format"))
 		return
 	}
 
@@ -355,7 +355,7 @@ func (h *UserHandler) GetFollowers(c *gin.Context) {
 	
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user_id", "Invalid user ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID format"))
 		return
 	}
 
@@ -364,7 +364,7 @@ func (h *UserHandler) GetFollowers(c *gin.Context) {
 	if pageStr := c.Query("page"); pageStr != "" {
 		pageInt, err := strconv.ParseInt(pageStr, 10, 32)
 		if err != nil || pageInt < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid page number"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid page number"))
 			return
 		}
 		page = int32(pageInt)
@@ -374,7 +374,7 @@ func (h *UserHandler) GetFollowers(c *gin.Context) {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		limitInt, err := strconv.ParseInt(limitStr, 10, 32)
 		if err != nil || limitInt < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid limit"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid limit"))
 			return
 		}
 		limit = int32(limitInt)
@@ -395,7 +395,7 @@ func (h *UserHandler) GetFollowing(c *gin.Context) {
 	
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user_id", "Invalid user ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID format"))
 		return
 	}
 
@@ -404,7 +404,7 @@ func (h *UserHandler) GetFollowing(c *gin.Context) {
 	if pageStr := c.Query("page"); pageStr != "" {
 		pageInt, err := strconv.ParseInt(pageStr, 10, 32)
 		if err != nil || pageInt < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid page number"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid page number"))
 			return
 		}
 		page = int32(pageInt)
@@ -414,7 +414,7 @@ func (h *UserHandler) GetFollowing(c *gin.Context) {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		limitInt, err := strconv.ParseInt(limitStr, 10, 32)
 		if err != nil || limitInt < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid limit"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid limit"))
 			return
 		}
 		limit = int32(limitInt)

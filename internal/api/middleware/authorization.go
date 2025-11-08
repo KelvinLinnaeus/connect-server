@@ -20,7 +20,7 @@ func RequireRole(store db.Store, role string) gin.HandlerFunc {
 		if !exists {
 			log.Warn().Msg("RequireRole middleware called without authorization_payload - ensure AuthMiddleware is applied first")
 			c.AbortWithStatusJSON(http.StatusUnauthorized,
-				util.NewErrorResponse("unauthorized", "Authentication required"))
+				util.NewErrorResponse(http.StatusUnauthorized, "Authentication required"))
 			return
 		}
 
@@ -31,7 +31,7 @@ func RequireRole(store db.Store, role string) gin.HandlerFunc {
 		if err != nil {
 			log.Error().Err(err).Str("user_id", authPayload.UserID).Msg("Invalid user ID in token payload")
 			c.AbortWithStatusJSON(http.StatusUnauthorized,
-				util.NewErrorResponse("invalid_token", "Invalid user ID in token"))
+				util.NewErrorResponse(http.StatusUnauthorized, "Invalid user ID in token"))
 			return
 		}
 
@@ -40,7 +40,7 @@ func RequireRole(store db.Store, role string) gin.HandlerFunc {
 		if err != nil {
 			log.Error().Err(err).Str("user_id", userID.String()).Msg("Failed to fetch user for role verification")
 			c.AbortWithStatusJSON(http.StatusUnauthorized,
-				util.NewErrorResponse("unauthorized", "User not found"))
+				util.NewErrorResponse(http.StatusUnauthorized, "User not found"))
 			return
 		}
 
@@ -61,7 +61,7 @@ func RequireRole(store db.Store, role string) gin.HandlerFunc {
 				Strs("user_roles", user.Roles).
 				Msg("Authorization failed: user lacks required role")
 			c.AbortWithStatusJSON(http.StatusForbidden,
-				util.NewErrorResponse("forbidden", fmt.Sprintf("Access denied: '%s' role required", role)))
+				util.NewErrorResponse(http.StatusForbidden, fmt.Sprintf("Access denied: '%s' role required", role)))
 			return
 		}
 
@@ -84,7 +84,7 @@ func RequireRoles(store db.Store, roles ...string) gin.HandlerFunc {
 		if !exists {
 			log.Warn().Msg("RequireRoles middleware called without authorization_payload - ensure AuthMiddleware is applied first")
 			c.AbortWithStatusJSON(http.StatusUnauthorized,
-				util.NewErrorResponse("unauthorized", "Authentication required"))
+				util.NewErrorResponse(http.StatusUnauthorized, "Authentication required"))
 			return
 		}
 
@@ -95,7 +95,7 @@ func RequireRoles(store db.Store, roles ...string) gin.HandlerFunc {
 		if err != nil {
 			log.Error().Err(err).Str("user_id", authPayload.UserID).Msg("Invalid user ID in token payload")
 			c.AbortWithStatusJSON(http.StatusUnauthorized,
-				util.NewErrorResponse("invalid_token", "Invalid user ID in token"))
+				util.NewErrorResponse(http.StatusUnauthorized, "Invalid user ID in token"))
 			return
 		}
 
@@ -104,7 +104,7 @@ func RequireRoles(store db.Store, roles ...string) gin.HandlerFunc {
 		if err != nil {
 			log.Error().Err(err).Str("user_id", userID.String()).Msg("Failed to fetch user for role verification")
 			c.AbortWithStatusJSON(http.StatusUnauthorized,
-				util.NewErrorResponse("unauthorized", "User not found"))
+				util.NewErrorResponse(http.StatusUnauthorized, "User not found"))
 			return
 		}
 
@@ -132,7 +132,7 @@ func RequireRoles(store db.Store, roles ...string) gin.HandlerFunc {
 				Strs("user_roles", user.Roles).
 				Msg("Authorization failed: user lacks any of the required roles")
 			c.AbortWithStatusJSON(http.StatusForbidden,
-				util.NewErrorResponse("forbidden", "Access denied: insufficient permissions"))
+				util.NewErrorResponse(http.StatusForbidden, "Access denied: insufficient permissions"))
 			return
 		}
 
@@ -156,7 +156,7 @@ func RequireOwnership(userIDParam string) gin.HandlerFunc {
 		if !exists {
 			log.Warn().Msg("RequireOwnership middleware called without authorization_payload - ensure AuthMiddleware is applied first")
 			c.AbortWithStatusJSON(http.StatusUnauthorized,
-				util.NewErrorResponse("unauthorized", "Authentication required"))
+				util.NewErrorResponse(http.StatusUnauthorized, "Authentication required"))
 			return
 		}
 
@@ -170,7 +170,7 @@ func RequireOwnership(userIDParam string) gin.HandlerFunc {
 				Str("endpoint", c.Request.URL.Path).
 				Msg("Authorization failed: user attempting to access another user's resource")
 			c.AbortWithStatusJSON(http.StatusForbidden,
-				util.NewErrorResponse("forbidden", "You don't have permission to access this resource"))
+				util.NewErrorResponse(http.StatusForbidden, "You don't have permission to access this resource"))
 			return
 		}
 
@@ -191,7 +191,7 @@ func RequireOwnershipOrRole(store db.Store, userIDParam string, allowedRoles ...
 		if !exists {
 			log.Warn().Msg("RequireOwnershipOrRole middleware called without authorization_payload")
 			c.AbortWithStatusJSON(http.StatusUnauthorized,
-				util.NewErrorResponse("unauthorized", "Authentication required"))
+				util.NewErrorResponse(http.StatusUnauthorized, "Authentication required"))
 			return
 		}
 
@@ -213,7 +213,7 @@ func RequireOwnershipOrRole(store db.Store, userIDParam string, allowedRoles ...
 		if err != nil {
 			log.Error().Err(err).Str("user_id", authPayload.UserID).Msg("Invalid user ID in token payload")
 			c.AbortWithStatusJSON(http.StatusUnauthorized,
-				util.NewErrorResponse("invalid_token", "Invalid user ID in token"))
+				util.NewErrorResponse(http.StatusUnauthorized, "Invalid user ID in token"))
 			return
 		}
 
@@ -221,7 +221,7 @@ func RequireOwnershipOrRole(store db.Store, userIDParam string, allowedRoles ...
 		if err != nil {
 			log.Error().Err(err).Str("user_id", userID.String()).Msg("Failed to fetch user for role verification")
 			c.AbortWithStatusJSON(http.StatusUnauthorized,
-				util.NewErrorResponse("unauthorized", "User not found"))
+				util.NewErrorResponse(http.StatusUnauthorized, "User not found"))
 			return
 		}
 
@@ -250,7 +250,7 @@ func RequireOwnershipOrRole(store db.Store, userIDParam string, allowedRoles ...
 				Str("endpoint", c.Request.URL.Path).
 				Msg("Authorization failed: user is not owner and lacks privileged role")
 			c.AbortWithStatusJSON(http.StatusForbidden,
-				util.NewErrorResponse("forbidden", "You don't have permission to access this resource"))
+				util.NewErrorResponse(http.StatusForbidden, "You don't have permission to access this resource"))
 			return
 		}
 

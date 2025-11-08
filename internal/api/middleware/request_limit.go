@@ -44,7 +44,7 @@ func RequestSizeLimitMiddleware(maxSize int64) gin.HandlerFunc {
 				Msg("Request rejected: Content-Length exceeds maximum allowed size")
 
 			c.AbortWithStatusJSON(http.StatusRequestEntityTooLarge,
-				util.NewErrorResponse("request_too_large",
+				util.NewErrorResponse(http.StatusRequestEntityTooLarge,
 					fmt.Sprintf("Request body too large. Maximum size: %d bytes", maxSize)))
 			return
 		}
@@ -68,7 +68,7 @@ func RequestSizeLimitMiddleware(maxSize int64) gin.HandlerFunc {
 					Msg("Request body exceeded maximum size during read")
 
 				c.AbortWithStatusJSON(http.StatusRequestEntityTooLarge,
-					util.NewErrorResponse("request_too_large",
+					util.NewErrorResponse(http.StatusRequestEntityTooLarge,
 						fmt.Sprintf("Request body too large. Maximum size: %d bytes", maxSize)))
 			}
 		}

@@ -48,21 +48,21 @@ func (h *Handler) HandleWebSocket(c *gin.Context) {
 	}
 
 	if token == "" {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Authentication token required"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Authentication token required"))
 		return
 	}
 
 	
 	payload, err := h.tokenMaker.VerifyToken(token)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("invalid_token", "Invalid or expired token"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Invalid or expired token"))
 		return
 	}
 
 	
 	userID, err := uuid.Parse(payload.UserID)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("invalid_token", "Invalid user ID in token"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Invalid user ID in token"))
 		return
 	}
 
@@ -139,13 +139,13 @@ func (h *Handler) HandleMetrics(c *gin.Context) {
 func (h *Handler) HandlePresence(c *gin.Context) {
 	userIDStr := c.Param("user_id")
 	if userIDStr == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", "User ID required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "User ID required"))
 		return
 	}
 
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -166,7 +166,7 @@ func (h *Handler) HandleBulkPresence(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 

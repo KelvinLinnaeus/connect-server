@@ -35,20 +35,20 @@ func NewMentorshipHandler(mentorshipService *mentorship.Service) *MentorshipHand
 func (h *MentorshipHandler) CreateMentorProfile(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	var req mentorship.CreateMentorProfileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	req.UserID = userID
@@ -71,7 +71,7 @@ func (h *MentorshipHandler) CreateMentorProfile(c *gin.Context) {
 func (h *MentorshipHandler) GetMentorProfile(c *gin.Context) {
 	profileID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid profile ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid profile ID"))
 		return
 	}
 
@@ -95,13 +95,13 @@ func (h *MentorshipHandler) GetMentorProfile(c *gin.Context) {
 func (h *MentorshipHandler) UpdateMentorAvailability(c *gin.Context) {
 	profileID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid profile ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid profile ID"))
 		return
 	}
 
 	var req mentorship.UpdateMentorAvailabilityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -128,7 +128,7 @@ func (h *MentorshipHandler) UpdateMentorAvailability(c *gin.Context) {
 func (h *MentorshipHandler) SearchMentors(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -147,7 +147,7 @@ func (h *MentorshipHandler) SearchMentors(c *gin.Context) {
 	if minRatingStr := c.Query("min_rating"); minRatingStr != "" {
 		minRating, err := strconv.ParseFloat(minRatingStr, 64)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid min_rating"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid min_rating"))
 			return
 		}
 		params.MinRating = &minRating
@@ -156,7 +156,7 @@ func (h *MentorshipHandler) SearchMentors(c *gin.Context) {
 	if pageStr := c.Query("page"); pageStr != "" {
 		page, err := strconv.ParseInt(pageStr, 10, 32)
 		if err != nil || page < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid page number"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid page number"))
 			return
 		}
 		params.Page = int32(page)
@@ -165,7 +165,7 @@ func (h *MentorshipHandler) SearchMentors(c *gin.Context) {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		limit, err := strconv.ParseInt(limitStr, 10, 32)
 		if err != nil || limit < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid limit"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid limit"))
 			return
 		}
 		params.Limit = int32(limit)
@@ -189,7 +189,7 @@ func (h *MentorshipHandler) SearchMentors(c *gin.Context) {
 func (h *MentorshipHandler) GetMentorReviews(c *gin.Context) {
 	mentorID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid mentor ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid mentor ID"))
 		return
 	}
 
@@ -216,20 +216,20 @@ func (h *MentorshipHandler) GetMentorReviews(c *gin.Context) {
 func (h *MentorshipHandler) CreateTutorProfile(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	var req mentorship.CreateTutorProfileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	req.UserID = userID
@@ -252,7 +252,7 @@ func (h *MentorshipHandler) CreateTutorProfile(c *gin.Context) {
 func (h *MentorshipHandler) GetTutorProfile(c *gin.Context) {
 	profileID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid profile ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid profile ID"))
 		return
 	}
 
@@ -276,13 +276,13 @@ func (h *MentorshipHandler) GetTutorProfile(c *gin.Context) {
 func (h *MentorshipHandler) UpdateTutorAvailability(c *gin.Context) {
 	profileID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid profile ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid profile ID"))
 		return
 	}
 
 	var req mentorship.UpdateTutorAvailabilityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -309,7 +309,7 @@ func (h *MentorshipHandler) UpdateTutorAvailability(c *gin.Context) {
 func (h *MentorshipHandler) SearchTutors(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -328,7 +328,7 @@ func (h *MentorshipHandler) SearchTutors(c *gin.Context) {
 	if minRatingStr := c.Query("min_rating"); minRatingStr != "" {
 		minRating, err := strconv.ParseFloat(minRatingStr, 64)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid min_rating"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid min_rating"))
 			return
 		}
 		params.MinRating = &minRating
@@ -337,7 +337,7 @@ func (h *MentorshipHandler) SearchTutors(c *gin.Context) {
 	if pageStr := c.Query("page"); pageStr != "" {
 		page, err := strconv.ParseInt(pageStr, 10, 32)
 		if err != nil || page < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid page number"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid page number"))
 			return
 		}
 		params.Page = int32(page)
@@ -346,7 +346,7 @@ func (h *MentorshipHandler) SearchTutors(c *gin.Context) {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		limit, err := strconv.ParseInt(limitStr, 10, 32)
 		if err != nil || limit < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid limit"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid limit"))
 			return
 		}
 		params.Limit = int32(limit)
@@ -370,7 +370,7 @@ func (h *MentorshipHandler) SearchTutors(c *gin.Context) {
 func (h *MentorshipHandler) GetTutorReviews(c *gin.Context) {
 	tutorID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid tutor ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid tutor ID"))
 		return
 	}
 
@@ -397,20 +397,20 @@ func (h *MentorshipHandler) GetTutorReviews(c *gin.Context) {
 func (h *MentorshipHandler) CreateMentoringSession(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	var req mentorship.CreateMentoringSessionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	req.MenteeID = userID
@@ -433,7 +433,7 @@ func (h *MentorshipHandler) CreateMentoringSession(c *gin.Context) {
 func (h *MentorshipHandler) GetMentoringSession(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid session ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid session ID"))
 		return
 	}
 
@@ -458,20 +458,20 @@ func (h *MentorshipHandler) GetMentoringSession(c *gin.Context) {
 func (h *MentorshipHandler) GetUserMentoringSessions(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -479,7 +479,7 @@ func (h *MentorshipHandler) GetUserMentoringSessions(c *gin.Context) {
 	if pageStr := c.Query("page"); pageStr != "" {
 		p, err := strconv.ParseInt(pageStr, 10, 32)
 		if err != nil || p < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid page number"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid page number"))
 			return
 		}
 		page = int32(p)
@@ -489,7 +489,7 @@ func (h *MentorshipHandler) GetUserMentoringSessions(c *gin.Context) {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		l, err := strconv.ParseInt(limitStr, 10, 32)
 		if err != nil || l < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid limit"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid limit"))
 			return
 		}
 		limit = int32(l)
@@ -515,7 +515,7 @@ func (h *MentorshipHandler) GetUserMentoringSessions(c *gin.Context) {
 func (h *MentorshipHandler) UpdateMentoringSessionStatus(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid session ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid session ID"))
 		return
 	}
 
@@ -523,7 +523,7 @@ func (h *MentorshipHandler) UpdateMentoringSessionStatus(c *gin.Context) {
 		Status string `json:"status" binding:"required,oneof=scheduled confirmed in_progress completed cancelled"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -546,7 +546,7 @@ func (h *MentorshipHandler) UpdateMentoringSessionStatus(c *gin.Context) {
 func (h *MentorshipHandler) AddMentoringSessionMeetingLink(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid session ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid session ID"))
 		return
 	}
 
@@ -554,7 +554,7 @@ func (h *MentorshipHandler) AddMentoringSessionMeetingLink(c *gin.Context) {
 		MeetingLink string `json:"meeting_link" binding:"required,url"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -577,13 +577,13 @@ func (h *MentorshipHandler) AddMentoringSessionMeetingLink(c *gin.Context) {
 func (h *MentorshipHandler) RateMentoringSession(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid session ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid session ID"))
 		return
 	}
 
 	var req mentorship.RateMentoringSessionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -609,20 +609,20 @@ func (h *MentorshipHandler) RateMentoringSession(c *gin.Context) {
 func (h *MentorshipHandler) CreateTutoringSession(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	var req mentorship.CreateTutoringSessionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	req.StudentID = userID
@@ -645,7 +645,7 @@ func (h *MentorshipHandler) CreateTutoringSession(c *gin.Context) {
 func (h *MentorshipHandler) GetTutoringSession(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid session ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid session ID"))
 		return
 	}
 
@@ -670,20 +670,20 @@ func (h *MentorshipHandler) GetTutoringSession(c *gin.Context) {
 func (h *MentorshipHandler) GetUserTutoringSessions(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -691,7 +691,7 @@ func (h *MentorshipHandler) GetUserTutoringSessions(c *gin.Context) {
 	if pageStr := c.Query("page"); pageStr != "" {
 		p, err := strconv.ParseInt(pageStr, 10, 32)
 		if err != nil || p < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid page number"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid page number"))
 			return
 		}
 		page = int32(p)
@@ -701,7 +701,7 @@ func (h *MentorshipHandler) GetUserTutoringSessions(c *gin.Context) {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		l, err := strconv.ParseInt(limitStr, 10, 32)
 		if err != nil || l < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid limit"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid limit"))
 			return
 		}
 		limit = int32(l)
@@ -727,7 +727,7 @@ func (h *MentorshipHandler) GetUserTutoringSessions(c *gin.Context) {
 func (h *MentorshipHandler) UpdateTutoringSessionStatus(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid session ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid session ID"))
 		return
 	}
 
@@ -735,7 +735,7 @@ func (h *MentorshipHandler) UpdateTutoringSessionStatus(c *gin.Context) {
 		Status string `json:"status" binding:"required,oneof=scheduled confirmed in_progress completed cancelled"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -758,7 +758,7 @@ func (h *MentorshipHandler) UpdateTutoringSessionStatus(c *gin.Context) {
 func (h *MentorshipHandler) AddTutoringSessionMeetingLink(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid session ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid session ID"))
 		return
 	}
 
@@ -766,7 +766,7 @@ func (h *MentorshipHandler) AddTutoringSessionMeetingLink(c *gin.Context) {
 		MeetingLink string `json:"meeting_link" binding:"required,url"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -789,13 +789,13 @@ func (h *MentorshipHandler) AddTutoringSessionMeetingLink(c *gin.Context) {
 func (h *MentorshipHandler) RateTutoringSession(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid session ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid session ID"))
 		return
 	}
 
 	var req mentorship.RateTutoringSessionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -821,20 +821,20 @@ func (h *MentorshipHandler) RateTutoringSession(c *gin.Context) {
 func (h *MentorshipHandler) CreateMentorApplication(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	var req mentorship.CreateMentorApplicationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	req.UserID = userID
@@ -857,7 +857,7 @@ func (h *MentorshipHandler) CreateMentorApplication(c *gin.Context) {
 func (h *MentorshipHandler) GetMentorApplication(c *gin.Context) {
 	applicationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid application ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid application ID"))
 		return
 	}
 
@@ -881,26 +881,26 @@ func (h *MentorshipHandler) GetMentorApplication(c *gin.Context) {
 func (h *MentorshipHandler) UpdateMentorApplication(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	reviewerID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid reviewer ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid reviewer ID"))
 		return
 	}
 
 	applicationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid application ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid application ID"))
 		return
 	}
 
 	var req mentorship.UpdateMentorApplicationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -922,7 +922,7 @@ func (h *MentorshipHandler) UpdateMentorApplication(c *gin.Context) {
 func (h *MentorshipHandler) GetPendingMentorApplications(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -949,20 +949,20 @@ func (h *MentorshipHandler) GetPendingMentorApplications(c *gin.Context) {
 func (h *MentorshipHandler) CreateTutorApplication(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	var req mentorship.CreateTutorApplicationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	req.UserID = userID
@@ -985,7 +985,7 @@ func (h *MentorshipHandler) CreateTutorApplication(c *gin.Context) {
 func (h *MentorshipHandler) GetTutorApplication(c *gin.Context) {
 	applicationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid application ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid application ID"))
 		return
 	}
 
@@ -1009,26 +1009,26 @@ func (h *MentorshipHandler) GetTutorApplication(c *gin.Context) {
 func (h *MentorshipHandler) UpdateTutorApplication(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	reviewerID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid reviewer ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid reviewer ID"))
 		return
 	}
 
 	applicationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid application ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid application ID"))
 		return
 	}
 
 	var req mentorship.UpdateTutorApplicationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -1050,7 +1050,7 @@ func (h *MentorshipHandler) UpdateTutorApplication(c *gin.Context) {
 func (h *MentorshipHandler) GetPendingTutorApplications(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -1076,14 +1076,14 @@ func (h *MentorshipHandler) GetPendingTutorApplications(c *gin.Context) {
 func (h *MentorshipHandler) GetMyMentorProfile(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -1105,14 +1105,14 @@ func (h *MentorshipHandler) GetMyMentorProfile(c *gin.Context) {
 func (h *MentorshipHandler) GetMyTutorProfile(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -1134,20 +1134,20 @@ func (h *MentorshipHandler) GetMyTutorProfile(c *gin.Context) {
 func (h *MentorshipHandler) GetMyMentorApplication(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	spaceId, err := uuid.Parse(authPayload.SpaceID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -1169,20 +1169,20 @@ func (h *MentorshipHandler) GetMyMentorApplication(c *gin.Context) {
 func (h *MentorshipHandler) GetMyTutorApplication(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(authPayload.SpaceID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -1211,20 +1211,20 @@ func (h *MentorshipHandler) GetMyTutorApplication(c *gin.Context) {
 func (h *MentorshipHandler) GetRecommendedTutors(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -1232,7 +1232,7 @@ func (h *MentorshipHandler) GetRecommendedTutors(c *gin.Context) {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		limitVal, err := strconv.ParseInt(limitStr, 10, 32)
 		if err != nil || limitVal < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid limit"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid limit"))
 			return
 		}
 		limit = int32(limitVal)
@@ -1258,20 +1258,20 @@ func (h *MentorshipHandler) GetRecommendedTutors(c *gin.Context) {
 func (h *MentorshipHandler) GetRecommendedMentors(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -1279,7 +1279,7 @@ func (h *MentorshipHandler) GetRecommendedMentors(c *gin.Context) {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		limitVal, err := strconv.ParseInt(limitStr, 10, 32)
 		if err != nil || limitVal < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid limit"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid limit"))
 			return
 		}
 		limit = int32(limitVal)

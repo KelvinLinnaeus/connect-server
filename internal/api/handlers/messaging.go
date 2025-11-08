@@ -27,14 +27,14 @@ func NewMessagingHandler(messagingService *messaging.Service) *MessagingHandler 
 func (h *MessagingHandler) CreateConversation(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	var req messaging.CreateConversationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 	
@@ -64,14 +64,14 @@ func (h *MessagingHandler) CreateConversation(c *gin.Context) {
 func (h *MessagingHandler) GetConversation(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid conversation ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid conversation ID format"))
 		return
 	}
 	
@@ -90,7 +90,7 @@ func (h *MessagingHandler) GetConversation(c *gin.Context) {
 func (h *MessagingHandler) GetUserConversations(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
@@ -110,7 +110,7 @@ func (h *MessagingHandler) GetUserConversations(c *gin.Context) {
 func (h *MessagingHandler) GetOrCreateDirectConversation(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
@@ -120,7 +120,7 @@ func (h *MessagingHandler) GetOrCreateDirectConversation(c *gin.Context) {
 		RecipientID uuid.UUID `json:"recipient_id" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 	
@@ -144,20 +144,20 @@ func (h *MessagingHandler) GetOrCreateDirectConversation(c *gin.Context) {
 func (h *MessagingHandler) SendMessage(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid conversation ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid conversation ID format"))
 		return
 	}
 	
 	var req messaging.SendMessageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 	
@@ -178,7 +178,7 @@ func (h *MessagingHandler) SendMessage(c *gin.Context) {
 func (h *MessagingHandler) GetConversationMessages(c *gin.Context) {
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid conversation ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid conversation ID format"))
 		return
 	}
 	
@@ -203,7 +203,7 @@ func (h *MessagingHandler) GetConversationMessages(c *gin.Context) {
 func (h *MessagingHandler) GetMessage(c *gin.Context) {
 	messageID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid message ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid message ID format"))
 		return
 	}
 	
@@ -220,14 +220,14 @@ func (h *MessagingHandler) GetMessage(c *gin.Context) {
 func (h *MessagingHandler) DeleteMessage(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	messageID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid message ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid message ID format"))
 		return
 	}
 	
@@ -246,14 +246,14 @@ func (h *MessagingHandler) DeleteMessage(c *gin.Context) {
 func (h *MessagingHandler) MarkMessagesAsRead(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid conversation ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid conversation ID format"))
 		return
 	}
 	
@@ -272,14 +272,14 @@ func (h *MessagingHandler) MarkMessagesAsRead(c *gin.Context) {
 func (h *MessagingHandler) GetUnreadCount(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid conversation ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid conversation ID format"))
 		return
 	}
 	
@@ -298,7 +298,7 @@ func (h *MessagingHandler) GetUnreadCount(c *gin.Context) {
 func (h *MessagingHandler) GetConversationParticipants(c *gin.Context) {
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid conversation ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid conversation ID format"))
 		return
 	}
 	
@@ -315,7 +315,7 @@ func (h *MessagingHandler) GetConversationParticipants(c *gin.Context) {
 func (h *MessagingHandler) AddConversationParticipants(c *gin.Context) {
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid conversation ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid conversation ID format"))
 		return
 	}
 	
@@ -323,7 +323,7 @@ func (h *MessagingHandler) AddConversationParticipants(c *gin.Context) {
 		UserIDs []uuid.UUID `json:"user_ids" binding:"required,min=1"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 	
@@ -340,14 +340,14 @@ func (h *MessagingHandler) AddConversationParticipants(c *gin.Context) {
 func (h *MessagingHandler) LeaveConversation(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid conversation ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid conversation ID format"))
 		return
 	}
 	
@@ -366,20 +366,20 @@ func (h *MessagingHandler) LeaveConversation(c *gin.Context) {
 func (h *MessagingHandler) UpdateParticipantSettings(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid conversation ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid conversation ID format"))
 		return
 	}
 	
 	var req messaging.UpdateParticipantSettingsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 	
@@ -398,20 +398,20 @@ func (h *MessagingHandler) UpdateParticipantSettings(c *gin.Context) {
 func (h *MessagingHandler) AddMessageReaction(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 	
 	messageID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid message ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid message ID format"))
 		return
 	}
 	
 	var req messaging.AddReactionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 	
@@ -430,13 +430,13 @@ func (h *MessagingHandler) AddMessageReaction(c *gin.Context) {
 func (h *MessagingHandler) RemoveMessageReaction(c *gin.Context) {
 	messageID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid message ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid message ID format"))
 		return
 	}
 	
 	emoji := c.Param("emoji")
 	if emoji == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("missing_emoji", "Emoji is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Emoji is required"))
 		return
 	}
 	

@@ -31,20 +31,20 @@ func NewAnnouncementHandler(announcementService *announcements.Service) *Announc
 func (h *AnnouncementHandler) CreateAnnouncement(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	var req announcements.CreateAnnouncementRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	req.AuthorID = userID
@@ -67,7 +67,7 @@ func (h *AnnouncementHandler) CreateAnnouncement(c *gin.Context) {
 func (h *AnnouncementHandler) GetAnnouncement(c *gin.Context) {
 	announcementID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid announcement ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid announcement ID"))
 		return
 	}
 
@@ -92,7 +92,7 @@ func (h *AnnouncementHandler) GetAnnouncement(c *gin.Context) {
 func (h *AnnouncementHandler) ListAnnouncements(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -136,13 +136,13 @@ func (h *AnnouncementHandler) ListAnnouncements(c *gin.Context) {
 func (h *AnnouncementHandler) UpdateAnnouncement(c *gin.Context) {
 	announcementID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid announcement ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid announcement ID"))
 		return
 	}
 
 	var req announcements.UpdateAnnouncementRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -166,13 +166,13 @@ func (h *AnnouncementHandler) UpdateAnnouncement(c *gin.Context) {
 func (h *AnnouncementHandler) UpdateAnnouncementStatus(c *gin.Context) {
 	announcementID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid announcement ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid announcement ID"))
 		return
 	}
 
 	var req announcements.UpdateAnnouncementStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 

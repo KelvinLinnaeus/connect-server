@@ -25,7 +25,7 @@ func NewSpaceHandler(spaceService *spaces.Service) *SpaceHandler {
 func (h *SpaceHandler) CreateSpace(c *gin.Context) {
 	var req spaces.CreateSpaceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -42,7 +42,7 @@ func (h *SpaceHandler) CreateSpace(c *gin.Context) {
 func (h *SpaceHandler) GetSpace(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 
@@ -88,13 +88,13 @@ func (h *SpaceHandler) ListSpaces(c *gin.Context) {
 func (h *SpaceHandler) UpdateSpace(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 
 	var req spaces.UpdateSpaceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -111,7 +111,7 @@ func (h *SpaceHandler) UpdateSpace(c *gin.Context) {
 func (h *SpaceHandler) DeleteSpace(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid space ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID format"))
 		return
 	}
 

@@ -26,7 +26,7 @@ func RecoveryMiddleware() gin.HandlerFunc {
 				
 				c.AbortWithStatusJSON(
 					http.StatusInternalServerError,
-					util.NewErrorResponse("internal_error", fmt.Sprintf("Internal server error: %v", err)),
+					util.NewErrorResponse(http.StatusInternalServerError, fmt.Sprintf("Internal server error: %v", err)),
 				)
 			}
 		}()

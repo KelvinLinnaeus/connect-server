@@ -35,20 +35,20 @@ func NewAnalyticsHandler(analyticsService *analytics.Service) *AnalyticsHandler 
 func (h *AnalyticsHandler) CreateReport(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	var req analytics.CreateReportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	userID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 	req.ReporterID = userID
@@ -71,7 +71,7 @@ func (h *AnalyticsHandler) CreateReport(c *gin.Context) {
 func (h *AnalyticsHandler) GetReport(c *gin.Context) {
 	reportID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid report ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid report ID"))
 		return
 	}
 
@@ -94,13 +94,13 @@ func (h *AnalyticsHandler) GetReport(c *gin.Context) {
 func (h *AnalyticsHandler) GetReportsByContent(c *gin.Context) {
 	contentType := c.Query("content_type")
 	if contentType == "" {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "content_type is required"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "content_type is required"))
 		return
 	}
 
 	contentID, err := uuid.Parse(c.Query("content_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid content_id"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid content_id"))
 		return
 	}
 
@@ -124,7 +124,7 @@ func (h *AnalyticsHandler) GetReportsByContent(c *gin.Context) {
 func (h *AnalyticsHandler) GetModerationQueue(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -132,7 +132,7 @@ func (h *AnalyticsHandler) GetModerationQueue(c *gin.Context) {
 	if pageStr := c.Query("page"); pageStr != "" {
 		p, err := strconv.ParseInt(pageStr, 10, 32)
 		if err != nil || p < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid page number"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid page number"))
 			return
 		}
 		page = int32(p)
@@ -142,7 +142,7 @@ func (h *AnalyticsHandler) GetModerationQueue(c *gin.Context) {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		l, err := strconv.ParseInt(limitStr, 10, 32)
 		if err != nil || l < 1 {
-			c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid limit"))
+			c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid limit"))
 			return
 		}
 		limit = int32(l)
@@ -166,7 +166,7 @@ func (h *AnalyticsHandler) GetModerationQueue(c *gin.Context) {
 func (h *AnalyticsHandler) GetPendingReports(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -190,26 +190,26 @@ func (h *AnalyticsHandler) GetPendingReports(c *gin.Context) {
 func (h *AnalyticsHandler) UpdateReport(c *gin.Context) {
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "Not authenticated"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "Not authenticated"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
 
 	reviewerID, err := uuid.Parse(authPayload.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	reportID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid report ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid report ID"))
 		return
 	}
 
 	var req analytics.UpdateReportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -231,7 +231,7 @@ func (h *AnalyticsHandler) UpdateReport(c *gin.Context) {
 func (h *AnalyticsHandler) GetContentModerationStats(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -257,7 +257,7 @@ func (h *AnalyticsHandler) GetContentModerationStats(c *gin.Context) {
 func (h *AnalyticsHandler) GetSystemMetrics(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -279,7 +279,7 @@ func (h *AnalyticsHandler) GetSystemMetrics(c *gin.Context) {
 func (h *AnalyticsHandler) GetSpaceStats(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -305,7 +305,7 @@ func (h *AnalyticsHandler) GetSpaceStats(c *gin.Context) {
 func (h *AnalyticsHandler) GetEngagementMetrics(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -327,7 +327,7 @@ func (h *AnalyticsHandler) GetEngagementMetrics(c *gin.Context) {
 func (h *AnalyticsHandler) GetUserActivityStats(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -349,7 +349,7 @@ func (h *AnalyticsHandler) GetUserActivityStats(c *gin.Context) {
 func (h *AnalyticsHandler) GetUserGrowth(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -371,7 +371,7 @@ func (h *AnalyticsHandler) GetUserGrowth(c *gin.Context) {
 func (h *AnalyticsHandler) GetUserEngagementRanking(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -397,7 +397,7 @@ func (h *AnalyticsHandler) GetUserEngagementRanking(c *gin.Context) {
 func (h *AnalyticsHandler) GetTopPosts(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -419,7 +419,7 @@ func (h *AnalyticsHandler) GetTopPosts(c *gin.Context) {
 func (h *AnalyticsHandler) GetTopCommunities(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -441,7 +441,7 @@ func (h *AnalyticsHandler) GetTopCommunities(c *gin.Context) {
 func (h *AnalyticsHandler) GetTopGroups(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -467,7 +467,7 @@ func (h *AnalyticsHandler) GetTopGroups(c *gin.Context) {
 func (h *AnalyticsHandler) GetMentoringStats(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -489,7 +489,7 @@ func (h *AnalyticsHandler) GetMentoringStats(c *gin.Context) {
 func (h *AnalyticsHandler) GetTutoringStats(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -511,7 +511,7 @@ func (h *AnalyticsHandler) GetTutoringStats(c *gin.Context) {
 func (h *AnalyticsHandler) GetPopularIndustries(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -533,7 +533,7 @@ func (h *AnalyticsHandler) GetPopularIndustries(c *gin.Context) {
 func (h *AnalyticsHandler) GetPopularSubjects(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 

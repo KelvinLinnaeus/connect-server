@@ -19,13 +19,13 @@ func ValidateRequest(obj interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if err := c.ShouldBindJSON(obj); err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest,
-				util.NewErrorResponse("validation_error", err.Error()))
+				util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 			return
 		}
 
 		if err := validate.Struct(obj); err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest,
-				util.NewErrorResponse("validation_error", err.Error()))
+				util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 			return
 		}
 
@@ -39,7 +39,7 @@ func ValidateQueryParams(requiredParams ...string) gin.HandlerFunc {
 		for _, param := range requiredParams {
 			if c.Query(param) == "" {
 				c.AbortWithStatusJSON(http.StatusBadRequest,
-					util.NewErrorResponse("missing_parameter", "Required query parameter '"+param+"' is missing"))
+					util.NewErrorResponse(http.StatusBadRequest, "Required query parameter '"+param+"' is missing"))
 				return
 			}
 		}

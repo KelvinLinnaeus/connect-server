@@ -25,7 +25,7 @@ func NewSessionHandler(sessionService *sessions.Service) *SessionHandler {
 func (h *SessionHandler) GetSession(c *gin.Context) {
 	sessionID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid session ID format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid session ID format"))
 		return
 	}
 

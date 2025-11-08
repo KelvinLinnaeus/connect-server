@@ -26,7 +26,7 @@ func (h *AdminHandler) SuspendUser(c *gin.Context) {
 	
 	payload, exists := c.Get("authorization_payload")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, util.NewErrorResponse("unauthorized", "No auth payload"))
+		c.JSON(http.StatusUnauthorized, util.NewErrorResponse(http.StatusUnauthorized, "No auth payload"))
 		return
 	}
 	authPayload := payload.(*auth.Payload)
@@ -35,7 +35,7 @@ func (h *AdminHandler) SuspendUser(c *gin.Context) {
 	
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -46,7 +46,7 @@ func (h *AdminHandler) SuspendUser(c *gin.Context) {
 		DurationDays int    `json:"duration_days"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -77,7 +77,7 @@ func (h *AdminHandler) UnsuspendUser(c *gin.Context) {
 
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -100,7 +100,7 @@ func (h *AdminHandler) BanUser(c *gin.Context) {
 
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -108,7 +108,7 @@ func (h *AdminHandler) BanUser(c *gin.Context) {
 		Reason string `json:"reason" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -128,7 +128,7 @@ func (h *AdminHandler) GetReports(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -162,7 +162,7 @@ func (h *AdminHandler) GetReports(c *gin.Context) {
 func (h *AdminHandler) GetSpaceActivities(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -203,7 +203,7 @@ func (h *AdminHandler) GetDashboardStats(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -221,7 +221,7 @@ func (h *AdminHandler) GetUsers(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -251,7 +251,7 @@ func (h *AdminHandler) DeleteUser(c *gin.Context) {
 
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -271,7 +271,7 @@ func (h *AdminHandler) GetTutorApplications(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -300,7 +300,7 @@ func (h *AdminHandler) ApproveTutorApplication(c *gin.Context) {
 
 	appID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid application ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid application ID"))
 		return
 	}
 
@@ -308,7 +308,7 @@ func (h *AdminHandler) ApproveTutorApplication(c *gin.Context) {
 		Notes string `json:"notes"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -331,7 +331,7 @@ func (h *AdminHandler) RejectTutorApplication(c *gin.Context) {
 
 	appID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid application ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid application ID"))
 		return
 	}
 
@@ -339,7 +339,7 @@ func (h *AdminHandler) RejectTutorApplication(c *gin.Context) {
 		Notes string `json:"notes"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -359,7 +359,7 @@ func (h *AdminHandler) GetMentorApplications(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -388,7 +388,7 @@ func (h *AdminHandler) ApproveMentorApplication(c *gin.Context) {
 
 	appID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid application ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid application ID"))
 		return
 	}
 
@@ -396,7 +396,7 @@ func (h *AdminHandler) ApproveMentorApplication(c *gin.Context) {
 		Notes string `json:"notes"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -419,7 +419,7 @@ func (h *AdminHandler) RejectMentorApplication(c *gin.Context) {
 
 	appID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid application ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid application ID"))
 		return
 	}
 
@@ -427,7 +427,7 @@ func (h *AdminHandler) RejectMentorApplication(c *gin.Context) {
 		Notes string `json:"notes"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -450,7 +450,7 @@ func (h *AdminHandler) ResolveReport(c *gin.Context) {
 
 	reportID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid report ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid report ID"))
 		return
 	}
 
@@ -459,7 +459,7 @@ func (h *AdminHandler) ResolveReport(c *gin.Context) {
 		Notes  string `json:"notes"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -482,7 +482,7 @@ func (h *AdminHandler) EscalateReport(c *gin.Context) {
 
 	reportID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid report ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid report ID"))
 		return
 	}
 
@@ -502,7 +502,7 @@ func (h *AdminHandler) GetGroups(c *gin.Context) {
 	spaceIDStr := c.Query("space_id")
 	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -533,7 +533,7 @@ func (h *AdminHandler) ApproveGroup(c *gin.Context) {
 
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid group ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid group ID"))
 		return
 	}
 
@@ -556,7 +556,7 @@ func (h *AdminHandler) RejectGroup(c *gin.Context) {
 
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid group ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid group ID"))
 		return
 	}
 
@@ -564,7 +564,7 @@ func (h *AdminHandler) RejectGroup(c *gin.Context) {
 		Reason string `json:"reason"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -587,7 +587,7 @@ func (h *AdminHandler) DeleteGroup(c *gin.Context) {
 
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid group ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid group ID"))
 		return
 	}
 
@@ -630,14 +630,14 @@ func (h *AdminHandler) UpdateSetting(c *gin.Context) {
 		Description string                 `json:"description"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	
 	valueJSON, err := json.Marshal(req.Value)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_value", "Invalid value format"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid value format"))
 		return
 	}
 
@@ -659,7 +659,7 @@ func (h *AdminHandler) UpdateSetting(c *gin.Context) {
 func (h *AdminHandler) GetUserGrowth(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -687,7 +687,7 @@ func (h *AdminHandler) GetUserGrowth(c *gin.Context) {
 func (h *AdminHandler) GetEngagementMetrics(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -714,7 +714,7 @@ func (h *AdminHandler) GetEngagementMetrics(c *gin.Context) {
 func (h *AdminHandler) GetActivityAnalytics(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -765,7 +765,7 @@ func (h *AdminHandler) UpdateAdminRole(c *gin.Context) {
 
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -773,7 +773,7 @@ func (h *AdminHandler) UpdateAdminRole(c *gin.Context) {
 		Roles []string `json:"roles" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -796,7 +796,7 @@ func (h *AdminHandler) UpdateAdminStatus(c *gin.Context) {
 
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -804,7 +804,7 @@ func (h *AdminHandler) UpdateAdminStatus(c *gin.Context) {
 		Status string `json:"status" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("validation_error", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -856,7 +856,7 @@ func (h *AdminHandler) GetNotifications(c *gin.Context) {
 func (h *AdminHandler) MarkNotificationRead(c *gin.Context) {
 	notificationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid notification ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid notification ID"))
 		return
 	}
 
@@ -875,7 +875,7 @@ func (h *AdminHandler) MarkNotificationRead(c *gin.Context) {
 func (h *AdminHandler) DeleteNotification(c *gin.Context) {
 	notificationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid notification ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid notification ID"))
 		return
 	}
 
@@ -913,7 +913,7 @@ func (h *AdminHandler) MarkAllNotificationsRead(c *gin.Context) {
 func (h *AdminHandler) GetCommunities(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -946,7 +946,7 @@ func (h *AdminHandler) CreateCommunity(c *gin.Context) {
 
 	var req admin.CreateCommunityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -969,13 +969,13 @@ func (h *AdminHandler) UpdateCommunity(c *gin.Context) {
 
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID"))
 		return
 	}
 
 	var req admin.UpdateCommunityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -998,7 +998,7 @@ func (h *AdminHandler) DeleteCommunity(c *gin.Context) {
 
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID"))
 		return
 	}
 
@@ -1021,7 +1021,7 @@ func (h *AdminHandler) UpdateCommunityStatus(c *gin.Context) {
 
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID"))
 		return
 	}
 
@@ -1029,7 +1029,7 @@ func (h *AdminHandler) UpdateCommunityStatus(c *gin.Context) {
 		Status string `json:"status" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -1052,7 +1052,7 @@ func (h *AdminHandler) AssignCommunityModerator(c *gin.Context) {
 
 	communityID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid community ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid community ID"))
 		return
 	}
 
@@ -1061,13 +1061,13 @@ func (h *AdminHandler) AssignCommunityModerator(c *gin.Context) {
 		Permissions []string `json:"permissions"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	userID, err := uuid.Parse(req.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_user_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -1088,7 +1088,7 @@ func (h *AdminHandler) AssignCommunityModerator(c *gin.Context) {
 func (h *AdminHandler) GetAnnouncements(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -1119,7 +1119,7 @@ func (h *AdminHandler) CreateAnnouncement(c *gin.Context) {
 
 	var req admin.CreateAnnouncementRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -1142,13 +1142,13 @@ func (h *AdminHandler) UpdateAnnouncement(c *gin.Context) {
 
 	announcementID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid announcement ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid announcement ID"))
 		return
 	}
 
 	var req admin.UpdateAnnouncementRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -1171,7 +1171,7 @@ func (h *AdminHandler) DeleteAnnouncement(c *gin.Context) {
 
 	announcementID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid announcement ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid announcement ID"))
 		return
 	}
 
@@ -1194,7 +1194,7 @@ func (h *AdminHandler) UpdateAnnouncementStatus(c *gin.Context) {
 
 	announcementID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid announcement ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid announcement ID"))
 		return
 	}
 
@@ -1202,7 +1202,7 @@ func (h *AdminHandler) UpdateAnnouncementStatus(c *gin.Context) {
 		Status string `json:"status" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -1223,7 +1223,7 @@ func (h *AdminHandler) UpdateAnnouncementStatus(c *gin.Context) {
 func (h *AdminHandler) GetEvents(c *gin.Context) {
 	spaceID, err := uuid.Parse(c.Query("space_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_space_id", "Invalid space ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid space ID"))
 		return
 	}
 
@@ -1254,7 +1254,7 @@ func (h *AdminHandler) CreateEvent(c *gin.Context) {
 
 	var req admin.CreateEventRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -1277,13 +1277,13 @@ func (h *AdminHandler) UpdateEvent(c *gin.Context) {
 
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
 	var req admin.UpdateEventRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -1306,7 +1306,7 @@ func (h *AdminHandler) DeleteEvent(c *gin.Context) {
 
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
@@ -1329,7 +1329,7 @@ func (h *AdminHandler) UpdateEventStatus(c *gin.Context) {
 
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
@@ -1337,7 +1337,7 @@ func (h *AdminHandler) UpdateEventStatus(c *gin.Context) {
 		Status string `json:"status" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -1356,7 +1356,7 @@ func (h *AdminHandler) UpdateEventStatus(c *gin.Context) {
 func (h *AdminHandler) GetEventRegistrations(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid event ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid event ID"))
 		return
 	}
 
@@ -1381,7 +1381,7 @@ func (h *AdminHandler) CreateUser(c *gin.Context) {
 
 	var req admin.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -1404,13 +1404,13 @@ func (h *AdminHandler) UpdateUser(c *gin.Context) {
 
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
 	var req admin.UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -1433,7 +1433,7 @@ func (h *AdminHandler) ResetUserPassword(c *gin.Context) {
 
 	userID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_id", "Invalid user ID"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
@@ -1441,7 +1441,7 @@ func (h *AdminHandler) ResetUserPassword(c *gin.Context) {
 		NewPassword string `json:"new_password" binding:"required,min=8"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_request", err.Error()))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -1474,7 +1474,7 @@ func (h *AdminHandler) ExportData(c *gin.Context) {
 	}
 
 	if !validDataTypes[dataType] {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse("invalid_data_type", "Invalid data type for export"))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(http.StatusBadRequest, "Invalid data type for export"))
 		return
 	}
 

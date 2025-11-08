@@ -51,7 +51,7 @@ func RateLimitMiddleware(rate int) gin.HandlerFunc {
 		if !limiter.Allow(clientID) {
 			c.Header("Retry-After", "60")
 			c.AbortWithStatusJSON(http.StatusTooManyRequests,
-				util.NewErrorResponse("rate_limit_exceeded", "Too many requests. Please try again later."))
+				util.NewErrorResponse(http.StatusTooManyRequests, "Too many requests. Please try again later."))
 			return
 		}
 
