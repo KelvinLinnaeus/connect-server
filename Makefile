@@ -92,7 +92,7 @@ server:
 
 run-dev:
 	@echo "Starting $(APP_NAME) in dev mode with hot reload..."
-	@export PATH="$$PATH:$(shell go env GOPATH)/bin" && air -c .air.toml || (echo "Air not installed. Run 'make install-tools' or 'go install github.com/cosmtrek/air@v1.49.0'" && exit 1)
+	@air -c .air.toml || (echo "Air not installed. Run 'make install-tools' or 'go install github.com/cosmtrek/air@v1.49.0'" && exit 1)
 
 test:
 	@echo "Running all integration tests against PostgreSQL database..."
